@@ -1,0 +1,19 @@
+---
+{{- if .Values.createNamespace }}
+  {{- if not .Values.namespace }}
+    {{- fail "`namespace` must be set when `namespace` is true" }}
+  {{- end }}
+
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: {{ .Values.namespace }}
+  annotations:
+    argocd.argoproj.io/sync-wave: "-1" # Set sync-wave to -1 to avoid conflicts with other resources
+    openshift.io/description: |
+      This namespace is to deploy Milvus.
+    openshift.io/display-name: "Milvus"
+  labels:
+    argocd.argoproj.io/managed-by: {{ .Values.argocdNamespace }} #argocd instance ns
+    kubernetes.io/metadata.name: "Milvus"
+{{- end }}
