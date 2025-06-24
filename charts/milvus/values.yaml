@@ -1,6 +1,6 @@
 app: milvus
-partOf: rag-base
+partOf: genaiops-playground
 argocdNamespace: openshift-gitops
 
-namespace: rag-base
+namespace: genaiops-playground
 createNamespace: true
