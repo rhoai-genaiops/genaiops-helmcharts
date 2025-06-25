@@ -7,7 +7,7 @@ image:
   # tag: "latest"
   # redhat-et image with vLLM support
   repository: quay.io/redhat-et/llama
-  tag: "vllm-0.2.6"
+  tag: "vllm-milvus-0.2.8"
   pullPolicy: IfNotPresent
 
 imagePullSecrets: []
