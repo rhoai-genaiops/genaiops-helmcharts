@@ -104,8 +104,8 @@ affinity: {}
 # Llama Stack configuration
 llamaStack:
   configFile: "run-vllm.yaml"
-  inferenceModel: "llama3-2-3b"
-  vllmUrl: "http://llama3-2-3b-predictor:8080/v1"
+  inferenceModel: "llama32-3b"
+  vllmUrl: "https://llama32-3b-rcarrata-llm.apps.prod.rhoai.rh-aiservices-bu.com/v1"
   storage:
     size: 5Gi
 
@@ -161,7 +161,7 @@ podDisruptionBudget:
 
 # OpenTelemetry Collector configuration
 otelCollector:
-  enabled: true
+  enabled: false
   name: "llamastack-otelsidecar"
   mode: "sidecar"
   replicas: 1

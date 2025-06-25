@@ -33,9 +33,10 @@ data:
         config: {}
       vector_io:
       - provider_id: milvus
-        provider_type: inline::milvus
+        provider_type: remote::milvus
         config:
-          db_path: ${env.MILVUS_DB_PATH}
+          uri: "http://vectordb-milvus.genaiops-rag.svc.cluster.local:19530"
+          token: "root:Milvus"
       safety:
       - provider_id: llama-guard
         provider_type: inline::llama-guard
