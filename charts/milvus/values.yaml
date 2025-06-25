@@ -1,6 +1,29 @@
-app: milvus
-partOf: genaiops-playground
-argocdNamespace: openshift-gitops
+milvus:
+  cluster:
+    enabled: false
 
-namespace: genaiops-playground
-createNamespace: true
+  etcd:
+    enabled: false
+
+  pulsarv3:
+    enabled: false
+
+  minio:
+    enabled: false
+    tls:
+      enabled: false
+
+  extraConfigFiles:
+    user.yaml: |+
+      etcd:
+        use:
+          embed: true
+        data:
+          dir: /var/lib/milvus/etcd
+      common:
+        storageType: local
+
+  attu:
+    enabled: true
+    route:
+      enabled: true
