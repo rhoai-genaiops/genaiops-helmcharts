@@ -6,8 +6,8 @@ image:
   # repository: llamastack/distribution-remote-vllm
   # tag: "latest"
   # redhat-et image with vLLM support
-  repository: quay.io/redhat-et/llama
-  tag: "vllm-milvus-0.2.8"
+  repository: quay.io/rhoai-genaiops/llama-stack-vllm-milvus
+  tag: "0.2.11"
   pullPolicy: IfNotPresent
 
 imagePullSecrets: []
