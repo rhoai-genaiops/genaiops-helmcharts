@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: flipt-config
+  labels:
+    app: flipt
+data:
+  features.yml: |
+    version: "1.1"
+    namespace: default
+    flags:
+      - key: rag
+        name: RAG Feature
+        description: "Enable or disable RAG (Retrieval Augmented Generation) functionality"
+        enabled: false
+        type: BOOLEAN_FLAG_TYPE

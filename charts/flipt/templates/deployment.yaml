@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: flipt
+  labels:
+    app: flipt
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: flipt
+  template:
+    metadata:
+      labels:
+        app: flipt
+    spec:
+      volumes:
+        - name: flipt-storage
+          persistentVolumeClaim:
+            claimName: flipt-storage
+        - name: flipt-config
+          configMap:
+            name: flipt-config
+      containers:
+        - name: flipt
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          ports:
+            - containerPort: 8080
+            - containerPort: 9000
+          volumeMounts:
+            - name: flipt-storage
+              mountPath: /var/opt/flipt
+            - name: flipt-config
+              mountPath: /etc/flipt/features.yml
+              subPath: features.yml
+          env:
+            - name: FLIPT_STORAGE_TYPE
+              value: "local"
+            - name: FLIPT_IMPORT_FILE
+              value: "/etc/flipt/features.yml"
