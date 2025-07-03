@@ -5,6 +5,20 @@ metadata:
   labels:
     app: flipt
 data:
+  config.yml: |
+    log:
+      level: DEBUG
+    storage:
+      local:
+        name: "local"
+        backend:
+          type: local
+          path: "/tmp/flipt"
+    environments:
+      local:
+        name: "local"
+        default: true
+        storage: "local"
   features.yml: |
     version: "1.1"
     namespace: default

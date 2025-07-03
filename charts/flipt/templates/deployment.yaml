@@ -14,6 +14,75 @@ spec:
       labels:
         app: flipt
     spec:
+      #########################################################
+      # 1. Init-container: clone/pull repo and copy features.yml
+      #########################################################
+      initContainers:
+        - name: clone-repo
+          image: alpine/git:latest
+          command: ["/bin/sh", "-c"]
+          args:
+            - |
+              set -e
+              BASE=/tmp/flipt
+              REPO=$BASE/canopy-be
+              SRC=https://github.com/rhoai-genaiops/canopy-be
+
+              # Always make sure the repo directory exists
+              mkdir -p "$REPO"
+
+              if [ -d "$REPO/.git" ]; then
+                echo "Repo already present – pulling latest..."
+                git -C "$REPO" pull --ff-only
+              elif [ -z "$(ls -A "$REPO")" ]; then
+                echo "Repo directory empty – cloning..."
+                rm -rf "$REPO"          # remove the empty dir so clone can create it
+                git clone --depth 1 "$SRC" "$REPO"
+              else
+                echo "Directory has data but no .git – initialising and syncing..."
+                git -C "$REPO" init
+                git -C "$REPO" remote add origin "$SRC" 2>/dev/null || true
+                git -C "$REPO" fetch --depth 1 origin
+                git -C "$REPO" reset --hard origin/HEAD
+              fi
+
+              # Copy the features file from the ConfigMap
+              cp /flipt-config/features.yml "$REPO"/features.yml
+
+              # Commit (non-fatal if the file is unchanged)
+              git -C "$REPO" add features.yml
+              git -C "$REPO" commit -m "Deploy features.yml from ConfigMap" || true
+
+              # Make sure the UID that runs Flipt (1000 here) owns everything
+              chown -R 1000:1000 "$BASE"
+          volumeMounts:
+            - name: flipt-storage
+              mountPath: /tmp/flipt
+            - name: flipt-config
+              mountPath: /flipt-config
+              readOnly: true
+
+      #########################################################
+      # 2. Main container: Flipt itself (unchanged, except we
+      #    no longer need to mount features.yml directly)
+      #########################################################
+      containers:
+        - name: flipt
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          command: ["./flipt"]
+          args: ["server", "--config", "/etc/flipt/config.yml"]
+          ports:
+            - containerPort: 8080
+            - containerPort: 9000
+          volumeMounts:
+            - name: flipt-storage
+              mountPath: /tmp/flipt              # <─ same PVC, same path
+            - name: flipt-config
+              mountPath: /etc/flipt/config.yml
+              subPath: config.yml
+      #########################################################
+      # 3. Volumes
+      #########################################################
       volumes:
         - name: flipt-storage
           persistentVolumeClaim:
@@ -21,20 +90,5 @@ spec:
         - name: flipt-config
           configMap:
             name: flipt-config
-      containers:
-        - name: flipt
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
-          ports:
-            - containerPort: 8080
-            - containerPort: 9000
-          volumeMounts:
-            - name: flipt-storage
-              mountPath: /var/opt/flipt
-            - name: flipt-config
-              mountPath: /etc/flipt/features.yml
-              subPath: features.yml
-          env:
-            - name: FLIPT_STORAGE_TYPE
-              value: "local"
-            - name: FLIPT_IMPORT_FILE
-              value: "/etc/flipt/features.yml"
+      securityContext:
+        fsGroup: 1000     
