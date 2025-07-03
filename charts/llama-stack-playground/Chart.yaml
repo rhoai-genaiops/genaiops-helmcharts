@@ -4,21 +4,8 @@ description: A Helm chart for Llama Stack Playground UI
 type: application
 version: 1.0.0
 appVersion: "latest"
-keywords:
-  - llama-stack
-  - playground
-  - ui
-  - ai
-home: https://github.com/rcarrata/genaiops-helmcharts
-sources:
-  - https://github.com/rcarrata/genaiops-helmcharts
 maintainers:
   - name: ckavili
   - name: rhrolun
   - name: rcarrata
-annotations:
-  category: AI Applications
-  openshift.io/display-name: "Llama Stack Playground"
-  openshift.io/provider-display-name: "AI Engineering Team"
-  openshift.io/documentation-url: "https://docs.company.com/llama-stack-playground"
-  openshift.io/support-url: "https://support.company.com"
+icon: https://previews.123rf.com/images/eriek/eriek2007/eriek200700074/152273778-jumping-llama-cartoon-alpaca.jpg

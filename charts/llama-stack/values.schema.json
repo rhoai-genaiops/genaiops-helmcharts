@@ -1,0 +1,114 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "title": "Llama Stack Helm Chart Values Schema",
+  "description": "Schema for validating values.yaml configuration for the Llama Stack Helm chart",
+  "properties": {
+    "MODEL_NAME": {
+      "type": "string",
+      "title": "Model Name",
+      "description": "Name of the model to use for inference",
+      "default": "llama32-full",
+      "examples": ["llama32-full", "llama-2-7b", "llama-2-13b"]
+    },
+    "MODEL_URL": {
+      "type": "string",
+      "title": "Model URL",
+      "description": "URL of the remote VLLM model endpoint",
+      "format": "uri",
+      "pattern": "^https?://.*",
+      "examples": ["https://llama32-ai501.apps.cluster-gm86c.gm86c.sandbox1062.opentlc.com"]
+    },
+    "configMap": {
+      "type": "object",
+      "title": "ConfigMap Configuration",
+      "description": "Configuration for the Kubernetes ConfigMap",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "title": "Enable ConfigMap",
+          "description": "Whether to create the ConfigMap for Llama Stack configuration",
+          "default": true
+        }
+      },
+      "required": ["enabled"],
+      "additionalProperties": false
+    },
+    "otelCollector": {
+      "type": "object",
+      "title": "OpenTelemetry Collector Configuration",
+      "description": "Configuration for OpenTelemetry observability integration",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "title": "Enable OpenTelemetry",
+          "description": "Whether to enable OpenTelemetry traces and metrics collection",
+          "default": false
+        }
+      },
+      "required": ["enabled"],
+      "additionalProperties": false
+    },
+    "rag": {
+      "type": "object",
+      "title": "RAG Configuration",
+      "description": "Configuration for Retrieval-Augmented Generation capabilities",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "title": "Enable RAG",
+          "description": "Whether to enable RAG capabilities with Milvus vector database",
+          "default": false
+        }
+      },
+      "required": ["enabled"],
+      "additionalProperties": false
+    },
+    "mcp": {
+      "type": "object",
+      "title": "Model Context Protocol Configuration",
+      "description": "Configuration for Model Context Protocol support",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "title": "Enable MCP",
+          "description": "Whether to enable Model Context Protocol for enhanced tool runtime",
+          "default": false
+        }
+      },
+      "required": ["enabled"],
+      "additionalProperties": false
+    },
+    "mcpServers": {
+      "type": "array",
+      "title": "MCP Servers",
+      "description": "List of MCP server configurations",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "title": "Server Name",
+            "description": "Name of the MCP server",
+            "minLength": 1
+          },
+          "uri": {
+            "type": "string",
+            "title": "Server URI",
+            "description": "URI of the MCP server",
+            "format": "uri"
+          },
+          "description": {
+            "type": "string",
+            "title": "Server Description",
+            "description": "Description of the MCP server functionality"
+          }
+        },
+        "required": ["name", "uri"],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": ["MODEL_NAME", "MODEL_URL", "configMap", "otelCollector", "rag", "mcp"],
+  "additionalProperties": false
+}
