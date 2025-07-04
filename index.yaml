@@ -1,0 +1,49 @@
+apiVersion: v1
+entries:
+  llama-stack:
+  - apiVersion: v2
+    appVersion: latest
+    created: "2025-07-04T12:06:32.603401679Z"
+    description: A Helm chart for Llama Stack server
+    digest: 4835c7ea3b4aa8843e0c5c29c87884fbeb57a49bd17a2aaeaa19b0d2a0c26184
+    icon: https://aiagentframeworks.ai/content/images/2024/11/llama-stack.png
+    keywords:
+    - llama-stack
+    - ai
+    - mcp
+    - agents
+    name: llama-stack
+    type: application
+    urls:
+    - https://github.com/rhoai-genaiops/genaiops-helmcharts/releases/download/llama-stack-1.0.0/llama-stack-1.0.0.tgz
+    version: 1.0.0
+  llama-stack-playground:
+  - apiVersion: v2
+    appVersion: latest
+    created: "2025-07-04T12:06:32.739001587Z"
+    description: A Helm chart for Llama Stack Playground UI
+    digest: 5e673ce7e8b67d722a8c0b3726ba8e254b9b5a701c4d64a54fda9b68adeec334
+    icon: https://previews.123rf.com/images/eriek/eriek2007/eriek200700074/152273778-jumping-llama-cartoon-alpaca.jpg
+    maintainers:
+    - name: ckavili
+    - name: rhrolun
+    - name: rcarrata
+    name: llama-stack-playground
+    type: application
+    urls:
+    - https://github.com/rhoai-genaiops/genaiops-helmcharts/releases/download/llama-stack-playground-1.0.0/llama-stack-playground-1.0.0.tgz
+    version: 1.0.0
+  milvus:
+  - apiVersion: v2
+    created: "2025-07-04T12:06:32.934035499Z"
+    dependencies:
+    - name: milvus
+      repository: https://zilliztech.github.io/milvus-helm/
+      version: 4.2.52
+    description: A Helm chart to deploy Milvus
+    digest: 21fc16d46b93c49cad2aaf8c0d71ee33016b819f03ce9f1bedecefaf4c63f504
+    name: milvus
+    urls:
+    - https://github.com/rhoai-genaiops/genaiops-helmcharts/releases/download/milvus-1.0.0/milvus-1.0.0.tgz
+    version: 1.0.0
+generated: "2025-07-04T12:06:32.934044666Z"
