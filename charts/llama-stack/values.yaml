@@ -16,6 +16,11 @@ rag:
 
 mcp:
   enabled: false
+
+eval:
+  enabled: false
+
+
 # MCP servers configuration
 # mcpServers:
 #   - name: "weather"
