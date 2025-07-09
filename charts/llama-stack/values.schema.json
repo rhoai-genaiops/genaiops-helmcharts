@@ -49,6 +49,21 @@
       "required": ["enabled"],
       "additionalProperties": false
     },
+    "eval": {
+      "type": "object",
+      "title": "Evaluation Configuration",
+      "description": "Configuration for model evaluation",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "title": "Enable Evaluation",
+          "description": "Whether to enable model evaluation",
+          "default": false
+        }
+      },
+      "required": ["enabled"],
+      "additionalProperties": false
+    },
     "rag": {
       "type": "object",
       "title": "RAG Configuration",
