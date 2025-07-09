@@ -5,6 +5,11 @@ metadata:
   name: llama-stack
 spec:
   replicas: 1
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 0
+      maxUnavailable: 1
   selector:
     matchLabels:
       {{- include "llama-stack.selectorLabels" . | nindent 6 }}

@@ -61,6 +61,13 @@ data:
             type: sqlite
             namespace: null
             db_path: ${env.SQLITE_STORE_DIR:~/.llama/distributions/remote-vllm}/huggingface_datasetio.db
+      - provider_id: localfs
+        provider_type: inline::localfs
+        config:
+          kvstore:
+            type: sqlite
+            namespace: null
+            db_path: ${env.SQLITE_STORE_DIR:~/.llama/distributions/remote-vllm}/localfs_datasetio.db
       scoring:
       - provider_id: basic
         provider_type: inline::basic
