@@ -3,6 +3,22 @@ entries:
   llama-stack:
   - apiVersion: v2
     appVersion: latest
+    created: "2025-07-09T08:05:23.055724592Z"
+    description: A Helm chart for Llama Stack server
+    digest: 8d10665cbdbe0616a97169f97d145c661b5480eafa292273b3552fc1f1ebca41
+    icon: https://aiagentframeworks.ai/content/images/2024/11/llama-stack.png
+    keywords:
+    - llama-stack
+    - ai
+    - mcp
+    - agents
+    name: llama-stack
+    type: application
+    urls:
+    - https://github.com/rhoai-genaiops/genaiops-helmcharts/releases/download/llama-stack-1.0.2/llama-stack-1.0.2.tgz
+    version: 1.0.2
+  - apiVersion: v2
+    appVersion: latest
     created: "2025-07-09T06:37:46.798767921Z"
     description: A Helm chart for Llama Stack server
     digest: 2bbae0dccb515b14f41b8aaeefce9b9118d75bb27d5d0a69700065db8eed1537
@@ -62,4 +78,4 @@ entries:
     urls:
     - https://github.com/rhoai-genaiops/genaiops-helmcharts/releases/download/milvus-1.0.0/milvus-1.0.0.tgz
     version: 1.0.0
-generated: "2025-07-09T06:37:46.798823579Z"
+generated: "2025-07-09T08:05:23.055742816Z"
