@@ -1,0 +1,37 @@
+{{- if .Values.namespaces }}
+{{- range $k :=.Values.namespaces }}
+{{ $ns:= printf "%s" $k.name}}
+{{- if $k.bindings }}
+---
+apiVersion: v1
+kind: List
+metadata:
+  name: {{ $ns }}-rb-list
+  annotations:
+    # This is what defines this resource as a hook. Without this line, the
+    # job is considered part of the release.
+    "helm.sh/hook": post-install
+items:
+{{- range $b := $k.bindings }}
+- apiVersion: rbac.authorization.k8s.io/v1
+  kind: RoleBinding
+  metadata:
+    name: "{{ $b.name }}-{{ $b.role }}-role"
+    namespace: {{ $ns }}
+  roleRef:
+    name: "{{ $b.role }}"
+    apiGroup: rbac.authorization.k8s.io
+    kind: ClusterRole
+  subjects:
+  - kind: "{{ $b.kind }}"
+    name: "{{ $b.name }}"
+{{- if ne (lower $b.kind) "serviceaccount" }}
+    apiGroup: "rbac.authorization.k8s.io"
+{{- end }}
+{{- if $b.namespace }}
+    namespace: "{{ printf "%s" $b.namespace }}"
+{{- end }}
+{{- end }}
+{{- end }}
+{{- end }}
+{{- end }}

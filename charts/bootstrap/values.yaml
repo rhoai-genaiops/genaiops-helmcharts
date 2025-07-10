@@ -1,0 +1,9 @@
+bindings: &binds
+  - name: user1
+    kind: User
+    role: admin
+namespaces:
+  - name: user1-test
+    bindings: *binds
+  - name: user1-prod
+    bindings: *binds

@@ -1,0 +1,10 @@
+---
+apiVersion: v2
+description: A Helm chart for minio 🐈
+name: minio
+version: 0.0.7
+home: https://rhoai-mlops.github.io/mlops/
+maintainers:
+  - name: RHRolun
+  - name: rcarrata
+  - name: ckavili
