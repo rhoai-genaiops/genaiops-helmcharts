@@ -16,6 +16,21 @@ entries:
     urls:
     - https://github.com/rhoai-genaiops/genaiops-helmcharts/releases/download/bootstrap-projects-1.0.0/bootstrap-projects-1.0.0.tgz
     version: 1.0.0
+  dspa:
+  - apiVersion: v2
+    created: "2025-07-10T13:34:36.033101248Z"
+    description: "A little Helm chart for Data Science Pipeline Application \U0001F408"
+    digest: 04f07846e743ce93dd08dc2177705c2348c3c55c29b26fb3f10540b299c2407f
+    home: https://rhoai-genaiops.github.io/genaiops/
+    icon: https://cdn-icons-png.flaticon.com/512/16990/16990376.png
+    maintainers:
+    - name: RHRolun
+    - name: rcarrata
+    - name: ckavili
+    name: dspa
+    urls:
+    - https://github.com/rhoai-genaiops/genaiops-helmcharts/releases/download/dspa-0.0.1/dspa-0.0.1.tgz
+    version: 0.0.1
   llama-stack:
   - apiVersion: v2
     appVersion: latest
@@ -109,4 +124,4 @@ entries:
     urls:
     - https://github.com/rhoai-genaiops/genaiops-helmcharts/releases/download/minio-0.0.1/minio-0.0.1.tgz
     version: 0.0.1
-generated: "2025-07-10T13:32:38.511065314Z"
+generated: "2025-07-10T13:34:36.033112799Z"
