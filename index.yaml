@@ -124,4 +124,17 @@ entries:
     urls:
     - https://github.com/rhoai-genaiops/genaiops-helmcharts/releases/download/minio-0.0.1/minio-0.0.1.tgz
     version: 0.0.1
-generated: "2025-07-10T13:34:36.033112799Z"
+  token-visualizer:
+  - apiVersion: v2
+    created: "2025-07-22T14:38:37.656690591Z"
+    description: "A Helm chart for token visualizer for AI501 GenAIOps Enablement\U0001F4C8"
+    digest: 9c531c7018f403d3b345b0dc268b3ee20457d305c7f1f1bbfe92da26bfe2f215
+    home: https://rhoai-genaiops.github.io/genaiops/
+    icon: https://cdn-icons-png.flaticon.com/512/2165/2165640.png
+    maintainers:
+    - name: claudecode
+    name: token-visualizer
+    urls:
+    - https://github.com/rhoai-genaiops/genaiops-helmcharts/releases/download/token-visualizer-0.0.1/token-visualizer-0.0.1.tgz
+    version: 0.0.1
+generated: "2025-07-22T14:38:37.65671156Z"
