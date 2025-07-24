@@ -1,0 +1,9 @@
+---
+resources:
+  - namespace.yaml
+  - crd.yaml
+  - serviceaccount.yaml
+  - rbac.yaml
+  - service.yaml
+  - configmap.yaml
+  - deployment.yaml
