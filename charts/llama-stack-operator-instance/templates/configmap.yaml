@@ -1,0 +1,93 @@
+{{- if .Values.configMap.enabled }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: llama-stack-config
+  labels:
+    {{- include "llama-stack-operator-instance.labels" . | nindent 4 }}
+data:
+  run.yaml: |-
+    version: '2'
+    image_name: vllm
+    apis:
+    - agents
+    - datasetio
+    - eval
+    - inference
+    - safety
+    - scoring
+    - tool_runtime
+    - vector_io
+    {{- if .Values.otelCollector.enabled }}
+    - telemetry
+    {{- end }}
+    providers:
+      scoring:
+      - provider_id: basic
+        provider_type: inline::basic
+        config: {}
+      - provider_id: llm-as-judge
+        provider_type: inline::llm-as-judge
+        config: {}
+      agents:
+      - provider_id: meta-reference
+        provider_type: inline::meta-reference
+        config:
+          persistence_store:
+            type: sqlite
+            db_path: ${env.SQLITE_STORE_DIR:=~/.llama/distributions/starter}/agents_store.db
+          responses_store:
+            type: sqlite
+            db_path: ${env.SQLITE_STORE_DIR:=~/.llama/distributions/starter}/responses_store.db
+      inference:
+      - provider_id: vllm
+        provider_type: "remote::vllm"
+        config:
+          url: "${env.MODEL_URL}"
+          # max_tokens: 110000
+          # api_token: ${env.LLAMA_3_2_3B_API_TOKEN}
+          # tls_verify: true
+      tool_runtime:
+      - provider_id: model-context-protocol
+        provider_type: remote::model-context-protocol
+        config: {}
+      - provider_id: brave-search
+        provider_type: remote::brave-search
+        config:
+          api_key: brave-search-api-key
+      - provider_id: tavily-search
+        provider_type: remote::tavily-search
+        config: {}
+      {{- if .Values.otelCollector.enabled }}
+      telemetry:
+      - provider_id: meta-reference
+        provider_type: inline::meta-reference
+        config:
+          service_name: ${env.OTEL_SERVICE_NAME:llama-stack}
+          sinks: ${env.TELEMETRY_SINKS:console, sqlite, otel_metric}
+          otel_trace_endpoint: ${env.OTEL_TRACE_ENDPOINT:}
+          sqlite_db_path: ${env.SQLITE_DB_PATH:~/.llama/distributions/remote-vllm/trace_store.db}
+      {{- end }}
+    models:
+      - metadata: {}
+        model_id: ${env.MODEL_NAME}
+        provider_id: vllm
+        provider_model_id: ${env.MODEL_NAME}
+        model_type: llm
+    tool_groups:
+    - provider_id: tavily-search
+      toolgroup_id: builtin::websearch
+    {{- if .Values.mcp.enabled }}
+    # - toolgroup_id: mcp::openshift
+    #   provider_id: model-context-protocol
+    #   mcp_endpoint:
+    #     uri: http://ocp-mcp-server.agent-demo.svc.cluster.local:8000/sse
+    # - toolgroup_id: mcp::github
+    #   provider_id: model-context-protocol
+    #   mcp_endpoint:
+    #     uri: http://github-mcp-server.agent-demo.svc.cluster.local:80/sse
+    {{- end }}
+    server:
+      port: 8321
+{{- end }}
