@@ -1,7 +1,7 @@
 apiVersion: llamastack.io/v1alpha1
 kind: LlamaStackDistribution
 metadata:
-  name: llamastack-with-config
+  name: llama-stack
   labels:
     {{- include "llama-stack-operator-instance.labels" . | nindent 4 }}
 spec:
