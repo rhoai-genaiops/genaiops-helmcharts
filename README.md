@@ -6,6 +6,10 @@ This repository contains a collection of Helm charts designed to support the Gen
 
 Additionally, the workshop leverages Helm charts from the [Red Hat CoP Helm Charts](https://github.com/redhat-cop/helm-charts/) repository to complement the deployment process.
 
+### Getting Started
+
+To begin using the Helm charts in this repository, please refer to the documentation in the chart directories.
+
 ### References
 
 * [Red Hat CoP Helm Charts](https://github.com/redhat-cop/helm-charts/) - A collection of Helm charts from the Red Hat Community of Practice.
