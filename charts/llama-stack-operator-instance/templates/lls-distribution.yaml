@@ -23,16 +23,6 @@ spec:
           value: {{ .Values.MODEL_NAME | quote }}
         - name: MODEL_URL
           value: {{ .Values.MODEL_URL | quote }}
-        # - name: LLAMA_3_2_3B_API_TOKEN
-        #   valueFrom:
-        #     secretKeyRef:
-        #       key: apiKey
-        #       name: llama-3-2-3b
-        # - name: TAVILY_API_KEY
-        #   valueFrom:
-        #     secretKeyRef:
-        #       key: tavily-search-api-key
-        #       name: tavily-search-key
       name: llama-stack
       port: 8321
     distribution:
