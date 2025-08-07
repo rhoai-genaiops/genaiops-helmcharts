@@ -1,0 +1,31 @@
+apiVersion: llamastack.io/v1alpha1
+kind: LlamaStackDistribution
+metadata:
+  name: llama-stack
+  labels:
+    {{- include "llama-stack-operator-instance.labels" . | nindent 4 }}
+spec:
+  replicas: 1
+  server:
+    containerSpec:
+      env:
+        {{- if .Values.otelCollector.enabled }}
+        - name: TELEMETRY_SINKS
+          value: 'console, sqlite, otel_trace'
+        - name: OTEL_TRACE_ENDPOINT
+          value: 'http://otel-collector-collector.observability-hub.svc.cluster.local:4318/v1/traces'
+        - name: OTEL_METRIC_ENDPOINT
+          value: 'http://otel-collector-collector.observability-hub.svc.cluster.local:4318/v1/metrics'
+        {{- end }}
+        - name: OTEL_SERVICE_NAME
+          value: llamastack
+        - name: MODEL_NAME
+          value: {{ .Values.MODEL_NAME | quote }}
+        - name: MODEL_URL
+          value: {{ .Values.MODEL_URL | quote }}
+      name: llama-stack
+      port: 8321
+    distribution:
+      name: remote-vllm
+    userConfig:
+      configMapName: llama-stack-config
