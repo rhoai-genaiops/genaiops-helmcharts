@@ -9,16 +9,16 @@ configMap:
 
 # OpenTelemetry Collector configuration
 otelCollector:
-  enabled: false
+  enabled: true
 
 rag:
-  enabled: false
+  enabled: true
 
 mcp:
   enabled: false
 
 eval:
-  enabled: false
+  enabled: true
 
 
 # MCP servers configuration

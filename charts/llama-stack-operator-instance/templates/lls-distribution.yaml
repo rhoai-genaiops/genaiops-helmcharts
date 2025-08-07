@@ -9,16 +9,6 @@ spec:
   server:
     containerSpec:
       env:
-        {{- if .Values.otelCollector.enabled }}
-        - name: TELEMETRY_SINKS
-          value: 'console, sqlite, otel_trace'
-        - name: OTEL_TRACE_ENDPOINT
-          value: 'http://otel-collector-collector.observability-hub.svc.cluster.local:4318/v1/traces'
-        - name: OTEL_METRIC_ENDPOINT
-          value: 'http://otel-collector-collector.observability-hub.svc.cluster.local:4318/v1/metrics'
-        {{- end }}
-        - name: OTEL_SERVICE_NAME
-          value: llamastack
         - name: MODEL_NAME
           value: {{ .Values.MODEL_NAME | quote }}
         - name: MODEL_URL
