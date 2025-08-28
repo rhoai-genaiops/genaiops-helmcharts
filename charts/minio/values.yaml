@@ -2,6 +2,6 @@
 buckets:
   - name: pipeline
   - name: models
-  - name: results
+  - name: test-results
   # - name: data # for feast
 
