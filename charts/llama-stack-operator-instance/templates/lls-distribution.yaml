@@ -26,6 +26,6 @@ spec:
       name: llama-stack
       port: 8321
     distribution:
-      name: remote-vllm
+      image: {{ .Values.distribution.image | quote }}
     userConfig:
       configMapName: llama-stack-config
