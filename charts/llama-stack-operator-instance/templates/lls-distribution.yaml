@@ -16,9 +16,9 @@ spec:
           value: 'http://otel-collector-collector.observability-hub.svc.cluster.local:4318/v1/traces'
         - name: OTEL_METRIC_ENDPOINT
           value: 'http://otel-collector-collector.observability-hub.svc.cluster.local:4318/v1/metrics'
-        {{- end }}
         - name: OTEL_SERVICE_NAME
           value: llamastack
+        {{- end }}
         - name: MODEL_NAME
           value: {{ .Values.MODEL_NAME | quote }}
         - name: MODEL_URL
