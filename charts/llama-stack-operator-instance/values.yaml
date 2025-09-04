@@ -2,30 +2,28 @@
 MODEL_NAME: "llama32"
 MODEL_URL: "http://llama-32-predictor.ai501.svc.cluster.local:8080/v1"
 
+# Distribution configuration
+distribution:
+  image: "quay.io/rhoai-genaiops/llama-stack-vllm-milvus:0.2.11"
 
 # ConfigMap for Llama Stack configuration
 configMap:
   enabled: true
 
-# OpenTelemetry Collector configuration
-otelCollector:
+# Telemetry configuration
+telemetry:
   enabled: false
 
 rag:
-  enabled: false
+  enabled: true
+  milvus:
+    service: "milvus-test"
+
+# Namespace configuration (format: userX-environment)
+namespace: "user1-test"
 
 mcp:
   enabled: false
 
 eval:
-  enabled: false
-
-
-# MCP servers configuration
-# mcpServers:
-#   - name: "openshift"
-#     uri: "http://ocp-mcp-server.agent-demo.svc.cluster.local:8000/sse"
-#     description: "OpenShift MCP Server for cluster management"
-  # - name: "github"
-  #   uri: "http://github-mcp-server.agent-demo.svc.cluster.local:80/sse"  
-  #   description: "GitHub MCP server for repository operations"
+  enabled: true
