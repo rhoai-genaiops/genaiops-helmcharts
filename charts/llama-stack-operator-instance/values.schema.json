@@ -104,11 +104,7 @@
       "type": "string",
       "description": "Target namespace for deployment (format: userX-environment)",
       "pattern": "^[a-zA-Z0-9]+-[a-zA-Z0-9]+$",
-      "examples": [
-        "user1-test",
-        "user1-prod",
-        "admin-dev"
-      ]
+      "examples": []
     },
     "mcp": {
       "type": "object",
@@ -117,6 +113,19 @@
         "enabled": {
           "type": "boolean",
           "description": "Enable or disable MCP functionality",
+          "default": false
+        }
+      },
+      "required": ["enabled"],
+      "additionalProperties": false
+    },
+    "otelCollector": {
+      "type": "object",
+      "description": "OpenTelemetry Collector configuration",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "description": "Enable or disable OpenTelemetry Collector integration",
           "default": false
         }
       },
@@ -146,6 +155,7 @@
     "rag",
     "namespace",
     "mcp",
+    "otelCollector",
     "eval"
   ],
   "additionalProperties": false
