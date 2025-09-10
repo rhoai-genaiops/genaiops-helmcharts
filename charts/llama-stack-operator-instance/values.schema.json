@@ -104,7 +104,7 @@
       "type": "string",
       "description": "Target namespace for deployment (format: userX-environment)",
       "pattern": "^[a-zA-Z0-9]+-[a-zA-Z0-9]+$",
-      "examples": []
+      "examples": ["userX-test"]
     },
     "mcp": {
       "type": "object",
