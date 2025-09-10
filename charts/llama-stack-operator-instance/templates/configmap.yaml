@@ -103,6 +103,10 @@ data:
     tool_groups:
     - provider_id: tavily-search
       toolgroup_id: builtin::websearch
+    {{- if .Values.rag.enabled }}
+    - toolgroup_id: insert_into_memory
+      provider_id: rag-runtime
+    {{- end }}
     {{- if .Values.mcp.enabled }}
     # - toolgroup_id: mcp::openshift
     #   provider_id: model-context-protocol
