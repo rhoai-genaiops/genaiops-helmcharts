@@ -1,0 +1,152 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "title": "Llama Stack Operator Instance Helm Chart Values Schema",
+  "description": "Schema for validating values.yaml configuration for the Llama Stack Operator Instance Helm chart",
+  "properties": {
+    "MODEL_NAME": {
+      "type": "string",
+      "description": "Name of the model to use for inference",
+      "minLength": 1,
+      "default": "llama32",
+      "examples": [
+        "llama32",
+        "llama3.2",
+        "llama3.1"
+      ]
+    },
+    "MODEL_URL": {
+      "type": "string",
+      "description": "URL endpoint for the model inference service",
+      "pattern": "^https?://[^\\s]+$",
+      "default": "http://llama-32-predictor.ai501.svc.cluster.local:8080/v1",
+      "examples": [
+        "http://llama-32-predictor.ai501.svc.cluster.local:8080/v1",
+        "http://model-service:8080/v1"
+      ]
+    },
+    "distribution": {
+      "type": "object",
+      "description": "Distribution configuration for Llama Stack",
+      "properties": {
+        "image": {
+          "type": "string",
+          "description": "Container image for the Llama Stack distribution",
+          "minLength": 1,
+          "default": "quay.io/rhoai-genaiops/llama-stack-vllm-milvus:0.2.11",
+          "examples": [
+            "quay.io/rhoai-genaiops/llama-stack-vllm-milvus:0.2.11",
+            "registry.example.com/llama-stack:latest"
+          ]
+        }
+      },
+      "required": ["image"],
+      "additionalProperties": false
+    },
+    "configMap": {
+      "type": "object",
+      "description": "ConfigMap configuration settings",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "description": "Enable or disable ConfigMap creation",
+          "default": true
+        }
+      },
+      "required": ["enabled"],
+      "additionalProperties": false
+    },
+    "telemetry": {
+      "type": "object",
+      "description": "Telemetry configuration",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "description": "Enable or disable telemetry collection",
+          "default": false
+        }
+      },
+      "required": ["enabled"],
+      "additionalProperties": false
+    },
+    "rag": {
+      "type": "object",
+      "description": "RAG (Retrieval-Augmented Generation) configuration",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "description": "Enable or disable RAG functionality",
+          "default": true
+        },
+        "milvus": {
+          "type": "object",
+          "description": "Milvus vector database configuration",
+          "properties": {
+            "service": {
+              "type": "string",
+              "description": "Milvus service name",
+              "minLength": 1,
+              "default": "milvus-test",
+              "examples": [
+                "milvus-test",
+                "milvus-prod"
+              ]
+            }
+          },
+          "required": ["service"],
+          "additionalProperties": false
+        }
+      },
+      "required": ["enabled"],
+      "additionalProperties": false
+    },
+    "namespace": {
+      "type": "string",
+      "description": "Target namespace for deployment (format: userX-environment)",
+      "pattern": "^[a-zA-Z0-9]+-[a-zA-Z0-9]+$",
+      "examples": [
+        "user1-test",
+        "user1-prod",
+        "admin-dev"
+      ]
+    },
+    "mcp": {
+      "type": "object",
+      "description": "Model Context Protocol configuration",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "description": "Enable or disable MCP functionality",
+          "default": false
+        }
+      },
+      "required": ["enabled"],
+      "additionalProperties": false
+    },
+    "eval": {
+      "type": "object",
+      "description": "Evaluation functionality configuration",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "description": "Enable or disable evaluation capabilities",
+          "default": true
+        }
+      },
+      "required": ["enabled"],
+      "additionalProperties": false
+    }
+  },
+  "required": [
+    "MODEL_NAME",
+    "MODEL_URL",
+    "distribution",
+    "configMap",
+    "telemetry",
+    "rag",
+    "namespace",
+    "mcp",
+    "eval"
+  ],
+  "additionalProperties": false
+}
