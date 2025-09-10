@@ -25,5 +25,8 @@ namespace: "user1-test"
 mcp:
   enabled: false
 
+otelCollector:
+  enabled: false
+
 eval:
   enabled: true
