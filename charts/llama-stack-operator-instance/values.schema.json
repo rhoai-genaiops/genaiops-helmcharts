@@ -76,7 +76,7 @@
         "enabled": {
           "type": "boolean",
           "description": "Enable or disable RAG functionality",
-          "default": true
+          "default": false
         },
         "milvus": {
           "type": "object",
