@@ -1,0 +1,71 @@
+apiVersion: v1
+entries:
+  dspa:
+  - apiVersion: v2
+    created: "2025-09-12T12:37:52.969892205Z"
+    description: "A little Helm chart for Data Science Pipeline Application \U0001F408"
+    digest: d576bfaca99d67cf323e3242a89cdfa6cc6c9d9d68d45450347a93e08a2205f0
+    home: https://rhoai-genaiops.github.io/genaiops/
+    icon: https://cdn-icons-png.flaticon.com/512/16990/16990376.png
+    maintainers:
+    - name: RHRolun
+    - name: rcarrata
+    - name: ckavili
+    name: dspa
+    urls:
+    - https://github.com/rhoai-genaiops/genaiops-helmcharts/releases/download/dspa-1.0.0/dspa-1.0.0.tgz
+    version: 1.0.0
+  llama-stack-operator-instance:
+  - apiVersion: v2
+    appVersion: latest
+    created: "2025-09-12T12:37:53.139768622Z"
+    description: "A Helm chart for Llama Stack Operator instances \U0001F999"
+    digest: 2938d5b5103b9de286e4a94c0b33fb69f62498ad70af0948a2b6e4e5ce8133a9
+    home: https://rhoai-genaiops.github.io/genaiops/
+    icon: https://aiagentframeworks.ai/content/images/2024/11/llama-stack.png
+    keywords:
+    - llama-stack
+    - ai
+    - operator
+    - instance
+    - mcp
+    - agents
+    maintainers:
+    - name: RHRolun
+    - name: rcarrata
+    - name: ckavili
+    name: llama-stack-operator-instance
+    type: application
+    urls:
+    - https://github.com/rhoai-genaiops/genaiops-helmcharts/releases/download/llama-stack-operator-instance-1.0.0/llama-stack-operator-instance-1.0.0.tgz
+    version: 1.0.0
+  llama-stack-playground:
+  - apiVersion: v2
+    appVersion: latest
+    created: "2025-09-12T12:37:53.343004268Z"
+    description: A Helm chart for Llama Stack Playground UI
+    digest: ba667915f9bc154a178b8119d416daa0f23aafd3dc3c7dde7d12e79aee6f967c
+    icon: https://previews.123rf.com/images/eriek/eriek2007/eriek200700074/152273778-jumping-llama-cartoon-alpaca.jpg
+    maintainers:
+    - name: ckavili
+    - name: rhrolun
+    - name: rcarrata
+    name: llama-stack-playground
+    type: application
+    urls:
+    - https://github.com/rhoai-genaiops/genaiops-helmcharts/releases/download/llama-stack-playground-1.0.0/llama-stack-playground-1.0.0.tgz
+    version: 1.0.0
+  milvus:
+  - apiVersion: v2
+    created: "2025-09-12T12:37:53.622421219Z"
+    dependencies:
+    - name: milvus
+      repository: https://zilliztech.github.io/milvus-helm/
+      version: 4.2.52
+    description: A Helm chart to deploy Milvus
+    digest: 32919588ccca65ace6a64e735fc7dc3831810f46ae44d33c1afd101b754d9cef
+    name: milvus
+    urls:
+    - https://github.com/rhoai-genaiops/genaiops-helmcharts/releases/download/milvus-1.0.0/milvus-1.0.0.tgz
+    version: 1.0.0
+generated: "2025-09-12T12:37:53.622430617Z"
