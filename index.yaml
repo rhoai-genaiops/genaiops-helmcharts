@@ -1,5 +1,21 @@
 apiVersion: v1
 entries:
+  bootstrap-projects:
+  - apiVersion: v2
+    appVersion: v0.0.1
+    created: "2025-09-12T12:40:43.950719842Z"
+    description: "A Helm chart for deploying and managing OpenShift projects \U0001F986"
+    digest: 57b9baf84215070061a71c63ab3a3b05d70e827113c594a1fd6d0aa6ae773ab4
+    home: https://github.com/redhat-cop/helm-charts
+    icon: https://www.iconpacks.net/icons/1/free-rocket-icon-1206-thumb.png
+    maintainers:
+    - name: RHRolun
+    - name: rcarrata
+    - name: ckavili
+    name: bootstrap-projects
+    urls:
+    - https://github.com/rhoai-genaiops/genaiops-helmcharts/releases/download/bootstrap-projects-1.0.1/bootstrap-projects-1.0.1.tgz
+    version: 1.0.1
   dspa:
   - apiVersion: v2
     created: "2025-09-12T12:37:52.969892205Z"
@@ -68,4 +84,32 @@ entries:
     urls:
     - https://github.com/rhoai-genaiops/genaiops-helmcharts/releases/download/milvus-1.0.0/milvus-1.0.0.tgz
     version: 1.0.0
-generated: "2025-09-12T12:37:53.622430617Z"
+  minio:
+  - apiVersion: v2
+    created: "2025-09-12T12:40:44.160511095Z"
+    description: "A Helm chart for minio \U0001F408"
+    digest: 407096f88bd718ab36b93a57110375406623f5f335eb0fc3ec036d5a6ff4d85f
+    home: https://rhoai-mlops.github.io/mlops/
+    icon: https://cdn-icons-png.flaticon.com/512/2676/2676169.png
+    maintainers:
+    - name: RHRolun
+    - name: rcarrata
+    - name: ckavili
+    name: minio
+    urls:
+    - https://github.com/rhoai-genaiops/genaiops-helmcharts/releases/download/minio-1.0.1/minio-1.0.1.tgz
+    version: 1.0.1
+  token-visualizer:
+  - apiVersion: v2
+    created: "2025-09-12T12:40:44.360948053Z"
+    description: "A Helm chart for token visualizer for AI501 GenAIOps Enablement\U0001F4C8"
+    digest: 301d91629172e959f3a8d52c9fd85af2c9512e9308972576af716373853107ce
+    home: https://rhoai-genaiops.github.io/genaiops/
+    icon: https://cdn-icons-png.flaticon.com/512/2165/2165640.png
+    maintainers:
+    - name: claudecode
+    name: token-visualizer
+    urls:
+    - https://github.com/rhoai-genaiops/genaiops-helmcharts/releases/download/token-visualizer-1.0.1/token-visualizer-1.0.1.tgz
+    version: 1.0.1
+generated: "2025-09-12T12:40:44.3609567Z"
