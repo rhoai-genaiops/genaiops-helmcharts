@@ -15,7 +15,7 @@ telemetry:
   enabled: false
 
 rag:
-  enabled: true
+  enabled: false
   milvus:
     service: "milvus-test"
 
