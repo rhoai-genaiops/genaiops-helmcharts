@@ -144,6 +144,11 @@
       },
       "required": ["enabled"],
       "additionalProperties": false
+    },
+    "chart_path": {
+      "type": "string",
+      "description": "Target namespace for deployment (format: userX-environment)",
+      "examples": []
     }
   },
   "required": [
