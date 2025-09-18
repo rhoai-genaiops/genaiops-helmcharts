@@ -53,6 +53,24 @@ data:
         provider_type: inline::sentence-transformers
         config: {}
       {{- end }}
+      {{- if .Values.eval.enabled }}
+      datasetio:
+      - provider_id: huggingface
+        provider_type: remote::huggingface
+        config:
+          kvstore:
+            type: sqlite
+            namespace: null
+            db_path: ${env.SQLITE_STORE_DIR:=~/.llama/distributions/sample-notebook}/huggingface_datasetio.db
+      eval:
+      - provider_id: meta-reference
+        provider_type: inline::meta-reference
+        config:
+          kvstore:
+            type: sqlite
+            namespace: null
+            db_path: ${env.SQLITE_STORE_DIR:=~/.llama/distributions/starter}/eval_store.db
+      {{- end }}
       tool_runtime:
       - provider_id: model-context-protocol
         provider_type: remote::model-context-protocol
@@ -116,6 +134,9 @@ data:
     #   provider_id: model-context-protocol
     #   mcp_endpoint:
     #     uri: http://github-mcp-server.agent-demo.svc.cluster.local:80/sse
+    {{- end }}
+    {{- if .Values.eval.enabled }}
+    benchmarks: []
     {{- end }}
     server:
       port: 8321
