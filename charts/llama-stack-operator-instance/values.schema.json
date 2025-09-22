@@ -100,12 +100,6 @@
       "required": ["enabled"],
       "additionalProperties": false
     },
-    "namespace": {
-      "type": "string",
-      "description": "Target namespace for deployment (format: userX-environment)",
-      "pattern": "^[a-zA-Z0-9]+-[a-zA-Z0-9]+$",
-      "examples": ["userX-test"]
-    },
     "mcp": {
       "type": "object",
       "description": "Model Context Protocol configuration",
@@ -158,7 +152,6 @@
     "configMap",
     "telemetry",
     "rag",
-    "namespace",
     "mcp",
     "otelCollector",
     "eval"
