@@ -19,9 +19,6 @@ rag:
   milvus:
     service: "milvus-test"
 
-# Namespace configuration (format: userX-environment)
-namespace: "user1-test"
-
 mcp:
   enabled: false
 

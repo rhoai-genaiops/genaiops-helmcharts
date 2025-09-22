@@ -87,12 +87,22 @@ data:
         provider_type: inline::rag-runtime
         config: {}
       {{- end }}
-      {{- if .Values.rag.enabled }}
+      {{- if and .Values.rag.enabled (contains "canopy" .Release.Namespace) }}
+      vector_io:
+      - provider_id: milvus
+        provider_type: inline::milvus
+        config:
+          db_path: ${env.MILVUS_DB_PATH:~/.llama/distributions}/milvus.db
+          kvstore:
+            type: sqlite
+            db_path: ${env.SQLITE_STORE_DIR:~/.llama/distributions}/milvus_registry.db
+      {{- end }}
+      {{- if and .Values.rag.enabled (or (contains "test" .Release.Namespace) (contains "prod" .Release.Namespace)) }}
       vector_io:
       - provider_id: milvus
         provider_type: remote::milvus
         config:
-          uri: "http://{{ .Values.rag.milvus.service }}.{{ .Values.namespace }}.svc.cluster.local:19530"
+          uri: "http://{{ .Values.rag.milvus.service }}.{{ .Release.Namespace }}.svc.cluster.local:19530"
           token: "root:Milvus"
       {{- end }}
       {{- if .Values.telemetry.enabled }}
