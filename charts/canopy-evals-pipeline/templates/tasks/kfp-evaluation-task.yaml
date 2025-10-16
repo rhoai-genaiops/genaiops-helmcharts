@@ -88,7 +88,7 @@ spec:
       run_id = client.create_run_from_pipeline_func(
           canopy_test_pipeline,
           arguments=arguments,
-          experiment_name="canopy-test-pipeline",
+          experiment_name="canopy-evals-pipeline",
           namespace=namespace,
           enable_caching=False
       )
