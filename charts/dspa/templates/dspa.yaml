@@ -8,6 +8,7 @@ spec:
     artifactSignedURLExpirySeconds: 60
     caBundleFileMountPath: ''
     caBundleFileName: ''
+    cacheEnabled: false
     deploy: true
     enableOauth: true
     enableSamplePipeline: false

@@ -1,0 +1,8 @@
+repo_url: https://evalrepo
+kfp:
+  llsUrl: "http://llama-stack"
+  backendUrl: "http://canopy-backend"
+  endpointPath: "/summarize"
+secrets:
+  s3:
+    name: "test-results"
