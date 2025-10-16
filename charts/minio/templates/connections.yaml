@@ -4,7 +4,7 @@
 apiVersion: v1
 kind: Secret
 metadata:
-  name: aws-connection-{{ $bucket.name }}
+  name: {{ $bucket.name }}
   labels:
     opendatahub.io/dashboard: "true"
     opendatahub.io/managed: "true"
