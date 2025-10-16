@@ -1,4 +1,4 @@
-repo_url: https://evalrepo
+eval_repo: https://evalrepo
 kfp:
   llsUrl: "http://llama-stack"
   backendUrl: "http://canopy-backend"

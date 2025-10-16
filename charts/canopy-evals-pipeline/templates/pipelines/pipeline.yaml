@@ -9,7 +9,7 @@ spec:
   params:
     - name: GIT_URL
       type: string
-      default: {{ .Values.repo_url }}
+      default: {{ .Values.eval_repo }}
       description: Git repository URL
     - name: GIT_BRANCH
       type: string
