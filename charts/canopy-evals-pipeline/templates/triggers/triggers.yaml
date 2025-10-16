@@ -63,8 +63,6 @@ spec:
       value: $(body.ref)
     - name: git-short-revision
       value: $(extensions.truncated_sha)
-    - name: gitrepositoryurl
-      value: $(body.repository.clone_url)
   template:
     ref: canopy-evals-trigger-template
 
