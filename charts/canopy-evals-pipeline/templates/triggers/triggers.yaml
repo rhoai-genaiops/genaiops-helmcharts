@@ -27,6 +27,8 @@ spec:
         params:
           - name: GIT_SHORT_REVISION
             value: $(tt.params.git-short-revision)
+          - name: GIT_URL
+            value: $(tt.params.gitrepositoryurl)
           - name: LLS_URL
             value: {{ .Values.kfp.llsUrl | quote }}
           - name: BACKEND_URL
@@ -61,6 +63,8 @@ spec:
       value: $(body.ref)
     - name: git-short-revision
       value: $(extensions.truncated_sha)
+    - name: gitrepositoryurl
+      value: $(body.repository.clone_url)
   template:
     ref: canopy-evals-trigger-template
 
