@@ -19,6 +19,26 @@ entries:
   canopy-evals-pipeline:
   - apiVersion: v2
     appVersion: "1.0"
+    created: "2025-10-16T10:17:47.982179976Z"
+    description: A Helm chart for Canopy Evals Pipeline using Tekton and Kubeflow
+    digest: 0a6fb6ead38b525d2234f182af7150888fa527964439f4343d11cc7d1bfe9165
+    home: https://github.com/rhoai-genaiops/genaiops-helmcharts
+    keywords:
+    - tekton
+    - kubeflow
+    - testing
+    - llm
+    - canopy
+    maintainers:
+    - email: genai@redhat.com
+      name: GenAI Team
+    name: canopy-evals-pipeline
+    type: application
+    urls:
+    - https://github.com/rhoai-genaiops/genaiops-helmcharts/releases/download/canopy-evals-pipeline-0.0.2/canopy-evals-pipeline-0.0.2.tgz
+    version: 0.0.2
+  - apiVersion: v2
+    appVersion: "1.0"
     created: "2025-10-16T09:38:36.560107273Z"
     description: A Helm chart for Canopy Evals Pipeline using Tekton and Kubeflow
     digest: 53c2812d0939fafdce42d500fad07ff04ba6290bba852e1384aa1406a6e1bf06
@@ -326,4 +346,4 @@ entries:
     urls:
     - https://github.com/rhoai-genaiops/genaiops-helmcharts/releases/download/token-visualizer-1.0.1/token-visualizer-1.0.1.tgz
     version: 1.0.1
-generated: "2025-10-16T09:38:36.560138051Z"
+generated: "2025-10-16T10:17:47.982209842Z"
