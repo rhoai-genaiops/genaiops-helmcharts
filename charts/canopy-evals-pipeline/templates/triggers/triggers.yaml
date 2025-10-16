@@ -2,7 +2,7 @@
 apiVersion: triggers.tekton.dev/v1beta1
 kind: TriggerTemplate
 metadata:
-  name: canopy-test-trigger-template
+  name: canopy-evals-trigger-template
 spec:
   params:
     - name: gitrepositoryurl
@@ -20,10 +20,10 @@ spec:
     - apiVersion: tekton.dev/v1
       kind: PipelineRun
       metadata:
-        generateName: canopy-test-pipeline-
+        generateName: canopy-evals-pipeline-
       spec:
         pipelineRef:
-          name: canopy-test-pipeline
+          name: canopy-evals-pipeline
         params:
           - name: GIT_SHORT_REVISION
             value: $(tt.params.git-short-revision)
@@ -42,7 +42,7 @@ spec:
 apiVersion: triggers.tekton.dev/v1beta1
 kind: Trigger
 metadata:
-  name: canopy-test-git-trigger
+  name: canopy-evals-git-trigger
 spec:
   interceptors:
     - ref:
@@ -62,14 +62,14 @@ spec:
     - name: git-short-revision
       value: $(extensions.truncated_sha)
   template:
-    ref: canopy-test-trigger-template
+    ref: canopy-evals-trigger-template
 
 ---
 apiVersion: triggers.tekton.dev/v1beta1
 kind: EventListener
 metadata:
-  name: canopy-test-event-listener
+  name: canopy-evals-event-listener
 spec:
   serviceAccountName: pipeline
   triggers:
-    - triggerRef: canopy-test-git-trigger
+    - triggerRef: canopy-evals-git-trigger

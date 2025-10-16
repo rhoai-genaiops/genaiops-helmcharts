@@ -1,5 +1,5 @@
 apiVersion: v2
-name: canopy-tekton-pipeline
+name: canopy-evals-pipeline
 description: A Helm chart for Canopy Evals Pipeline using Tekton and Kubeflow
 type: application
 version: 0.0.1
