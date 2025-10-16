@@ -16,7 +16,42 @@ entries:
     urls:
     - https://github.com/rhoai-genaiops/genaiops-helmcharts/releases/download/bootstrap-projects-1.0.1/bootstrap-projects-1.0.1.tgz
     version: 1.0.1
+  canopy-tekton-pipeline:
+  - apiVersion: v2
+    appVersion: "1.0"
+    created: "2025-10-16T09:26:21.396750606Z"
+    description: A Helm chart for Canopy Evals Pipeline using Tekton and Kubeflow
+    digest: 5c1a7a57ff3e1025e51b6020f867435e8c85546764f1028369a91c5a71ab9302
+    home: https://github.com/rhoai-genaiops/genaiops-helmcharts
+    keywords:
+    - tekton
+    - kubeflow
+    - testing
+    - llm
+    - canopy
+    maintainers:
+    - email: genai@redhat.com
+      name: GenAI Team
+    name: canopy-tekton-pipeline
+    type: application
+    urls:
+    - https://github.com/rhoai-genaiops/genaiops-helmcharts/releases/download/canopy-tekton-pipeline-0.0.1/canopy-tekton-pipeline-0.0.1.tgz
+    version: 0.0.1
   dspa:
+  - apiVersion: v2
+    created: "2025-10-16T09:26:21.621606029Z"
+    description: "A little Helm chart for Data Science Pipeline Application \U0001F408"
+    digest: af8a735b18a35b084b8c27afaf7423fe6c792c3ee70397efaaeae4385935e067
+    home: https://rhoai-genaiops.github.io/genaiops/
+    icon: https://cdn-icons-png.flaticon.com/512/16990/16990376.png
+    maintainers:
+    - name: RHRolun
+    - name: rcarrata
+    - name: ckavili
+    name: dspa
+    urls:
+    - https://github.com/rhoai-genaiops/genaiops-helmcharts/releases/download/dspa-1.0.2/dspa-1.0.2.tgz
+    version: 1.0.2
   - apiVersion: v2
     created: "2025-10-16T07:10:50.393307699Z"
     description: "A little Helm chart for Data Science Pipeline Application \U0001F408"
@@ -270,4 +305,4 @@ entries:
     urls:
     - https://github.com/rhoai-genaiops/genaiops-helmcharts/releases/download/token-visualizer-1.0.1/token-visualizer-1.0.1.tgz
     version: 1.0.1
-generated: "2025-10-16T07:10:50.703248668Z"
+generated: "2025-10-16T09:26:21.621642918Z"
