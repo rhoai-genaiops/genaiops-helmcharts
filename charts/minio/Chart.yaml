@@ -2,7 +2,7 @@
 apiVersion: v2
 description: A Helm chart for minio 🐈
 name: minio
-version: 1.0.1
+version: 1.0.2
 home: https://rhoai-mlops.github.io/mlops/
 icon: https://cdn-icons-png.flaticon.com/512/2676/2676169.png 
 maintainers:
