@@ -1,0 +1,75 @@
+---
+apiVersion: triggers.tekton.dev/v1beta1
+kind: TriggerTemplate
+metadata:
+  name: canopy-test-trigger-template
+spec:
+  params:
+    - name: gitrepositoryurl
+      description: The git repository url
+    - name: git-branch
+      description: The git branch
+    - name: git-revision
+      description: The git revision
+    - name: git-short-revision
+      description: Seven character git sha
+    - name: git-ref
+      description: The full git ref
+      default: refs/heads/main
+  resourcetemplates:
+    - apiVersion: tekton.dev/v1
+      kind: PipelineRun
+      metadata:
+        generateName: canopy-test-pipeline-
+      spec:
+        pipelineRef:
+          name: canopy-test-pipeline
+        params:
+          - name: GIT_SHORT_REVISION
+            value: $(tt.params.git-short-revision)
+          - name: LLS_URL
+            value: {{ .Values.kfp.llsUrl | quote }}
+          - name: BACKEND_URL
+            value: {{ .Values.kfp.backendUrl | quote }}
+          - name: ENDPOINT_PATH
+            value: {{ .Values.kfp.endpointPath | quote }}
+        workspaces:
+        - name: shared-workspace
+          persistentVolumeClaim:
+            claimName: shared-workspace
+
+---
+apiVersion: triggers.tekton.dev/v1beta1
+kind: Trigger
+metadata:
+  name: canopy-test-git-trigger
+spec:
+  interceptors:
+    - ref:
+        name: "cel"
+      params:
+        - name: filter
+          value: (body.ref == 'refs/heads/main') && (header.match('X-GitHub-Event', 'push')) && ((body.repository.name == 'canopy-evals') || ((body.repository.name == 'canopy-be') && body.commits.exists(c, c.modified.exists(m, m == 'chart/values-test.yaml' || m == 'chart/values-prod.yaml')))) 
+        - name: overlays
+          value:
+          - expression: body.head_commit.id.truncate(7)
+            key: truncated_sha
+          - expression: body.ref.split('/')[2]
+            key: branch_name
+  bindings:
+    - name: git-ref
+      value: $(body.ref)
+    - name: git-short-revision
+      value: $(extensions.truncated_sha)
+  template:
+    ref: canopy-test-trigger-template
+
+---
+apiVersion: triggers.tekton.dev/v1beta1
+kind: EventListener
+metadata:
+  name: canopy-test-event-listener
+spec:
+  serviceAccountName: pipeline
+  triggers:
+    - triggerRef: canopy-test-git-trigger

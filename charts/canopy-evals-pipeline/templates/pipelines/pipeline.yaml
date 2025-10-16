@@ -1,0 +1,130 @@
+---
+apiVersion: tekton.dev/v1
+kind: Pipeline
+metadata:
+  name: canopy-test-pipeline
+spec:
+  workspaces:
+    - name: shared-workspace
+  params:
+    - name: GIT_URL
+      type: string
+      default: {{ .Values.repo_url }}
+      description: Git repository URL
+    - name: GIT_BRANCH
+      type: string
+      default: "main"
+      description: Git branch to clone
+    - name: GIT_REVISION
+      type: string
+      default: "latest"
+      description: Git revision to clone
+    - name: GIT_SHORT_REVISION
+      type: string
+      default: "latest"
+      description: Short Git commit hash
+    - name: LLS_URL
+      type: string
+      default: {{ .Values.kfp.llsUrl | quote }}
+      description: Base URL for LlamaStack
+    - name: BACKEND_URL
+      type: string
+      default: {{ .Values.kfp.backendUrl | quote }}
+      description: Backend URL for canopy
+    - name: ENDPOINT_PATH
+      type: string
+      default: {{ .Values.kfp.endpointPath | quote }}
+      description: Endpoint path for guidellm benchmarking
+    - name: MODEL_NAME
+      type: string
+      description: "Model name identifier"
+      default: "canopy_custom"
+    - name: PROCESSOR
+      type: string
+      description: "Processor/model path"
+      default: "RedHatAI/Llama-3.2-3B-Instruct-quantized.w8a8"
+    - name: DATA_CONFIG
+      type: string
+      description: "Data configuration JSON"
+      default: '{"type":"emulated","prompt_tokens":512,"output_tokens":128}'
+    - name: RATE_TYPE
+      type: string
+      description: "Rate type for benchmark"
+      default: "synchronous"
+    - name: MAX_SECONDS
+      type: string
+      description: "Maximum benchmark duration in seconds"
+      default: "1800"
+    - name: MAX_REQUESTS
+      type: string
+      description: "Maximum number of requests to send"
+      default: "5"
+  tasks:
+    - name: git-clone
+      taskRef:
+        resolver: cluster
+        params:
+          - name: kind
+            value: task
+          - name: name
+            value: git-clone
+          - name: namespace
+            value: openshift-pipelines 
+      workspaces:
+        - name: output
+          workspace: shared-workspace
+      params:
+        - name: URL
+          value: "$(params.GIT_URL)"
+        - name: REVISION
+          value: "main"
+        - name: DELETE_EXISTING
+          value: "true"
+        - name: SSL_VERIFY
+          value: "false"
+    - name: kfp-evaluation-task
+      taskRef:
+        name: kfp-evaluation-task
+      workspaces:
+        - name: output
+          workspace: shared-workspace
+      params:
+        - name: BASE_URL
+          value: "$(params.LLS_URL)"
+        - name: BACKEND_URL
+          value: "$(params.BACKEND_URL)"
+        - name: GIT_URL
+          value: "$(params.GIT_URL)"
+        - name: GIT_BRANCH
+          value: "$(params.GIT_BRANCH)"
+        - name: GIT_REVISION
+          value: "$(params.GIT_REVISION)"
+        - name: GIT_SHORT_REVISION
+          value: "$(params.GIT_SHORT_REVISION)"
+      runAfter:
+        - git-clone
+    - name: guidellm-task
+      taskRef:
+        name: guidellm-task
+      workspaces:
+        - name: shared-workspace
+          workspace: shared-workspace
+      params:
+        - name: BASE_URL
+          value: "$(params.BACKEND_URL)"
+        - name: ENDPOINT_PATH
+          value: "$(params.ENDPOINT_PATH)"
+        - name: MODEL_NAME
+          value: "$(params.MODEL_NAME)"
+        - name: PROCESSOR
+          value: "$(params.PROCESSOR)"
+        - name: DATA_CONFIG
+          value: "$(params.DATA_CONFIG)"
+        - name: OUTPUT_FILENAME
+          value: "$(params.MODEL_NAME)-results.yaml"
+        - name: RATE_TYPE
+          value: "$(params.RATE_TYPE)"
+        - name: MAX_SECONDS
+          value: "$(params.MAX_SECONDS)"
+        - name: MAX_REQUESTS
+          value: "$(params.MAX_REQUESTS)"
