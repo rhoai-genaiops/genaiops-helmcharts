@@ -18,6 +18,20 @@ entries:
     version: 1.0.1
   dspa:
   - apiVersion: v2
+    created: "2025-10-16T07:10:50.393307699Z"
+    description: "A little Helm chart for Data Science Pipeline Application \U0001F408"
+    digest: 439bad59eaffca34666bab15a48114f98eb0c2e36dd948dc0f50f95c8c4de845
+    home: https://rhoai-genaiops.github.io/genaiops/
+    icon: https://cdn-icons-png.flaticon.com/512/16990/16990376.png
+    maintainers:
+    - name: RHRolun
+    - name: rcarrata
+    - name: ckavili
+    name: dspa
+    urls:
+    - https://github.com/rhoai-genaiops/genaiops-helmcharts/releases/download/dspa-1.0.1/dspa-1.0.1.tgz
+    version: 1.0.1
+  - apiVersion: v2
     created: "2025-09-12T12:37:52.969892205Z"
     description: "A little Helm chart for Data Science Pipeline Application \U0001F408"
     digest: d576bfaca99d67cf323e3242a89cdfa6cc6c9d9d68d45450347a93e08a2205f0
@@ -32,6 +46,29 @@ entries:
     - https://github.com/rhoai-genaiops/genaiops-helmcharts/releases/download/dspa-1.0.0/dspa-1.0.0.tgz
     version: 1.0.0
   llama-stack-operator-instance:
+  - apiVersion: v2
+    appVersion: latest
+    created: "2025-10-16T07:10:50.568023359Z"
+    description: "A Helm chart for Llama Stack Operator instances \U0001F999"
+    digest: 6dafab7dd432680406eb625f8abd4c832f5809581587727838e654ce5b19f6c2
+    home: https://rhoai-genaiops.github.io/genaiops/
+    icon: https://aiagentframeworks.ai/content/images/2024/11/llama-stack.png
+    keywords:
+    - llama-stack
+    - ai
+    - operator
+    - instance
+    - mcp
+    - agents
+    maintainers:
+    - name: RHRolun
+    - name: rcarrata
+    - name: ckavili
+    name: llama-stack-operator-instance
+    type: application
+    urls:
+    - https://github.com/rhoai-genaiops/genaiops-helmcharts/releases/download/llama-stack-operator-instance-1.0.8/llama-stack-operator-instance-1.0.8.tgz
+    version: 1.0.8
   - apiVersion: v2
     appVersion: latest
     created: "2025-09-22T16:29:16.126075804Z"
@@ -193,6 +230,20 @@ entries:
     version: 1.0.0
   minio:
   - apiVersion: v2
+    created: "2025-10-16T07:10:50.703183917Z"
+    description: "A Helm chart for minio \U0001F408"
+    digest: 2bcae64efc1b2fedc0f4d85d5d2d8a9513741233f68bed0fa2ab7741edf485d1
+    home: https://rhoai-mlops.github.io/mlops/
+    icon: https://cdn-icons-png.flaticon.com/512/2676/2676169.png
+    maintainers:
+    - name: RHRolun
+    - name: rcarrata
+    - name: ckavili
+    name: minio
+    urls:
+    - https://github.com/rhoai-genaiops/genaiops-helmcharts/releases/download/minio-1.0.2/minio-1.0.2.tgz
+    version: 1.0.2
+  - apiVersion: v2
     created: "2025-09-12T12:40:44.160511095Z"
     description: "A Helm chart for minio \U0001F408"
     digest: 407096f88bd718ab36b93a57110375406623f5f335eb0fc3ec036d5a6ff4d85f
@@ -219,4 +270,4 @@ entries:
     urls:
     - https://github.com/rhoai-genaiops/genaiops-helmcharts/releases/download/token-visualizer-1.0.1/token-visualizer-1.0.1.tgz
     version: 1.0.1
-generated: "2025-09-22T16:29:16.126099368Z"
+generated: "2025-10-16T07:10:50.703248668Z"
