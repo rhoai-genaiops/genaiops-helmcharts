@@ -2,7 +2,7 @@
 apiVersion: tekton.dev/v1
 kind: Pipeline
 metadata:
-  name: canopy-test-pipeline
+  name: canopy-evals-pipeline
 spec:
   workspaces:
     - name: shared-workspace
