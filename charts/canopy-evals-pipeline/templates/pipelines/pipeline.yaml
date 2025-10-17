@@ -122,3 +122,5 @@ spec:
           value: "$(params.MAX_REQUESTS)"
         - name: GIT_SHORT_REVISION
           value: "$(params.GIT_SHORT_REVISION)"
+      runAfter:
+        - git-clone
