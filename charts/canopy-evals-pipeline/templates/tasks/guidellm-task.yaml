@@ -32,6 +32,10 @@ spec:
       type: string
       description: "Output filename"
       default: "benchmark-results.yaml"
+    - name: HTML_OUTPUT_FILENAME
+      type: string
+      description: "HTML output filename"
+      default: "benchmark-results.html"
     - name: RATE_TYPE
       type: string
       description: "Rate type for benchmark"
@@ -68,7 +72,7 @@ spec:
         - "--max-seconds=$(params.MAX_SECONDS)"
         - "--max-requests=$(params.MAX_REQUESTS)"
     - name: extract-results
-      image: "registry.access.redhat.com/ubi9/ubi"
+      image: "$(params.GUIDELLM_IMAGE)"
       workingDir: "$(workspaces.shared-workspace.path)"
       script: |
         #!/bin/bash
@@ -81,30 +85,69 @@ spec:
         RESULT_DIR="$(params.MODEL_NAME)_${TIMESTAMP}"
         mkdir -p $RESULT_DIR
         
-        # Copy and organize results
+        # Copy YAML results
         if [ -f "$(params.OUTPUT_FILENAME)" ]; then
           cp "$(params.OUTPUT_FILENAME)" "$RESULT_DIR/"
+          echo "✅ Copied YAML results: $(params.OUTPUT_FILENAME)"
+        else
+          echo "ERROR: Benchmark YAML output file not found: $(params.OUTPUT_FILENAME)"
+          exit 1
+        fi
+        
+        # Generate HTML from YAML using guidellm's Python API
+        echo "🔄 Converting YAML results to HTML..."
+        python3 << EOF
+        from guidellm.benchmark import GenerativeBenchmarksReport
+        
+        try:
+            # Load the YAML benchmark results
+            report = GenerativeBenchmarksReport.load_file(path="$(params.OUTPUT_FILENAME)")
+            benchmarks = report.benchmarks
+            
+            print(f"📊 Loaded {len(benchmarks)} benchmark(s) from YAML")
+            for benchmark in benchmarks:
+                print(f"  - Benchmark ID: {benchmark.id_}")
+            
+            # Save as HTML
+            html_filename = "$(params.HTML_OUTPUT_FILENAME)"
+            report.save_html(path=html_filename)
+            print(f"✅ Successfully generated HTML report: {html_filename}")
+            
+        except Exception as e:
+            print(f"❌ Error generating HTML report: {e}")
+            print("   Continuing without HTML report...")
+        EOF
+        
+        # Copy HTML results if generated successfully
+        if [ -f "$(params.HTML_OUTPUT_FILENAME)" ]; then
+          cp "$(params.HTML_OUTPUT_FILENAME)" "$RESULT_DIR/"
+          echo "✅ Copied HTML results: $(params.HTML_OUTPUT_FILENAME)"
+        else
+          echo "⚠️  HTML output file not found: $(params.HTML_OUTPUT_FILENAME)"
+          echo "   YAML results are still available"
+        fi
 
-          # Create summary info
-          cat > "$RESULT_DIR/benchmark_info.txt" << EOF
+        # Create summary info
+        cat > "$RESULT_DIR/benchmark_info.txt" << EOF
         Model: $(params.MODEL_NAME)
         Target: $(params.BASE_URL)$(params.ENDPOINT_PATH)
         Processor: $(params.PROCESSOR)
         Data Config: $(params.DATA_CONFIG)
         Rate Type: $(params.RATE_TYPE)
         Max Seconds: $(params.MAX_SECONDS)
+        Max Requests: $(params.MAX_REQUESTS)
+        YAML Output: $(params.OUTPUT_FILENAME)
+        HTML Output: $(params.HTML_OUTPUT_FILENAME)
         Timestamp: $TIMESTAMP
         EOF
-          
-          # Package results
-          tar czf "${RESULT_DIR}.tar.gz" "$RESULT_DIR"
-          echo "Results packaged to: ${RESULT_DIR}.tar.gz"
-          echo "Contents of workspace:"
-          ls -la
-        else
-          echo "ERROR: Benchmark output file not found: $(params.OUTPUT_FILENAME)"
-          exit 1
-        fi
+        
+        # Package results
+        tar czf "${RESULT_DIR}.tar.gz" "$RESULT_DIR"
+        echo "Results packaged to: ${RESULT_DIR}.tar.gz"
+        echo "Contents of workspace:"
+        ls -la
+        echo "Contents of result directory:"
+        ls -la "$RESULT_DIR"
     - name: upload-to-s3
       image: "registry.access.redhat.com/ubi9/python-311"
       workingDir: "$(workspaces.shared-workspace.path)"
@@ -172,21 +215,34 @@ spec:
             region_name=region
         )
         
-        # Upload the main benchmark output file
+        # Upload the main benchmark YAML output file
         yaml_file = "$(params.OUTPUT_FILENAME)"
         if not os.path.exists(yaml_file):
-            print(f"Error: Benchmark output file not found: {yaml_file}")
+            print(f"Error: Benchmark YAML output file not found: {yaml_file}")
             exit(1)
         
-        # Upload the raw YAML file
-        yaml_s3_key = f"guidellm-benchmarks/{git_hash}/{yaml_file}"
+        # Upload the YAML file
+        yaml_s3_key = f"{git_hash}/{yaml_file}"
         try:
             print(f"Uploading {yaml_file} to s3://{s3_bucket}/{yaml_s3_key}")
             s3_client.upload_file(yaml_file, s3_bucket, yaml_s3_key)
-            print(f"Successfully uploaded {yaml_file}")
+            print(f"✅ Successfully uploaded {yaml_file}")
         except ClientError as e:
             print(f"Error uploading {yaml_file}: {e}")
             exit(1)
+        
+        # Upload the HTML output file if it exists
+        html_file = "$(params.HTML_OUTPUT_FILENAME)"
+        if os.path.exists(html_file):
+            html_s3_key = f"{git_hash}/{html_file}"
+            try:
+                print(f"Uploading {html_file} to s3://{s3_bucket}/{html_s3_key}")
+                s3_client.upload_file(html_file, s3_bucket, html_s3_key)
+                print(f"✅ Successfully uploaded {html_file}")
+            except ClientError as e:
+                print(f"Warning: Error uploading {html_file}: {e}")
+        else:
+            print(f"Warning: HTML output file not found: {html_file}")
         
         # Upload the packaged tar.gz file (created by extract-results step)
         # The extract-results step creates: {MODEL_NAME}_{TIMESTAMP}.tar.gz
@@ -194,7 +250,7 @@ spec:
         tar_files = glob.glob("*.tar.gz")
         
         for tar_file in tar_files:
-            tar_s3_key = f"guidellm-benchmarks/{git_hash}/{tar_file}"
+            tar_s3_key = f"{git_hash}/{tar_file}"
             try:
                 print(f"Uploading {tar_file} to s3://{s3_bucket}/{tar_s3_key}")
                 s3_client.upload_file(tar_file, s3_bucket, tar_s3_key)
