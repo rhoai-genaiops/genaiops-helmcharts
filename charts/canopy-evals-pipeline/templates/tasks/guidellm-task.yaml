@@ -48,6 +48,10 @@ spec:
       type: string
       description: "Guidellm container image"
       default: "quay.io/rhoai-genaiops/guidellm:v2"
+    - name: GIT_SHORT_REVISION
+      description: Short Git commit hash for S3 path
+      type: string
+      default: "latest"
   steps:
     - name: run-benchmark
       image: "$(params.GUIDELLM_IMAGE)"
@@ -101,3 +105,103 @@ spec:
           echo "ERROR: Benchmark output file not found: $(params.OUTPUT_FILENAME)"
           exit 1
         fi
+    - name: upload-to-s3
+      image: "registry.access.redhat.com/ubi9/python-311"
+      workingDir: "$(workspaces.shared-workspace.path)"
+      env:
+        - name: AWS_ACCESS_KEY_ID
+          valueFrom:
+            secretKeyRef:
+              name: "{{ .Values.secrets.s3.name }}"
+              key: AWS_ACCESS_KEY_ID
+        - name: AWS_SECRET_ACCESS_KEY
+          valueFrom:
+            secretKeyRef:
+              name: "{{ .Values.secrets.s3.name }}"
+              key: AWS_SECRET_ACCESS_KEY
+        - name: AWS_S3_ENDPOINT
+          valueFrom:
+            secretKeyRef:
+              name: "{{ .Values.secrets.s3.name }}"
+              key: AWS_S3_ENDPOINT
+        - name: AWS_S3_BUCKET
+          valueFrom:
+            secretKeyRef:
+              name: "{{ .Values.secrets.s3.name }}"
+              key: AWS_S3_BUCKET
+        - name: AWS_DEFAULT_REGION
+          valueFrom:
+            secretKeyRef:
+              name: "{{ .Values.secrets.s3.name }}"
+              key: AWS_DEFAULT_REGION
+      script: |
+        #!/bin/bash
+        set -e
+        
+        echo "Installing boto3 for S3 upload..."
+        python3 -m pip install boto3
+        
+        echo "Uploading guidellm results to S3..."
+        
+        cat << 'EOF' | python3
+        import os
+        import boto3
+        from botocore.exceptions import ClientError
+        import glob
+        import datetime
+        
+        # Get S3 configuration from environment variables
+        s3_endpoint = os.environ.get('AWS_S3_ENDPOINT')
+        s3_bucket = os.environ.get('AWS_S3_BUCKET')
+        access_key = os.environ.get('AWS_ACCESS_KEY_ID')
+        secret_key = os.environ.get('AWS_SECRET_ACCESS_KEY')
+        region = os.environ.get('AWS_DEFAULT_REGION', 'us-east-1')
+        git_hash = "$(params.GIT_SHORT_REVISION)"
+        model_name = "$(params.MODEL_NAME)"
+        
+        if not all([s3_endpoint, s3_bucket, access_key, secret_key]):
+            print("Warning: S3 configuration incomplete, skipping upload")
+            exit(0)
+        
+        # Initialize S3 client
+        s3_client = boto3.client(
+            's3',
+            endpoint_url=s3_endpoint,
+            aws_access_key_id=access_key,
+            aws_secret_access_key=secret_key,
+            region_name=region
+        )
+        
+        # Upload the main benchmark output file
+        yaml_file = "$(params.OUTPUT_FILENAME)"
+        if not os.path.exists(yaml_file):
+            print(f"Error: Benchmark output file not found: {yaml_file}")
+            exit(1)
+        
+        # Upload the raw YAML file
+        yaml_s3_key = f"guidellm-benchmarks/{git_hash}/{yaml_file}"
+        try:
+            print(f"Uploading {yaml_file} to s3://{s3_bucket}/{yaml_s3_key}")
+            s3_client.upload_file(yaml_file, s3_bucket, yaml_s3_key)
+            print(f"Successfully uploaded {yaml_file}")
+        except ClientError as e:
+            print(f"Error uploading {yaml_file}: {e}")
+            exit(1)
+        
+        # Upload the packaged tar.gz file (created by extract-results step)
+        # The extract-results step creates: {MODEL_NAME}_{TIMESTAMP}.tar.gz
+        import glob
+        tar_files = glob.glob("*.tar.gz")
+        
+        for tar_file in tar_files:
+            tar_s3_key = f"guidellm-benchmarks/{git_hash}/{tar_file}"
+            try:
+                print(f"Uploading {tar_file} to s3://{s3_bucket}/{tar_s3_key}")
+                s3_client.upload_file(tar_file, s3_bucket, tar_s3_key)
+                print(f"Successfully uploaded {tar_file}")
+            except ClientError as e:
+                print(f"Error uploading {tar_file}: {e}")
+                # Don't exit on tar file failure - the main YAML is more important
+        
+        print("S3 upload completed successfully!")
+        EOF
