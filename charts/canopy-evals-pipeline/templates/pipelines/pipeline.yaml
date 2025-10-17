@@ -31,10 +31,6 @@ spec:
       type: string
       default: {{ .Values.kfp.backendUrl | quote }}
       description: Backend URL for canopy
-    - name: ENDPOINT_PATH
-      type: string
-      default: {{ .Values.kfp.endpointPath | quote }}
-      description: Endpoint path for guidellm benchmarking
     - name: MODEL_NAME
       type: string
       description: "Model name identifier"
@@ -112,16 +108,12 @@ spec:
       params:
         - name: BASE_URL
           value: "$(params.BACKEND_URL)"
-        - name: ENDPOINT_PATH
-          value: "$(params.ENDPOINT_PATH)"
         - name: MODEL_NAME
           value: "$(params.MODEL_NAME)"
         - name: PROCESSOR
           value: "$(params.PROCESSOR)"
         - name: DATA_CONFIG
           value: "$(params.DATA_CONFIG)"
-        - name: OUTPUT_FILENAME
-          value: "$(params.MODEL_NAME)-results.yaml"
         - name: RATE_TYPE
           value: "$(params.RATE_TYPE)"
         - name: MAX_SECONDS
