@@ -128,3 +128,5 @@ spec:
           value: "$(params.MAX_SECONDS)"
         - name: MAX_REQUESTS
           value: "$(params.MAX_REQUESTS)"
+        - name: GIT_SHORT_REVISION
+          value: "$(params.GIT_SHORT_REVISION)"
