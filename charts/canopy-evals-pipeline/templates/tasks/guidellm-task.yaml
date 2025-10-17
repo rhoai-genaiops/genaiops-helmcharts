@@ -67,9 +67,13 @@ spec:
         echo "Found test files:"
         echo "$TEST_FILES"
         
-        # Install required tools for endpoint discovery
-        microdnf install -y python3 python3-pip
-        pip3 install pyyaml
+        # Check if Python is available (should be in guidellm image)
+        echo "Checking Python availability..."
+        python3 --version || python --version
+        
+        # Install pyyaml (Python should already be available in guidellm image)
+        echo "Installing pyyaml..."
+        pip3 install pyyaml || pip install pyyaml
         
         # Create Python script to discover endpoints and run benchmarks
         cat << 'EOF' > discover_and_benchmark.py
