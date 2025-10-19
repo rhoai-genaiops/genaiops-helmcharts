@@ -20,7 +20,7 @@ spec:
     command: ["/bin/sh", "-c"]
     args:
     - |
-      python3 -m pip install kfp.kubernetes==2.14.5 kfp==2.14.5
+      python3 -m pip install kfp.kubernetes==2.14.6 kfp==2.14.6
       cat << 'EOF' | python3
       from datetime import date
       import kfp
