@@ -1,0 +1,43 @@
+---
+apiVersion: triggers.tekton.dev/v1beta1
+kind: TriggerTemplate
+metadata:
+  name: canopy-doc-ingestion-trigger-template
+spec:
+  resourcetemplates:
+    - apiVersion: tekton.dev/v1
+      kind: PipelineRun
+      metadata:
+        generateName: canopy-doc-ingestion-pipeline-
+      spec:
+        pipelineRef:
+          name: canopy-doc-ingestion-pipeline
+        params:
+          - name: USERNAME
+            value: {{ .Values.username }}
+        workspaces:
+        - name: shared-workspace
+          persistentVolumeClaim:
+            claimName: shared-workspace
+
+---
+apiVersion: triggers.tekton.dev/v1beta1
+kind: Trigger
+metadata:
+  name: canopy-doc-ingestion-git-trigger
+spec:
+  interceptors:
+    - ref:
+        name: "cel"
+  template:
+    ref: canopy-doc-ingestion-trigger-template
+
+---
+apiVersion: triggers.tekton.dev/v1beta1
+kind: EventListener
+metadata:
+  name: canopy-doc-ingestion-event-listener
+spec:
+  serviceAccountName: pipeline
+  triggers:
+    - triggerRef: canopy-doc-ingestion-git-trigger

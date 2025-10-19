@@ -1,0 +1,14 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: guardrails-orchestrator
+spec:
+  selector:
+    app: guardrails-orchestrator
+    component: guardrails-orchestrator
+  ports:
+  - name: http
+    port: 8080  # The port the service will be accessible on
+    targetPort: 8080  # Replace with the actual port your sidecar is using
+  type: ClusterIP

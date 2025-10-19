@@ -1,0 +1,79 @@
+---
+apiVersion: tekton.dev/v1
+kind: Task
+metadata:
+  name: kfp-doc-ingestion-task
+spec:
+  workspaces:
+    - name: output
+  params:
+    - name: WORK_DIRECTORY
+      description: Directory to start build in (handle multiple branches)
+      type: string
+    - name: USERNAME
+      description: User name
+      type: string
+  steps:
+  - name: execute-ds-pipeline
+    workingDir: $(workspaces.output.path)/$(params.WORK_DIRECTORY)
+    image: registry.redhat.io/ubi9/python-311@sha256:fc669a67a0ef9016c3376b2851050580b3519affd5ec645d629fd52d2a8b8e4a
+    command: ["/bin/sh", "-c"]
+    args:
+    - |
+      python3 -m pip install kfp.kubernetes==2.14.5 kfp==2.14.5
+      cat << 'EOF' | python3
+      from datetime import date
+      import kfp
+      import json
+      from kfp_pipeline import document_intelligence_rag_pipeline
+
+      namespace_file_path =\
+          '/var/run/secrets/kubernetes.io/serviceaccount/namespace'
+      with open(namespace_file_path, 'r') as namespace_file:
+          namespace = namespace_file.read()
+
+      kubeflow_endpoint =\
+          f'https://ds-pipeline-dspa.{namespace}.svc:8443'
+
+      sa_token_file_path = '/var/run/secrets/kubernetes.io/serviceaccount/token'
+      with open(sa_token_file_path, 'r') as token_file:
+          bearer_token = token_file.read()
+
+      ssl_ca_cert =\
+          '/var/run/secrets/kubernetes.io/serviceaccount/service-ca.crt'
+
+      print(f'Connecting to Data Science Pipelines: {kubeflow_endpoint}')
+      client = kfp.Client(
+          host=kubeflow_endpoint,
+          existing_token=bearer_token,
+          ssl_ca_cert=ssl_ca_cert
+      )
+
+      with open('default_parameters.json') as f:
+          default_parameters = json.load(f)
+      
+      default_parameters['llama_stack_url'] = "http://llama-stack-service.$(params.USERNAME)-test.svc.cluster.local:8321"
+      default_parameters['prod_llama_stack_url'] = "http://llama-stack-service.$(params.USERNAME)-prod.svc.cluster.local:8321"
+      default_parameters['test_vector_db_alias'] = "latest"
+      default_parameters['vector_db_id'] = f"genaiops_{date.today():%Y_%m_%d}"
+
+      # start a run
+      print("🏃‍♂️ start a run")
+      run_id = client.create_run_from_pipeline_func(
+          document_intelligence_rag_pipeline,
+          arguments=default_parameters,
+          experiment_name="document-intelligence-rag",
+          namespace=namespace,
+          enable_caching=True
+      )
+
+      print("🥱 wait for the run to finish")
+      # wait for the run to finish
+      client.wait_for_run_completion(
+          run_id=run_id.run_id, 
+          timeout=7200,
+      )
+
+      print("🎉 job finished 🙌")
+      EOF
+
