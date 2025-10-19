@@ -24,6 +24,7 @@ spec:
         git config --global --add safe.directory '*'
         git checkout -b $vector_db_id
         cp values-test.yaml values-prod.yaml
+        git add values-prod.yaml
         git commit -m "🚀 AUTOMATED COMMIT - Production prompt is updated" || rc=$?
         git remote set-url origin $(cat $HOME/.git-credentials)/{{ .Values.USER_NAME }}/canopy-be.git
         git push origin $vector_db_id
