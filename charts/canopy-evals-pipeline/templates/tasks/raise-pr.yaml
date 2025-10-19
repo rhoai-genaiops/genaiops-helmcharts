@@ -32,8 +32,8 @@ spec:
           --data '{
               "assignee": "{{ .Values.USER_NAME }}",
               "base": "main",
-              "body": "Evaluation results can be found in [Prompt Tracker](`https://prompt-tracker-ai501.{{ .Values.CLUSTER_DOMAIN }}/{{ .Values.USER_NAME }}/{{ .Values.CLUSTER_DOMAIN }}).",
-              "head": "$vector_db_id",
+              "body": "Evaluation results can be found in [Prompt Tracker](https://prompt-tracker-ai501.{{ .Values.CLUSTER_DOMAIN }}/{{ .Values.USER_NAME }}/{{ .Values.CLUSTER_DOMAIN }}).",
+              "head": "'${vector_db_id}'",
               "title": "🤖 New prod prompt"
           }'
 
