@@ -3,19 +3,15 @@ kind: Task
 metadata:
   name: guidellm-task
 spec:
-  description: "Run guidellm benchmark against an endpoint and extract results"
+  description: "Run guidellm benchmark against multiple endpoints discovered from canopy-evals repo"
   workspaces:
     - name: shared-workspace
-      description: "Shared workspace for storing benchmark results"
+      description: "Shared workspace for storing benchmark results and cloned repo"
   params:
     - name: BASE_URL
       type: string
       description: "Base URL of the target service"
       default: "http://canopy-backend"
-    - name: ENDPOINT_PATH
-      type: string
-      description: "Endpoint path to append to base URL"
-      default: "/summarize"
     - name: MODEL_NAME
       type: string
       description: "Model name identifier (use canopy_ prefix for Canopy support)"
@@ -28,10 +24,6 @@ spec:
       type: string
       description: "Data configuration JSON"
       default: '{"type":"emulated","prompt_tokens":512,"output_tokens":128}'
-    - name: OUTPUT_FILENAME
-      type: string
-      description: "Output filename"
-      default: "benchmark-results.yaml"
     - name: RATE_TYPE
       type: string
       description: "Rate type for benchmark"
@@ -48,56 +40,442 @@ spec:
       type: string
       description: "Guidellm container image"
       default: "quay.io/rhoai-genaiops/guidellm:v2"
+    - name: GIT_SHORT_REVISION
+      description: Short Git commit hash for S3 path
+      type: string
+      default: "latest"
   steps:
-    - name: run-benchmark
+    - name: discover-and-benchmark
       image: "$(params.GUIDELLM_IMAGE)"
-      command: ["guidellm"]
-      args:
-        - "benchmark"
-        - "--target=$(params.BASE_URL)$(params.ENDPOINT_PATH)"
-        - "--model=$(params.MODEL_NAME)"
-        - "--processor=$(params.PROCESSOR)"
-        - "--backend-type=openai_http"
-        - "--data=$(params.DATA_CONFIG)"
-        - "--output-path=$(workspaces.shared-workspace.path)/$(params.OUTPUT_FILENAME)"
-        - "--rate-type=$(params.RATE_TYPE)"
-        - "--max-seconds=$(params.MAX_SECONDS)"
-        - "--max-requests=$(params.MAX_REQUESTS)"
-    - name: extract-results
-      image: "registry.access.redhat.com/ubi9/ubi"
       workingDir: "$(workspaces.shared-workspace.path)"
       script: |
         #!/bin/bash
         set -e
         
-        echo "Extracting and organizing benchmark results..."
+        echo "Discovering test configuration files in cloned repo..."
         
-        # Create timestamped directory
-        TIMESTAMP=$(date +%Y%m%d_%H%M%S)
-        RESULT_DIR="$(params.MODEL_NAME)_${TIMESTAMP}"
-        mkdir -p $RESULT_DIR
+        # Find all *_tests.yaml files (same pattern as KFP pipeline)
+        TEST_FILES=$(find . -name "*_tests.yaml" -type f 2>/dev/null || true)
         
-        # Copy and organize results
-        if [ -f "$(params.OUTPUT_FILENAME)" ]; then
-          cp "$(params.OUTPUT_FILENAME)" "$RESULT_DIR/"
-
-          # Create summary info
-          cat > "$RESULT_DIR/benchmark_info.txt" << EOF
-        Model: $(params.MODEL_NAME)
-        Target: $(params.BASE_URL)$(params.ENDPOINT_PATH)
-        Processor: $(params.PROCESSOR)
-        Data Config: $(params.DATA_CONFIG)
-        Rate Type: $(params.RATE_TYPE)
-        Max Seconds: $(params.MAX_SECONDS)
-        Timestamp: $TIMESTAMP
-        EOF
-          
-          # Package results
-          tar czf "${RESULT_DIR}.tar.gz" "$RESULT_DIR"
-          echo "Results packaged to: ${RESULT_DIR}.tar.gz"
-          echo "Contents of workspace:"
+        if [ -z "$TEST_FILES" ]; then
+          echo "No test configuration files found!"
+          echo "Directory contents:"
           ls -la
-        else
-          echo "ERROR: Benchmark output file not found: $(params.OUTPUT_FILENAME)"
           exit 1
         fi
+        
+        echo "Found test files:"
+        echo "$TEST_FILES"
+        
+        # Check if Python is available (should be in guidellm image)
+        echo "Checking Python availability..."
+        python3 --version || python --version
+        
+        # Install pyyaml (Python should already be available in guidellm image)
+        echo "Installing pyyaml..."
+        pip3 install pyyaml || pip install pyyaml
+        
+        # Create Python script to discover endpoints and run benchmarks
+        cat << 'EOF' > discover_and_benchmark.py
+        import yaml
+        import subprocess
+        import sys
+        import os
+        import glob
+        
+        def discover_endpoints():
+            """Discover unique endpoints from test configuration files"""
+            endpoints = set()
+            endpoint_files = {}
+            
+            # Find all test files using glob pattern (same as KFP pipeline)
+            test_files = glob.glob("**/*_tests.yaml", recursive=True)
+            
+            print(f"Processing {len(test_files)} test configuration files...")
+            
+            for file_path in test_files:
+                try:
+                    with open(file_path, 'r') as f:
+                        config = yaml.safe_load(f)
+                    
+                    if config and 'endpoint' in config:
+                        endpoint = config['endpoint']
+                        endpoints.add(endpoint)
+                        if endpoint not in endpoint_files:
+                            endpoint_files[endpoint] = []
+                        endpoint_files[endpoint].append(file_path)
+                        print(f"Found endpoint '{endpoint}' in {file_path}")
+                    else:
+                        print(f"Warning: No endpoint found in {file_path}")
+                        
+                except Exception as e:
+                    print(f"Error reading {file_path}: {e}")
+            
+            return list(endpoints), endpoint_files
+        
+        def run_guidellm_for_endpoint(endpoint, base_url, model_name, processor, data_config, rate_type, max_seconds, max_requests):
+            """Run guidellm benchmark for a specific endpoint"""
+            target_url = f"{base_url}{endpoint}"
+            # Create safe filename from endpoint
+            safe_endpoint = endpoint.replace('/', '_').replace('-', '_').strip('_')
+            output_file = f"guidellm_{safe_endpoint}_results.yaml"
+            
+            cmd = [
+                "guidellm", "benchmark",
+                f"--target={target_url}",
+                f"--model={model_name}",
+                f"--processor={processor}",
+                "--backend-type=openai_http",
+                f"--data={data_config}",
+                f"--output-path={output_file}",
+                f"--rate-type={rate_type}",
+                f"--max-seconds={max_seconds}",
+                f"--max-requests={max_requests}"
+            ]
+            
+            print(f"\n🚀 Running guidellm benchmark for endpoint: {endpoint}")
+            print(f"Target URL: {target_url}")
+            print(f"Output file: {output_file}")
+            print(f"Command: {' '.join(cmd)}")
+            
+            try:
+                result = subprocess.run(cmd, check=True, capture_output=True, text=True)
+                print(f"✅ Benchmark completed successfully for {endpoint}")
+                if result.stdout:
+                    print("Stdout:", result.stdout)
+                return output_file, True
+            except subprocess.CalledProcessError as e:
+                print(f"❌ Benchmark failed for {endpoint}")
+                print(f"Return code: {e.returncode}")
+                if e.stdout:
+                    print(f"Stdout: {e.stdout}")
+                if e.stderr:
+                    print(f"Stderr: {e.stderr}")
+                return output_file, False
+        
+        def main():
+            # Discover endpoints from test files
+            endpoints, endpoint_files = discover_endpoints()
+            
+            if not endpoints:
+                print("❌ No endpoints found in test configuration files!")
+                return 1
+            
+            print(f"\n📋 Discovered {len(endpoints)} unique endpoints:")
+            for endpoint in sorted(endpoints):
+                print(f"  - {endpoint}")
+                for file_path in endpoint_files[endpoint]:
+                    print(f"    └── {file_path}")
+            
+            # Get parameters from environment
+            base_url = os.environ.get('BASE_URL', 'http://canopy-backend')
+            model_name = os.environ.get('MODEL_NAME', 'canopy_custom')
+            processor = os.environ.get('PROCESSOR', 'RedHatAI/Llama-3.2-3B-Instruct-quantized.w8a8')
+            data_config = os.environ.get('DATA_CONFIG', '{"type":"emulated","prompt_tokens":512,"output_tokens":128}')
+            rate_type = os.environ.get('RATE_TYPE', 'synchronous')
+            max_seconds = os.environ.get('MAX_SECONDS', '1800')
+            max_requests = os.environ.get('MAX_REQUESTS', '5')
+            
+            print(f"\nBenchmark Configuration:")
+            print(f"  Base URL: {base_url}")
+            print(f"  Model: {model_name}")
+            print(f"  Rate Type: {rate_type}")
+            print(f"  Max Duration: {max_seconds}s")
+            print(f"  Max Requests: {max_requests}")
+            
+            # Run benchmarks for each discovered endpoint
+            successful_benchmarks = []
+            failed_benchmarks = []
+            
+            for i, endpoint in enumerate(sorted(endpoints), 1):
+                print(f"\n{'='*50}")
+                print(f"Benchmark {i}/{len(endpoints)}: {endpoint}")
+                print(f"{'='*50}")
+                
+                output_file, success = run_guidellm_for_endpoint(
+                    endpoint, base_url, model_name, processor, 
+                    data_config, rate_type, max_seconds, max_requests
+                )
+                
+                if success:
+                    successful_benchmarks.append((endpoint, output_file))
+                else:
+                    failed_benchmarks.append((endpoint, output_file))
+            
+            # Write comprehensive summary
+            summary_content = []
+            summary_content.append("Guidellm Multi-Endpoint Benchmark Summary")
+            summary_content.append("=" * 50)
+            summary_content.append(f"Total endpoints discovered: {len(endpoints)}")
+            summary_content.append(f"Successful benchmarks: {len(successful_benchmarks)}")
+            summary_content.append(f"Failed benchmarks: {len(failed_benchmarks)}")
+            summary_content.append("")
+            
+            summary_content.append("Discovered Endpoints:")
+            for endpoint in sorted(endpoints):
+                summary_content.append(f"  {endpoint}:")
+                for file_path in endpoint_files[endpoint]:
+                    summary_content.append(f"    - {file_path}")
+            summary_content.append("")
+            
+            if successful_benchmarks:
+                summary_content.append("✅ Successful Benchmarks:")
+                for endpoint, output_file in successful_benchmarks:
+                    summary_content.append(f"  {endpoint} → {output_file}")
+                summary_content.append("")
+            
+            if failed_benchmarks:
+                summary_content.append("❌ Failed Benchmarks:")
+                for endpoint, output_file in failed_benchmarks:
+                    summary_content.append(f"  {endpoint} → {output_file}")
+                summary_content.append("")
+            
+            # Write summary to file
+            with open('guidellm_benchmark_summary.txt', 'w') as f:
+                f.write('\n'.join(summary_content))
+            
+            # Print final summary
+            print(f"\n{'='*50}")
+            print("📊 FINAL BENCHMARK SUMMARY")
+            print(f"{'='*50}")
+            print('\n'.join(summary_content))
+            
+            return 0 if len(failed_benchmarks) == 0 else 1
+        
+        if __name__ == "__main__":
+            exit_code = main()
+            sys.exit(exit_code)
+        EOF
+        
+        # Run the endpoint discovery and benchmarking
+        python3 discover_and_benchmark.py
+        
+        # Generate HTML reports from YAML files
+        echo "🔄 Converting YAML results to HTML..."
+        python3 << 'EOF'
+        import os
+        import glob
+        from guidellm.benchmark import GenerativeBenchmarksReport
+        
+        # Find all YAML files
+        yaml_pattern = "guidellm_*_results.yaml"
+        yaml_files = glob.glob(yaml_pattern)
+        
+        successful_html = []
+        failed_html = []
+        
+        for yaml_file in yaml_files:
+            try:
+                print(f"Processing {yaml_file}")
+                
+                # Load the YAML benchmark results
+                report = GenerativeBenchmarksReport.load_file(path=yaml_file)
+                benchmarks = report.benchmarks
+                
+                print(f"  📊 Loaded {len(benchmarks)} benchmark(s) from {yaml_file}")
+                
+                # Extract endpoint from the first benchmark (they should all be the same endpoint)
+                if benchmarks and hasattr(benchmarks[0], 'target') and benchmarks[0].target:
+                    # Extract endpoint path from target URL (e.g., "http://canopy-backend/summarize" -> "summarize")
+                    target_url = str(benchmarks[0].target)
+                    if '/' in target_url:
+                        endpoint_path = target_url.split('/')[-1]  # Get the last part after final /
+                    else:
+                        endpoint_path = "unknown"
+                    endpoint_name = endpoint_path
+                else:
+                    # Fallback to filename extraction if no target found
+                    endpoint_name = yaml_file.replace("guidellm_", "").replace("_results.yaml", "")
+                
+                html_filename = f"guidellm_{endpoint_name}_results.html"
+                print(f"  Target endpoint: {endpoint_name}")
+                print(f"  Generating HTML: {html_filename}")
+                
+                for benchmark in benchmarks:
+                    print(f"    - Benchmark ID: {benchmark.id_}")
+                
+                # Save as HTML
+                report.save_html(path=html_filename)
+                print(f"  ✅ Successfully generated HTML report: {html_filename}")
+                successful_html.append((yaml_file, html_filename))
+                
+            except Exception as e:
+                print(f"  ❌ Error generating HTML report for {yaml_file}: {e}")
+                failed_html.append((yaml_file, str(e)))
+        
+        print(f"\nHTML Generation Summary:")
+        print(f"✅ Successful: {len(successful_html)}")
+        print(f"❌ Failed: {len(failed_html)}")
+        
+        if failed_html:
+            print("Failed conversions:")
+            for yaml_file, error in failed_html:
+                print(f"  {yaml_file}: {error}")
+        EOF
+        
+        echo "Listing all generated files:"
+        ls -la *.yaml *.txt *.html 2>/dev/null || echo "No result files found"
+      env:
+        - name: BASE_URL
+          value: "$(params.BASE_URL)"
+        - name: MODEL_NAME
+          value: "$(params.MODEL_NAME)"
+        - name: PROCESSOR
+          value: "$(params.PROCESSOR)"
+        - name: DATA_CONFIG
+          value: "$(params.DATA_CONFIG)"
+        - name: RATE_TYPE
+          value: "$(params.RATE_TYPE)"
+        - name: MAX_SECONDS
+          value: "$(params.MAX_SECONDS)"
+        - name: MAX_REQUESTS
+          value: "$(params.MAX_REQUESTS)"
+    - name: upload-to-s3
+      image: "registry.access.redhat.com/ubi9/python-311"
+      workingDir: "$(workspaces.shared-workspace.path)"
+      env:
+        - name: AWS_ACCESS_KEY_ID
+          valueFrom:
+            secretKeyRef:
+              name: "{{ .Values.secrets.s3.name }}"
+              key: AWS_ACCESS_KEY_ID
+        - name: AWS_SECRET_ACCESS_KEY
+          valueFrom:
+            secretKeyRef:
+              name: "{{ .Values.secrets.s3.name }}"
+              key: AWS_SECRET_ACCESS_KEY
+        - name: AWS_S3_ENDPOINT
+          valueFrom:
+            secretKeyRef:
+              name: "{{ .Values.secrets.s3.name }}"
+              key: AWS_S3_ENDPOINT
+        - name: AWS_S3_BUCKET
+          valueFrom:
+            secretKeyRef:
+              name: "{{ .Values.secrets.s3.name }}"
+              key: AWS_S3_BUCKET
+        - name: AWS_DEFAULT_REGION
+          valueFrom:
+            secretKeyRef:
+              name: "{{ .Values.secrets.s3.name }}"
+              key: AWS_DEFAULT_REGION
+      script: |
+        #!/bin/bash
+        set -e
+        
+        echo "Installing boto3 for S3 upload..."
+        python3 -m pip install boto3
+        
+        echo "Uploading guidellm results to S3..."
+        
+        cat << 'EOF' | python3
+        import os
+        import boto3
+        from botocore.exceptions import ClientError
+        import glob
+        import datetime
+        
+        # Get S3 configuration from environment variables
+        s3_endpoint = os.environ.get('AWS_S3_ENDPOINT')
+        s3_bucket = os.environ.get('AWS_S3_BUCKET')
+        access_key = os.environ.get('AWS_ACCESS_KEY_ID')
+        secret_key = os.environ.get('AWS_SECRET_ACCESS_KEY')
+        region = os.environ.get('AWS_DEFAULT_REGION', 'us-east-1')
+        git_hash = "$(params.GIT_SHORT_REVISION)"
+        model_name = "$(params.MODEL_NAME)"
+        
+        if not all([s3_endpoint, s3_bucket, access_key, secret_key]):
+            print("Warning: S3 configuration incomplete, skipping upload")
+            exit(0)
+        
+        # Initialize S3 client
+        s3_client = boto3.client(
+            's3',
+            endpoint_url=s3_endpoint,
+            aws_access_key_id=access_key,
+            aws_secret_access_key=secret_key,
+            region_name=region
+        )
+        
+        # Upload all guidellm YAML result files
+        yaml_files = glob.glob("guidellm_*_results.yaml")
+        uploaded_yamls = []
+        failed_yamls = []
+        
+        if not yaml_files:
+            print("Error: No guidellm benchmark YAML files found!")
+            print("Looking for pattern: guidellm_*_results.yaml")
+            print("Current directory contents:")
+            for item in os.listdir('.'):
+                print(f"  {item}")
+            exit(1)
+        
+        print(f"Found {len(yaml_files)} YAML result files to upload")
+        
+        for yaml_file in yaml_files:
+            yaml_s3_key = f"{git_hash}/{yaml_file}"
+            try:
+                print(f"Uploading {yaml_file} to s3://{s3_bucket}/{yaml_s3_key}")
+                s3_client.upload_file(yaml_file, s3_bucket, yaml_s3_key)
+                print(f"✅ Successfully uploaded {yaml_file}")
+                uploaded_yamls.append(yaml_file)
+            except ClientError as e:
+                print(f"Error uploading {yaml_file}: {e}")
+                failed_yamls.append(yaml_file)
+        
+        # Upload all HTML result files
+        html_files = glob.glob("guidellm_*_results.html")
+        uploaded_htmls = []
+        failed_htmls = []
+        
+        for html_file in html_files:
+            html_s3_key = f"{git_hash}/{html_file}"
+            try:
+                print(f"Uploading {html_file} to s3://{s3_bucket}/{html_s3_key}")
+                s3_client.upload_file(html_file, s3_bucket, html_s3_key)
+                print(f"✅ Successfully uploaded {html_file}")
+                uploaded_htmls.append(html_file)
+            except ClientError as e:
+                print(f"Warning: Error uploading {html_file}: {e}")
+                failed_htmls.append(html_file)
+        
+        # Upload the benchmark summary file
+        summary_file = "guidellm_benchmark_summary.txt"
+        if os.path.exists(summary_file):
+            summary_s3_key = f"{git_hash}/{summary_file}"
+            try:
+                print(f"Uploading {summary_file} to s3://{s3_bucket}/{summary_s3_key}")
+                s3_client.upload_file(summary_file, s3_bucket, summary_s3_key)
+                print(f"✅ Successfully uploaded {summary_file}")
+            except ClientError as e:
+                print(f"Warning: Error uploading {summary_file}: {e}")
+        
+        # Print comprehensive upload summary
+        print(f"\n{'='*50}")
+        print("📊 S3 UPLOAD SUMMARY")
+        print(f"{'='*50}")
+        print(f"YAML Files: {len(uploaded_yamls)}/{len(yaml_files)} successful")
+        print(f"HTML Files: {len(uploaded_htmls)}/{len(html_files)} successful")
+        
+        if uploaded_yamls:
+            print("\n✅ Successfully uploaded YAML files:")
+            for file in uploaded_yamls:
+                print(f"  - {file}")
+        
+        if uploaded_htmls:
+            print("\n✅ Successfully uploaded HTML files:")
+            for file in uploaded_htmls:
+                print(f"  - {file}")
+        
+        if failed_yamls or failed_htmls:
+            print("\n❌ Failed uploads:")
+            for file in failed_yamls + failed_htmls:
+                print(f"  - {file}")
+        
+        # Exit with error if any YAML files failed to upload (critical)
+        if failed_yamls:
+            print(f"\nCritical error: {len(failed_yamls)} YAML files failed to upload!")
+            exit(1)
+        
+        print("S3 upload completed successfully!")
+        EOF
