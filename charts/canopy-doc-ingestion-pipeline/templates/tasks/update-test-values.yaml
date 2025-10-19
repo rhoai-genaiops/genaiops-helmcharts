@@ -1,0 +1,40 @@
+---
+apiVersion: tekton.dev/v1
+kind: Task
+metadata:
+  name: update-test-values-task
+spec:
+  workspaces:
+    - name: output
+  params:
+    - name: WORK_DIRECTORY
+      description: Directory to start build in (handle multiple branches)
+      type: string
+    - name: USERNAME
+      description: Name of the team that doing this exercise :)
+      type: string
+  steps:
+    - name: patch-vector-db-id
+      workingDir: $(workspaces.output.path)/$(params.WORK_DIRECTORY)
+      image: quay.io/redhat-cop/tekton-task-helm:3.6.3
+      script: |
+        #!/bin/sh
+
+        vector_db_id="genaiops_$(date +%Y_%m_%d)"
+
+        yq eval -i .information-search.vector_db_id=\"${vector_db_id}\" values-test.yaml
+
+    - name: commit-changes
+      workingDir: $(workspaces.output.path)/$(params.WORK_DIRECTORY)
+      image: quay.io/redhat-cop/ubi8-git:latest
+      script: |
+        #!/bin/sh
+        # Commit the changes :P
+        git config --global user.email "tekton@mlops.bot.com"
+        git config --global user.name "🐈 Tekton 🐈"
+        git config --global push.default simple
+        git config --global --add safe.directory '*'
+        git add values-test.yaml
+        git commit -m "🚀 AUTOMATED COMMIT - Vector DB ID has updated 🚀" || rc=$?
+        git remote set-url origin $(cat $HOME/.git-credentials)/$(params.USERNAME)/canopy-be.git
+        git push origin HEAD:main

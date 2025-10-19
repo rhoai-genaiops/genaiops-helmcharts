@@ -1,4 +1,5 @@
-eval_repo: https://evalrepo
+CLUSTER_DOMAIN: apps.cluster-z84h8.z84h8.sandbox3227.opentlc.com
+USER_NAME: user1
 kfp:
   llsUrl: "http://llama-stack"
   backendUrl: "http://canopy-backend"

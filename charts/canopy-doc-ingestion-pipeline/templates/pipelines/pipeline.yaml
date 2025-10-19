@@ -33,6 +33,7 @@ spec:
           value: "true"
         - name: SSL_VERIFY
           value: "false"
+
     - name: kfp-doc-ingestion-task
       taskRef:
         name: kfp-doc-ingestion-task
@@ -46,3 +47,47 @@ spec:
           value: "5-rag"
       runAfter:
         - git-clone
+
+    # Fetch Backend repository
+    - name: fetch-backend-repository
+      taskRef:
+        resolver: cluster
+        params:
+          - name: kind
+            value: task
+          - name: name
+            value: git-clone
+          - name: namespace
+            value: openshift-pipelines 
+      workspaces:
+        - name: output
+          workspace: shared-workspace
+      params:
+        - name: URL
+          value: "https://gitea-gitea.{{ .Values.cluster_domain }}/{{ .Values.username }}/canopy-be.git"
+        - name: REVISION
+          value: "main"
+        - name: SUBDIRECTORY
+          value: "canopy-be/main"
+        - name: DELETE_EXISTING
+          value: "true"
+        - name: SSL_VERIFY
+          value: "false"
+      runAfter:
+        - kfp-doc-ingestion-task
+
+    # Update model version in Git
+    - name: update-test-values
+      taskRef:
+        name: update-test-values-task
+        kind: Task
+      runAfter:
+        - fetch-backend-repository
+      workspaces:
+        - name: output
+          workspace: shared-workspace
+      params:
+        - name: USERNAME
+          value: "{{ .Values.username }}"
+        - name: WORK_DIRECTORY
+          value: "canopy-be/main/chart"

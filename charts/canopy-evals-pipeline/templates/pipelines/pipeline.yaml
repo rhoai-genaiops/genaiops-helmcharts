@@ -9,7 +9,7 @@ spec:
   params:
     - name: GIT_URL
       type: string
-      default: {{ .Values.eval_repo }}
+      default: https://gitea-gitea.{{ .Values.CLUSTER_DOMAIN }}/{{ .Values.USER_NAME }}/canopy-evals.git
       description: Git repository URL
     - name: GIT_BRANCH
       type: string
@@ -128,3 +128,47 @@ spec:
           value: "$(params.MAX_SECONDS)"
         - name: MAX_REQUESTS
           value: "$(params.MAX_REQUESTS)"
+
+
+    # Fetch Backend repository
+    - name: fetch-backend-repository
+      taskRef:
+        resolver: cluster
+        params:
+          - name: kind
+            value: task
+          - name: name
+            value: git-clone
+          - name: namespace
+            value: openshift-pipelines 
+      workspaces:
+        - name: output
+          workspace: shared-workspace
+      params:
+        - name: URL
+          value: "https://gitea-gitea.{{ .Values.CLUSTER_DOMAIN }}/{{ .Values.USER_NAME }}/canopy-be.git"
+        - name: REVISION
+          value: "main"
+        - name: SUBDIRECTORY
+          value: "canopy-be/main"
+        - name: DELETE_EXISTING
+          value: "true"
+        - name: SSL_VERIFY
+          value: "false"
+      runAfter:
+        - guidellm-task
+        - kfp-evaluation-task
+
+    # Update model version in Git
+    - name: raise-pr-to-prod
+      taskRef:
+        name: raise-pr
+        kind: Task
+      runAfter:
+        - fetch-backend-repository
+      workspaces:
+        - name: output
+          workspace: shared-workspace
+      params:
+        - name: WORK_DIRECTORY
+          value: "canopy-be/main/chart"
