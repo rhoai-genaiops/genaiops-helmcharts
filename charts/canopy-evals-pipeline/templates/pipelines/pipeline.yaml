@@ -124,6 +124,8 @@ spec:
           value: "$(params.MAX_REQUESTS)"
         - name: GIT_REVISION
           value: "$(params.GIT_REVISION)"
+        - name: GIT_SHORT_REVISION
+          value: "$(params.GIT_SHORT_REVISION)"
 
 
     # Fetch Backend repository

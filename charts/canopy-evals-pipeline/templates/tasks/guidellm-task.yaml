@@ -43,7 +43,6 @@ spec:
     - name: GIT_SHORT_REVISION
       description: Short Git commit hash for S3 path
       type: string
-      default: "latest"
   steps:
     - name: discover-and-benchmark
       image: "$(params.GUIDELLM_IMAGE)"
