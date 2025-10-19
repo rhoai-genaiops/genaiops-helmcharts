@@ -102,6 +102,8 @@ spec:
     - name: guidellm-task
       taskRef:
         name: guidellm-task
+      runAfter:
+        - git-clone
       workspaces:
         - name: shared-workspace
           workspace: shared-workspace
