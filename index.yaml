@@ -16,7 +16,50 @@ entries:
     urls:
     - https://github.com/rhoai-genaiops/genaiops-helmcharts/releases/download/bootstrap-projects-1.0.1/bootstrap-projects-1.0.1.tgz
     version: 1.0.1
+  canopy-doc-ingestion-pipeline:
+  - apiVersion: v2
+    appVersion: "1.0"
+    created: "2025-10-20T21:58:54.651652069Z"
+    description: A Helm chart for Canopy Doc Ingestion Pipeline using Tekton and Kubeflow
+    digest: fabd1f8f9a29ea14644d19b089041e7c49bb4c087a421d078082fc5997bc84bc
+    home: https://github.com/rhoai-genaiops/genaiops-helmcharts
+    icon: https://cdn-icons-png.flaticon.com/512/10988/10988074.png
+    keywords:
+    - tekton
+    - kubeflow
+    - testing
+    - llm
+    - canopy
+    maintainers:
+    - email: genai@redhat.com
+      name: GenAI Team
+    name: canopy-doc-ingestion-pipeline
+    type: application
+    urls:
+    - https://github.com/rhoai-genaiops/genaiops-helmcharts/releases/download/canopy-doc-ingestion-pipeline-0.0.2/canopy-doc-ingestion-pipeline-0.0.2.tgz
+    version: 0.0.2
   canopy-evals-pipeline:
+  - apiVersion: v2
+    appVersion: "1.0"
+    created: "2025-10-20T21:58:54.782650752Z"
+    description: A Helm chart for Canopy Evals Pipeline using Tekton and Kubeflow
+    digest: 4b66a4849b3cd798ebd2a0a713f7eee3f1c4d059957e6369e364c15a0bb8901d
+    home: https://github.com/rhoai-genaiops/genaiops-helmcharts
+    icon: https://cdn-icons-png.freepik.com/256/11501/11501870.png?semt=ais_white_label
+    keywords:
+    - tekton
+    - kubeflow
+    - testing
+    - llm
+    - canopy
+    maintainers:
+    - email: genai@redhat.com
+      name: GenAI Team
+    name: canopy-evals-pipeline
+    type: application
+    urls:
+    - https://github.com/rhoai-genaiops/genaiops-helmcharts/releases/download/canopy-evals-pipeline-0.0.4/canopy-evals-pipeline-0.0.4.tgz
+    version: 0.0.4
   - apiVersion: v2
     appVersion: "1.0"
     created: "2025-10-16T10:17:47.982179976Z"
@@ -120,6 +163,19 @@ entries:
     name: dspa
     urls:
     - https://github.com/rhoai-genaiops/genaiops-helmcharts/releases/download/dspa-1.0.0/dspa-1.0.0.tgz
+    version: 1.0.0
+  guardrails-orchestrator:
+  - apiVersion: v2
+    appVersion: latest
+    created: "2025-10-20T21:58:54.913109852Z"
+    description: "A Helm chart for Guardrails Orchestrator \U0001F526"
+    digest: 141816ad8bceb124a88c3b055cfdc23ed295f142264bca6af6f400a04d5a1f11
+    home: https://rhoai-genaiops.github.io/genaiops/
+    icon: https://cdn-icons-png.freepik.com/512/5896/5896766.png
+    name: guardrails-orchestrator
+    type: application
+    urls:
+    - https://github.com/rhoai-genaiops/genaiops-helmcharts/releases/download/guardrails-orchestrator-1.0.0/guardrails-orchestrator-1.0.0.tgz
     version: 1.0.0
   llama-stack-operator-instance:
   - apiVersion: v2
@@ -346,4 +402,4 @@ entries:
     urls:
     - https://github.com/rhoai-genaiops/genaiops-helmcharts/releases/download/token-visualizer-1.0.1/token-visualizer-1.0.1.tgz
     version: 1.0.1
-generated: "2025-10-16T10:17:47.982209842Z"
+generated: "2025-10-20T21:58:54.913169854Z"
