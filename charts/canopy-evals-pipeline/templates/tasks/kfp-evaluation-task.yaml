@@ -31,7 +31,7 @@ spec:
       default: "latest"
   steps:
   - name: kfp-evaluation-task
-    workingDir: $(workspaces.output.path)/test-pipeline
+    workingDir: $(workspaces.output.path)/evals-pipeline
     image: registry.redhat.io/ubi9/python-311:latest
     command: ["/bin/sh", "-c"]
     args:
