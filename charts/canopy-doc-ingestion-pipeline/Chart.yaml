@@ -2,7 +2,7 @@ apiVersion: v2
 name: canopy-doc-ingestion-pipeline
 description: A Helm chart for Canopy Doc Ingestion Pipeline using Tekton and Kubeflow
 type: application
-version: 0.0.1
+version: 0.0.2
 appVersion: "1.0"
 keywords:
   - tekton
@@ -11,6 +11,7 @@ keywords:
   - llm
   - canopy
 home: https://github.com/rhoai-genaiops/genaiops-helmcharts
+icon: https://cdn-icons-png.flaticon.com/512/10988/10988074.png
 maintainers:
   - name: GenAI Team
     email: genai@redhat.com

@@ -91,3 +91,10 @@ spec:
           value: "{{ .Values.username }}"
         - name: WORK_DIRECTORY
           value: "canopy-be/main/chart"
+        - name: VECTOR_DB_ID
+          value: "$(tasks.kfp-doc-ingestion-task.results.VECTOR_DB_ID)"
+
+  results:
+    - name: VECTOR_DB_ID
+      description: Vector DB ID used in the pipeline
+      value: "$(tasks.kfp-doc-ingestion-task.results.VECTOR_DB_ID)"

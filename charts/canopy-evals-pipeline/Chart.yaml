@@ -2,7 +2,7 @@ apiVersion: v2
 name: canopy-evals-pipeline
 description: A Helm chart for Canopy Evals Pipeline using Tekton and Kubeflow
 type: application
-version: 0.0.3
+version: 0.0.4
 appVersion: "1.0"
 keywords:
   - tekton
@@ -11,6 +11,7 @@ keywords:
   - llm
   - canopy
 home: https://github.com/rhoai-genaiops/genaiops-helmcharts
+icon: https://cdn-icons-png.freepik.com/256/11501/11501870.png?semt=ais_white_label
 maintainers:
   - name: GenAI Team
     email: genai@redhat.com

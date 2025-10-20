@@ -11,31 +11,33 @@ spec:
       description: Directory to start build in (handle multiple branches)
       type: string
   steps:
-    - name: raise-pr
+    - name: patch-vector-db-id
       workingDir: $(workspaces.output.path)/$(params.WORK_DIRECTORY)
-      image: quay.io/redhat-cop/ubi8-git:latest
+      image: quay.io/redhat-cop/tekton-task-helm:3.6.3
       script: |
         #!/bin/sh
 
-        vector_db_id="genaiops_$(date +%Y_%m_%d)"
         git config --global user.email "tekton@mlops.bot.com"
         git config --global user.name "🐈 Tekton 🐈"
         git config --global push.default simple
         git config --global --add safe.directory '*'
-        git checkout -b $vector_db_id
-        cp values-test.yaml values-prod.yaml
+
+        VECTOR_DB_ID="$(yq -r '.["information-search"].vector_db_id' values-test.yaml)"
+        git checkout -b $VECTOR_DB_ID
+        yq eval -i .information-search.vector_db_id=\"${VECTOR_DB_ID}\" values-prod.yaml
+
         git add values-prod.yaml
         git commit -m "🚀 AUTOMATED COMMIT - Production prompt is updated" || rc=$?
         git remote set-url origin $(cat $HOME/.git-credentials)/{{ .Values.USER_NAME }}/canopy-be.git
-        git push origin $vector_db_id
+        git push origin $VECTOR_DB_ID
         curl --location 'https://gitea-gitea.{{ .Values.CLUSTER_DOMAIN }}/api/v1/repos/{{ .Values.USER_NAME }}/canopy-be/pulls' --user 'opentlc-mgr:myPassw0rd' --header 'accept: application/json' --header 'Content-Type: application/json' \
           --data '{
               "assignee": "{{ .Values.USER_NAME }}",
               "base": "main",
               "body": "Evaluation results can be found in [Prompt Tracker](https://prompt-tracker-ai501.{{ .Values.CLUSTER_DOMAIN }}/{{ .Values.USER_NAME }}/{{ .Values.CLUSTER_DOMAIN }}).",
-              "head": "'${vector_db_id}'",
-              "title": "🤖 New prod prompt"
+              "head": "'${VECTOR_DB_ID}'",
+              "title": "🚀 AUTOMATED PR - Production vector DB ID is updated to '${VECTOR_DB_ID}' 🚀"
           }'
 
           echo "☘️ A pull request is raised for prod: https://gitea-gitea.{{ .Values.CLUSTER_DOMAIN }}/{{ .Values.USER_NAME }}/canopy-be/pulls/"
-
+  

@@ -13,6 +13,9 @@ spec:
     - name: USERNAME
       description: Name of the team that doing this exercise :)
       type: string
+    - name: VECTOR_DB_ID
+      description: Vector DB ID used in the pipeline
+      type: string
   steps:
     - name: patch-vector-db-id
       workingDir: $(workspaces.output.path)/$(params.WORK_DIRECTORY)
@@ -20,7 +23,7 @@ spec:
       script: |
         #!/bin/sh
 
-        vector_db_id="genaiops_$(date +%Y_%m_%d)"
+        vector_db_id=$(params.VECTOR_DB_ID)
 
         yq eval -i .information-search.vector_db_id=\"${vector_db_id}\" values-test.yaml
 

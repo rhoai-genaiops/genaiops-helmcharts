@@ -13,6 +13,9 @@ spec:
     - name: USERNAME
       description: User name
       type: string
+  results:
+    - name: VECTOR_DB_ID
+      description: Vector DB ID used in the pipeline
   steps:
   - name: execute-ds-pipeline
     workingDir: $(workspaces.output.path)/$(params.WORK_DIRECTORY)
@@ -55,7 +58,7 @@ spec:
       default_parameters['llama_stack_url'] = "http://llama-stack-service.$(params.USERNAME)-test.svc.cluster.local:8321"
       default_parameters['prod_llama_stack_url'] = "http://llama-stack-service.$(params.USERNAME)-prod.svc.cluster.local:8321"
       default_parameters['test_vector_db_alias'] = "latest"
-      default_parameters['vector_db_id'] = f"genaiops_{date.today():%Y_%m_%d}"
+      default_parameters['vector_db_id'] = f"genaiops_{datetime.now():%Y_%m_%d_%H_%M}"
 
       # start a run
       print("🏃‍♂️ start a run")
@@ -73,6 +76,13 @@ spec:
           run_id=run_id.run_id, 
           timeout=7200,
       )
+
+      # save vector db id to pass it test values in next task
+      VECTOR_DB_ID = default_parameters['vector_db_id']
+      path = "$(results.VECTOR_DB_ID.path)"
+
+      with open(path, "w") as file:
+          file.write(VECTOR_DB_ID)
 
       print("🎉 job finished 🙌")
       EOF
