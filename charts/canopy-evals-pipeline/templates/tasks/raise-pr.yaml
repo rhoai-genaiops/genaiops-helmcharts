@@ -34,7 +34,7 @@ spec:
               "base": "main",
               "body": "Evaluation results can be found in [Prompt Tracker](https://prompt-tracker-ai501.{{ .Values.CLUSTER_DOMAIN }}/{{ .Values.USER_NAME }}/{{ .Values.CLUSTER_DOMAIN }}).",
               "head": "'${branch_name}'",
-              "title": "🚀 AUTOMATED PR - Production prompts updates' 🚀"
+              "title": "🚀 AUTOMATED PR - Production prompts updates 🚀"
           }'
 
           echo "☘️ A pull request is raised for prod: https://gitea-gitea.{{ .Values.CLUSTER_DOMAIN }}/{{ .Values.USER_NAME }}/canopy-be/pulls/"
