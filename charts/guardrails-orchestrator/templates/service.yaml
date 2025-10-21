@@ -10,7 +10,7 @@ spec:
   ports:
   - name: http
     port: 8080  
-    targetPort: 8080 
+    targetPort: 8032 
   type: ClusterIP
 {{- if .Values.orchestrator_gateway.enabled }}
 ---
