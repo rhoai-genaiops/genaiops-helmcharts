@@ -26,43 +26,50 @@ data:
     - telemetry
     {{- end }}
     providers:
-      {{- if .Values.guardrails.regex.enabled }}
+      {{- if .Values.guardrails.enabled }}
       safety:
         - provider_id: trusty_fms
           provider_type: remote::trusty_fms
           config:
+            orchestrator_url: http://guardrails-orchestrator:8080
+      {{- end }}
+          {{- if .Values.guardrails.regex.enabled }}
             shields:
               regex:
+                detectors:
+                  regex_competitor:
+                    detector_params: 
+                      regex: {{ .Values.guardrails.regex.filter }}
                 type: content
-                detector_url: http://guardrails-orchestrator:8080
                 confidence_threshold: 0.5
                 message_types: ["user", "system", "completion"]
-                detector_params: 
-                  regex: {{ .Values.guardrails.regex.filter }}
       {{- end }}
       {{- if .Values.guardrails.hap.enabled }}
               hap:
                 type: content
                 confidence_threshold: 0.5
                 message_types: ["user", "system", "completion"]
-                detector_url: http://guardrails-detector-ibm-hap-predictor.ai501.svc.cluster.local
-                detector_params: {}  
+                detectors:
+                  hap:
+                    detector_params: {} 
       {{- end }}
       {{- if .Values.guardrails.language_detection.enabled }}
               language_detection:
                 type: content
                 confidence_threshold: 0.5
                 message_types: ["user", "system", "completion"]
-                detector_url: http://language-detector-predictor.ai501.svc.cluster.local
-                detector_params: {}
+                detectors:
+                  language_detection:
+                    detector_params: {}
       {{- end }}
       {{- if .Values.guardrails.prompt_injection.enabled }}
               prompt_injection:
                 type: content
                 confidence_threshold: 0.5
                 message_types: ["user", "system", "completion"]
-                detector_url: http://prompt-injection-detector-predictor.ai501.svc.cluster.local
-                detector_params: {}
+                detectors:
+                  prompt_injection:
+                    detector_params: {}
       {{- end }}
       scoring:
       - provider_id: basic
@@ -196,7 +203,6 @@ data:
     shields:
     {{- end }}
     {{- if .Values.guardrails.regex.enabled }}
-      safety_shields:
     - shield_id: regex
       provider_id: trusty_fms
     {{- end }}
