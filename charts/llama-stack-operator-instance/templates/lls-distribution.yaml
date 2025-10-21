@@ -27,8 +27,5 @@ spec:
       port: 8321
     distribution:
       image: {{ .Values.distribution.image | quote }}
-    storage:
-      size: "20Gi"
-      mountPath: "/.llama/distributions"
     userConfig:
       configMapName: llama-stack-config
