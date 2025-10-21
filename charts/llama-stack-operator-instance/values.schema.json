@@ -139,6 +139,84 @@
       "required": ["enabled"],
       "additionalProperties": false
     },
+    "guardrails": {
+      "type": "object",
+      "description": "Guardrails configuration for content safety and filtering",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "description": "Enable or disable guardrails functionality",
+          "default": false
+        },
+        "regex": {
+          "type": "object",
+          "description": "Regex-based content filtering configuration",
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "description": "Enable or disable regex-based filtering",
+              "default": false
+            },
+            "filter": {
+              "type": "array",
+              "description": "Array of regex patterns to filter content",
+              "items": {
+                "type": "string"
+              },
+              "default": ["^Fight Club$"],
+              "examples": [
+                ["^Fight Club$"],
+                ["^Fight Club$", ".*fight club.*"],
+                ["^prohibited.*", "^banned.*"]
+              ]
+            }
+          },
+          "required": ["enabled"],
+          "additionalProperties": false
+        },
+        "hap": {
+          "type": "object",
+          "description": "HAP (Hate, Abuse, Profanity) detection configuration",
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "description": "Enable or disable HAP detection",
+              "default": false
+            }
+          },
+          "required": ["enabled"],
+          "additionalProperties": false
+        },
+        "prompt_injection": {
+          "type": "object",
+          "description": "Prompt injection detection configuration",
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "description": "Enable or disable prompt injection detection",
+              "default": false
+            }
+          },
+          "required": ["enabled"],
+          "additionalProperties": false
+        },
+        "language_detection": {
+          "type": "object",
+          "description": "Language detection configuration",
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "description": "Enable or disable language detection",
+              "default": false
+            }
+          },
+          "required": ["enabled"],
+          "additionalProperties": false
+        }
+      },
+      "required": ["enabled"],
+      "additionalProperties": false
+    },
     "chart_path": {
       "type": "string",
       "description": "Target namespace for deployment (format: userX-environment)",
@@ -154,7 +232,8 @@
     "rag",
     "mcp",
     "otelCollector",
-    "eval"
+    "eval",
+    "guardrails"
   ],
   "additionalProperties": false
 }

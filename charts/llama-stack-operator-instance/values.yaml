@@ -28,3 +28,15 @@ otelCollector:
 
 eval:
   enabled: false
+
+guardrails:
+  enabled: false
+  regex:
+    enabled: false
+    filter: ["^Fight Club$", ".*fight club.*"]
+  hap:
+    enabled: false
+  prompt_injection:
+    enabled: false
+  language_detection:
+    enabled: false

@@ -16,6 +16,9 @@ data:
     - eval
     - inference
     - safety
+    {{- if .Values.guardrails.enabled }}
+    - shields
+    {{- end }}
     - scoring
     - tool_runtime
     - vector_io
@@ -23,6 +26,44 @@ data:
     - telemetry
     {{- end }}
     providers:
+      {{- if .Values.guardrails.regex.enabled }}
+      safety:
+        - provider_id: trusty_fms
+          provider_type: remote::trusty_fms
+          config:
+            shields:
+              regex:
+                type: content
+                detector_url: http://guardrails-orchestrator:8080
+                confidence_threshold: 0.5
+                message_types: ["user", "system", "completion"]
+                detector_params: 
+                  regex: {{ .Values.guardrails.regex.filter }}
+      {{- end }}
+      {{- if .Values.guardrails.hap.enabled }}
+              hap:
+                type: content
+                confidence_threshold: 0.5
+                message_types: ["user", "system", "completion"]
+                detector_url: http://guardrails-detector-ibm-hap-predictor.ai501.svc.cluster.local
+                detector_params: {}  
+      {{- end }}
+      {{- if .Values.guardrails.language_detection.enabled }}
+              language_detection:
+                type: content
+                confidence_threshold: 0.5
+                message_types: ["user", "system", "completion"]
+                detector_url: http://language-detector-predictor.ai501.svc.cluster.local
+                detector_params: {}
+      {{- end }}
+      {{- if .Values.guardrails.prompt_injection.enabled }}
+              prompt_injection:
+                type: content
+                confidence_threshold: 0.5
+                message_types: ["user", "system", "completion"]
+                detector_url: http://prompt-injection-detector-predictor.ai501.svc.cluster.local
+                detector_params: {}
+      {{- end }}
       scoring:
       - provider_id: basic
         provider_type: inline::basic
@@ -150,4 +191,25 @@ data:
     {{- end }}
     server:
       port: 8321
+    {{- if .Values.guardrails.enabled }}
+    external_providers_dir: /.llama/providers.d/
+    shields:
+    {{- end }}
+    {{- if .Values.guardrails.regex.enabled }}
+      safety_shields:
+    - shield_id: regex
+      provider_id: trusty_fms
+    {{- end }}
+    {{- if .Values.guardrails.hap.enabled }}
+    - shield_id: hap
+      provider_id: trusty_fms
+    {{- end }}
+    {{- if .Values.guardrails.prompt_injection.enabled }}
+    - shield_id: prompt_injection
+      provider_id: trusty_fms
+    {{- end }}
+    {{- if .Values.guardrails.language_detection.enabled }}
+    - shield_id: language_detection
+      provider_id: trusty_fms
+    {{- end }}
 {{- end }}
