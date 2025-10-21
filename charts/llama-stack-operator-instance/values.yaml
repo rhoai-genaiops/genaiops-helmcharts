@@ -33,7 +33,7 @@ guardrails:
   enabled: false
   regex:
     enabled: false
-    filter: ["^Fight Club$", ".*fight club.*"]
+    filter: ["(?i).*fight club.*"]
   hap:
     enabled: false
   prompt_injection:
