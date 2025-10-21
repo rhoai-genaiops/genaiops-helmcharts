@@ -58,7 +58,7 @@ spec:
     - name: git-ref
       value: $(body.ref)
     - name: git-short-revision
-      value: $(extensions.git_revision_or_latest)
+      value: $(extensions.truncated_sha)
   template:
     ref: canopy-evals-trigger-template
 
