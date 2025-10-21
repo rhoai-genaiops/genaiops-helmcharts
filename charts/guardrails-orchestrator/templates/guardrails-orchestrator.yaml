@@ -6,5 +6,8 @@ metadata:
 spec:
   orchestratorConfig: "fms-orchestr8-config-nlp"
   enableBuiltInDetectors: true
-  enableGuardrailsGateway: false
+  enableGuardrailsGateway: {{ .Values.orchestrator_gateway.enabled }}
+  {{- if .Values.orchestrator_gateway.enabled }}
+  guardrailsGatewayConfig: fms-orchestr8-config-gateway
+  {{- end}}
   replicas: 1
