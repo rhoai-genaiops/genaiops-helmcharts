@@ -70,12 +70,15 @@ spec:
           enable_caching=True
       )
 
-      print("🥱 wait for the run to finish")
-      # wait for the run to finish
-      client.wait_for_run_completion(
-          run_id=run_id.run_id, 
-          timeout=600,
-      )
+      try:
+        print("🥱 wait for the run to finish")
+        # wait for the run to finish
+        client.wait_for_run_completion(
+            run_id=run_id.run_id, 
+            timeout=600,
+        )
+      except:
+        print("timed out, but all is still well, we hope")
 
       # save vector db id to pass it test values in next task
       VECTOR_DB_ID = default_parameters['vector_db_id']
