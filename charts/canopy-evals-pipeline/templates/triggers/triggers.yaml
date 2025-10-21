@@ -54,8 +54,6 @@ spec:
             key: truncated_sha
           - expression: body.ref.split('/')[2]
             key: branch_name
-          - expression: body.repository.name == 'canopy-be' ? body.head_commit.id.truncate(7) : 'latest'
-            key: git_revision_or_latest
   bindings:
     - name: git-ref
       value: $(body.ref)
