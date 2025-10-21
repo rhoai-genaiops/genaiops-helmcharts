@@ -74,7 +74,7 @@ spec:
       # wait for the run to finish
       client.wait_for_run_completion(
           run_id=run_id.run_id, 
-          timeout=7200,
+          timeout=600,
       )
 
       # save vector db id to pass it test values in next task
