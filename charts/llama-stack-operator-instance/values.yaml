@@ -30,9 +30,9 @@ eval:
   enabled: false
 
 guardrails:
-  enabled: true
+  enabled: false
   regex:
-    enabled: true
+    enabled: false
     filter: ["(?i).*fight club.*"]
   hap:
     enabled: false
