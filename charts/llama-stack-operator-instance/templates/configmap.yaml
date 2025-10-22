@@ -38,8 +38,8 @@ data:
               regex:
                 detectors:
                   regex_competitor:
-                    detector_params: 
-                      regex: {{ .Values.guardrails.regex.filter }}
+                    detector_params:
+                      regex: [{{- range $i, $f := .Values.guardrails.regex.filter }}{{ if $i }}, {{ end }}{{ $f | quote }}{{- end }}]
                 type: content
                 confidence_threshold: 0.5
                 message_types: ["user", "system", "completion"]

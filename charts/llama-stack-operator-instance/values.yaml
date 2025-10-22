@@ -30,10 +30,10 @@ eval:
   enabled: false
 
 guardrails:
-  enabled: false
+  enabled: true
   regex:
-    enabled: false
-    filter: ["(?i).*fight club.*", ]
+    enabled: true
+    filter: ["(?i).*fight club.*"]
   hap:
     enabled: false
   prompt_injection:

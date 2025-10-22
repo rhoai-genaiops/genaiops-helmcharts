@@ -159,15 +159,17 @@
             },
             "filter": {
               "type": "array",
-              "description": "Array of regex patterns to filter content",
+              "description": "Array of regex patterns to filter content. Multiple filters can be specified in comma-separated format.",
               "items": {
-                "type": "string"
+                "type": "string",
+                "pattern": ".*"
               },
-              "default": ["^Fight Club$"],
+              "minItems": 1,
+              "default": ["(?i).*fight club.*"],
               "examples": [
-                ["^Fight Club$"],
-                ["^Fight Club$", ".*fight club.*"],
-                ["^prohibited.*", "^banned.*"]
+                ["(?i).*fight club.*"],
+                ["(?i).*fight club.*", "(?i).*example.*"],
+                ["(?i).*prohibited.*", "(?i).*banned.*", "(?i).*restricted.*"]
               ]
             }
           },
