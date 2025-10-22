@@ -140,10 +140,10 @@ data:
       - provider_id: milvus
         provider_type: inline::milvus
         config:
-          db_path: ${env.MILVUS_DB_PATH:~/.llama/distributions}/rh/milvus.db
+          db_path: ${env.MILVUS_DB_PATH:~/.llama/distributions}/milvus.db
           kvstore:
             type: sqlite
-            db_path: ${env.SQLITE_STORE_DIR:~/.llama/distributions}/rh/milvus_registry.db
+            db_path: ${env.SQLITE_STORE_DIR:~/.llama/distributions}/milvus_registry.db
       {{- end }}
       {{- if and .Values.rag.enabled (or (contains "test" .Release.Namespace) (contains "prod" .Release.Namespace)) }}
       vector_io:
