@@ -167,6 +167,18 @@ entries:
   guardrails-orchestrator:
   - apiVersion: v2
     appVersion: latest
+    created: "2025-10-22T09:38:04.669397295Z"
+    description: "A Helm chart for Guardrails Orchestrator \U0001F526"
+    digest: f208c320efd08f5094698506fcd26a67555800bc8e7bb86ce01cff3244077019
+    home: https://rhoai-genaiops.github.io/genaiops/
+    icon: https://cdn-icons-png.freepik.com/512/5896/5896766.png
+    name: guardrails-orchestrator
+    type: application
+    urls:
+    - https://github.com/rhoai-genaiops/genaiops-helmcharts/releases/download/guardrails-orchestrator-1.0.4/guardrails-orchestrator-1.0.4.tgz
+    version: 1.0.4
+  - apiVersion: v2
+    appVersion: latest
     created: "2025-10-20T21:58:54.913109852Z"
     description: "A Helm chart for Guardrails Orchestrator \U0001F526"
     digest: 141816ad8bceb124a88c3b055cfdc23ed295f142264bca6af6f400a04d5a1f11
@@ -448,4 +460,4 @@ entries:
     urls:
     - https://github.com/rhoai-genaiops/genaiops-helmcharts/releases/download/token-visualizer-1.0.1/token-visualizer-1.0.1.tgz
     version: 1.0.1
-generated: "2025-10-21T21:31:43.708091887Z"
+generated: "2025-10-22T09:38:04.669451206Z"
