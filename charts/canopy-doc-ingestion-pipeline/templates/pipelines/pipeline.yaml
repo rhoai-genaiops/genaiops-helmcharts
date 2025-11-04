@@ -26,7 +26,7 @@ spec:
           workspace: shared-workspace
       params:
         - name: URL
-          value: "https://gitea-gitea.{{ .Values.cluster_domain }}/{{ .Values.username }}/canopy.git"
+          value: "https://gitea-gitea.{{ .Values.cluster_domain }}/{{ .Values.username }}/experiments.git"
         - name: REVISION
           value: "main"
         - name: DELETE_EXISTING
@@ -64,11 +64,11 @@ spec:
           workspace: shared-workspace
       params:
         - name: URL
-          value: "https://gitea-gitea.{{ .Values.cluster_domain }}/{{ .Values.username }}/canopy-be.git"
+          value: "https://gitea-gitea.{{ .Values.cluster_domain }}/{{ .Values.username }}/backend.git"
         - name: REVISION
           value: "main"
         - name: SUBDIRECTORY
-          value: "canopy-be/main"
+          value: "backend/main"
         - name: DELETE_EXISTING
           value: "true"
         - name: SSL_VERIFY
@@ -90,7 +90,7 @@ spec:
         - name: USERNAME
           value: "{{ .Values.username }}"
         - name: WORK_DIRECTORY
-          value: "canopy-be/main/chart"
+          value: "backend/main/chart"
         - name: VECTOR_DB_ID
           value: "$(tasks.kfp-doc-ingestion-task.results.VECTOR_DB_ID)"
 

@@ -15,7 +15,7 @@ spec:
       type: string
     - name: GIT_URL
       type: string
-      default: https://github.com/rhoai-genaiops/canopy-evals
+      default: https://github.com/rhoai-genaiops/evals
       description: Git repository URL
     - name: GIT_BRANCH
       type: string

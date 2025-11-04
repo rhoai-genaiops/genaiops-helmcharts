@@ -47,7 +47,7 @@ spec:
         name: "cel"
       params:
         - name: filter
-          value: (body.ref == 'refs/heads/main') && (header.match('X-GitHub-Event', 'push')) && ((body.repository.name == 'canopy-evals') || ((body.repository.name == 'canopy-be') && body.commits.exists(c, c.modified.exists(m, m == 'chart/values-test.yaml' || m == 'chart/values-prod.yaml')))) 
+          value: (body.ref == 'refs/heads/main') && (header.match('X-GitHub-Event', 'push')) && ((body.repository.name == 'evals') || ((body.repository.name == 'backend') && body.commits.exists(c, c.modified.exists(m, m == 'chart/values-test.yaml' || m == 'chart/values-prod.yaml')))) 
         - name: overlays
           value:
           - expression: body.head_commit.id.truncate(7)
