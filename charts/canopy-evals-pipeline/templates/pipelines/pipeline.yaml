@@ -9,7 +9,7 @@ spec:
   params:
     - name: GIT_URL
       type: string
-      default: https://gitea-gitea.{{ .Values.CLUSTER_DOMAIN }}/{{ .Values.USER_NAME }}/canopy-evals.git
+      default: https://gitea-gitea.{{ .Values.CLUSTER_DOMAIN }}/{{ .Values.USER_NAME }}/evals.git
       description: Git repository URL
     - name: GIT_BRANCH
       type: string
@@ -144,11 +144,11 @@ spec:
           workspace: shared-workspace
       params:
         - name: URL
-          value: "https://gitea-gitea.{{ .Values.CLUSTER_DOMAIN }}/{{ .Values.USER_NAME }}/canopy-be.git"
+          value: "https://gitea-gitea.{{ .Values.CLUSTER_DOMAIN }}/{{ .Values.USER_NAME }}/backend.git"
         - name: REVISION
           value: "main"
         - name: SUBDIRECTORY
-          value: "canopy-be/main"
+          value: "backend/main"
         - name: DELETE_EXISTING
           value: "true"
         - name: SSL_VERIFY
@@ -169,4 +169,4 @@ spec:
           workspace: shared-workspace
       params:
         - name: WORK_DIRECTORY
-          value: "canopy-be/main/chart"
+          value: "backend/main/chart"

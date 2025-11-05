@@ -39,5 +39,5 @@ spec:
         git config --global --add safe.directory '*'
         git add values-test.yaml
         git commit -m "🚀 AUTOMATED COMMIT - Vector DB ID has updated 🚀" || rc=$?
-        git remote set-url origin $(cat $HOME/.git-credentials)/$(params.USERNAME)/canopy-be.git
+        git remote set-url origin $(cat $HOME/.git-credentials)/$(params.USERNAME)/backend.git
         git push origin HEAD:main

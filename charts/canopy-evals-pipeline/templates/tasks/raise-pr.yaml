@@ -26,9 +26,9 @@ spec:
         cp values-test.yaml values-prod.yaml
         git add values-prod.yaml
         git commit -m "🚀 AUTOMATED COMMIT - Production prompt is updated" || rc=$?
-        git remote set-url origin $(cat $HOME/.git-credentials)/{{ .Values.USER_NAME }}/canopy-be.git
+        git remote set-url origin $(cat $HOME/.git-credentials)/{{ .Values.USER_NAME }}/backend.git
         git push origin $branch_name
-        curl --location 'https://gitea-gitea.{{ .Values.CLUSTER_DOMAIN }}/api/v1/repos/{{ .Values.USER_NAME }}/canopy-be/pulls' --user 'opentlc-mgr:myPassw0rd' --header 'accept: application/json' --header 'Content-Type: application/json' \
+        curl --location 'https://gitea-gitea.{{ .Values.CLUSTER_DOMAIN }}/api/v1/repos/{{ .Values.USER_NAME }}/backend/pulls' --user 'opentlc-mgr:myPassw0rd' --header 'accept: application/json' --header 'Content-Type: application/json' \
           --data '{
               "assignee": "{{ .Values.USER_NAME }}",
               "base": "main",
@@ -37,5 +37,5 @@ spec:
               "title": "🚀 AUTOMATED PR - Production prompts updates 🚀"
           }'
 
-          echo "☘️ A pull request is raised for prod: https://gitea-gitea.{{ .Values.CLUSTER_DOMAIN }}/{{ .Values.USER_NAME }}/canopy-be/pulls/"
+          echo "☘️ A pull request is raised for prod: https://gitea-gitea.{{ .Values.CLUSTER_DOMAIN }}/{{ .Values.USER_NAME }}/backend/pulls/"
   
