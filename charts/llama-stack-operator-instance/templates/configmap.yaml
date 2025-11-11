@@ -22,6 +22,7 @@ data:
     - scoring
     - tool_runtime
     - vector_io
+    - files
     {{- if .Values.telemetry.enabled }}
     - telemetry
     {{- end }}
@@ -119,6 +120,15 @@ data:
             namespace: null
             db_path: ${env.SQLITE_STORE_DIR:=~/.llama/distributions/starter}/eval_store.db
       {{- end }}
+      files:
+      - provider_id: local-files
+        provider_type: inline::localfs
+        config:
+          storage_dir: /opt/app-root/src/data/files
+          create_if_missing: true
+          metadata_store:
+            type: sqlite
+            db_path: /opt/app-root/src/.llama/distributions/files_metadata.db
       tool_runtime:
       - provider_id: model-context-protocol
         provider_type: remote::model-context-protocol
@@ -133,17 +143,20 @@ data:
       {{- if .Values.rag.enabled }}
       - provider_id: rag-runtime
         provider_type: inline::rag-runtime
-        config: {}
+        config:
+          files_provider: local-files 
+          vectorio_provider: milvus
+          embeddings_provider: sentence-transformers
       {{- end }}
       {{- if and .Values.rag.enabled (contains "canopy" .Release.Namespace) }}
       vector_io:
       - provider_id: milvus
         provider_type: inline::milvus
         config:
-          db_path: ${env.MILVUS_DB_PATH:~/.llama/distributions}/milvus.db
+          db_path: ${env.MILVUS_DB_PATH:=~/.llama/distributions}/milvus.db
           kvstore:
             type: sqlite
-            db_path: ${env.SQLITE_STORE_DIR:~/.llama/distributions}/milvus_registry.db
+            db_path: ${env.SQLITE_STORE_DIR:=~/.llama/distributions}/milvus_registry.db
       {{- end }}
       {{- if and .Values.rag.enabled (or (contains "test" .Release.Namespace) (contains "prod" .Release.Namespace)) }}
       vector_io:
@@ -161,7 +174,7 @@ data:
           service_name: ${env.OTEL_SERVICE_NAME:llama-stack}
           sinks: ${env.TELEMETRY_SINKS:console, sqlite, otel_metric}
           otel_trace_endpoint: ${env.OTEL_TRACE_ENDPOINT:}
-          sqlite_db_path: ${env.SQLITE_DB_PATH:~/.llama/distributions/remote-vllm/trace_store.db}
+          sqlite_db_path: ${env.SQLITE_DB_PATH:=~/.llama/distributions/remote-vllm/trace_store.db}
       {{- end }}
     models:
       - metadata: {}
