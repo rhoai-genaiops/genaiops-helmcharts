@@ -5,13 +5,15 @@ metadata:
   name: dspa
 spec:
   apiServer:
-    artifactSignedURLExpirySeconds: 60
     caBundleFileMountPath: ''
     caBundleFileName: ''
-    cacheEnabled: false
     deploy: true
-    enableOauth: true
+    artifactSignedURLExpirySeconds: 60
     enableSamplePipeline: false
+    managedPipelines: {}
+    enableOauth: true
+    cacheEnabled: true
+    pipelineStore: kubernetes
   database:
     disableHealthCheck: false
     mariaDB:
