@@ -223,6 +223,11 @@
       "type": "string",
       "description": "Target namespace for deployment (format: userX-environment)",
       "examples": []
+    },
+    "target_revision": {
+      "type": "string",
+      "description": "Target revision for deployment",
+      "examples": []
     }
   },
   "required": [
