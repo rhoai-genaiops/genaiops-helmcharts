@@ -4,7 +4,7 @@ MODEL_URL: "http://llama-32-predictor.ai501.svc.cluster.local:8080/v1"
 
 # Distribution configuration
 distribution:
-  image: "quay.io/rhoai-genaiops/llama-stack-vllm-milvus-fms:3.0-fix"
+  image: "quay.io/rhoai-genaiops/llama-stack-vllm-milvus-fms:rhoai-3.0-fix"
 
 
 # ConfigMap for Llama Stack configuration
