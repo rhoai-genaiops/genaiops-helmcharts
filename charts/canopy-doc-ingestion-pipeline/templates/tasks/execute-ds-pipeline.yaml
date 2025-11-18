@@ -85,8 +85,8 @@ spec:
       # VECTOR_DB_ID = default_parameters['vector_db_id']
       # path = "$(results.VECTOR_DB_ID.path)"
 
-      # with open(path, "w") as file:
-      #     file.write(VECTOR_DB_ID)
+      with open("$(results.VECTOR_DB_ID.path)", "w") as file:
+            file.write(default_parameters['id_save_path'])
 
       print("🎉 job finished 🙌")
       EOF
