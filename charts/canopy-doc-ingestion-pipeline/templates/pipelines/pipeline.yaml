@@ -48,41 +48,13 @@ spec:
       runAfter:
         - git-clone
 
-    # Fetch Backend repository
-    # - name: fetch-backend-repository
-    #   taskRef:
-    #     resolver: cluster
-    #     params:
-    #       - name: kind
-    #         value: task
-    #       - name: name
-    #         value: git-clone
-    #       - name: namespace
-    #         value: openshift-pipelines 
-    #   workspaces:
-    #     - name: output
-    #       workspace: shared-workspace
-    #   params:
-    #     - name: URL
-    #       value: "https://gitea-gitea.{{ .Values.cluster_domain }}/{{ .Values.username }}/backend.git"
-    #     - name: REVISION
-    #       value: "main"
-    #     - name: SUBDIRECTORY
-    #       value: "backend/main"
-    #     - name: DELETE_EXISTING
-    #       value: "true"
-    #     - name: SSL_VERIFY
-    #       value: "false"
-    #   runAfter:
-    #     - kfp-doc-ingestion-task
-
     # Update model version in Git
     - name: update-test-values
       taskRef:
         name: update-test-values-task
         kind: Task
       runAfter:
-        - fetch-backend-repository
+        - kfp-doc-ingestion-task
       workspaces:
         - name: output
           workspace: shared-workspace
