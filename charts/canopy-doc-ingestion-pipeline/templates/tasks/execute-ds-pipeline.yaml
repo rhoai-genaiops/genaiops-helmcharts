@@ -59,6 +59,7 @@ spec:
       default_parameters['prod_llama_stack_url'] = "http://llama-stack-service.$(params.USERNAME)-prod.svc.cluster.local:8321"
       default_parameters['test_vector_db_alias'] = "latest"
       default_parameters['vector_db_id'] = f"genaiops_{datetime.now():%Y_%m_%d_%H_%M}"
+      default_parameters['id_save_path'] = "$(results.VECTOR_DB_ID.path)"
 
       # start a run
       print("🏃‍♂️ start a run")
@@ -81,11 +82,11 @@ spec:
         print("timed out, but all is still well, we hope")
 
       # save vector db id to pass it test values in next task
-      VECTOR_DB_ID = default_parameters['vector_db_id']
-      path = "$(results.VECTOR_DB_ID.path)"
+      # VECTOR_DB_ID = default_parameters['vector_db_id']
+      # path = "$(results.VECTOR_DB_ID.path)"
 
-      with open(path, "w") as file:
-          file.write(VECTOR_DB_ID)
+      # with open(path, "w") as file:
+      #     file.write(VECTOR_DB_ID)
 
       print("🎉 job finished 🙌")
       EOF
