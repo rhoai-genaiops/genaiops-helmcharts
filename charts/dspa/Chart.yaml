@@ -2,7 +2,7 @@
 apiVersion: v2
 description: A little Helm chart for Data Science Pipeline Application 🐈
 name: dspa
-version: 1.0.4
+version: 1.0.5
 home: https://rhoai-genaiops.github.io/genaiops/
 icon: https://cdn-icons-png.flaticon.com/512/16990/16990376.png 
 maintainers:

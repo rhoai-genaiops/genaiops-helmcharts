@@ -2,7 +2,7 @@ apiVersion: v2
 name: canopy-doc-ingestion-pipeline
 description: A Helm chart for Canopy Doc Ingestion Pipeline using Tekton and Kubeflow
 type: application
-version: 0.0.4
+version: 0.0.5
 appVersion: "1.0"
 keywords:
   - tekton
