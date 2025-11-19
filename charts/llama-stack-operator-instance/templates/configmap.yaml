@@ -140,14 +140,12 @@ data:
       - provider_id: tavily-search
         provider_type: remote::tavily-search
         config: {}
-      {{- if .Values.rag.enabled }}
       - provider_id: rag-runtime
         provider_type: inline::rag-runtime
         config:
           files_provider: local-files 
           vectorio_provider: milvus
           embeddings_provider: sentence-transformers
-      {{- end }}
       {{- if contains "canopy" .Release.Namespace }}
       vector_io:
       - provider_id: milvus
@@ -185,13 +183,11 @@ data:
         provider_id: vllm
         provider_model_id: ${env.MODEL_NAME}
         model_type: llm
-      {{- if .Values.rag.enabled }}
       - metadata:
           embedding_dimension: 384
         model_id: all-MiniLM-L6-v2
         provider_id: sentence-transformers
         model_type: embedding
-      {{- end }}
     tool_groups:
     - provider_id: tavily-search
       toolgroup_id: builtin::websearch
