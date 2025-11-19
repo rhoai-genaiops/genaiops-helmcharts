@@ -11,7 +11,9 @@ data:
     version: '2'
     image_name: vllm
     apis:
+    {{- if and .Values.rag.enabled }}
     - agents
+    {{- end }}
     - datasetio
     - eval
     - inference
