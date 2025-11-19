@@ -2,7 +2,7 @@ apiVersion: v2
 name: llama-stack-playground
 description: A Helm chart for Llama Stack Playground UI
 type: application
-version: 1.0.1
+version: 1.0.2
 appVersion: "latest"
 maintainers:
   - name: ckavili
