@@ -11,7 +11,7 @@ data:
     version: '2'
     image_name: vllm
     apis:
-    {{- if and .Values.rag.enabled }}
+    {{- if and .Values.eval.enabled }}
     - agents
     {{- end }}
     - datasetio
@@ -83,7 +83,7 @@ data:
       - provider_id: llm-as-judge
         provider_type: inline::llm-as-judge
         config: {}
-      {{- if and .Values.rag.enabled }}
+      {{- if and .Values.eval.enabled }}
       agents:
       - provider_id: meta-reference
         provider_type: inline::meta-reference
