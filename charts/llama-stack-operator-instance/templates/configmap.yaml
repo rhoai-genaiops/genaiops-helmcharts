@@ -23,7 +23,9 @@ data:
     {{- end }}
     - scoring
     - tool_runtime
+    {{- if and .Values.rag.enabled }}
     - vector_io
+    {{- end }}
     - files
     {{- if .Values.telemetry.enabled }}
     - telemetry
