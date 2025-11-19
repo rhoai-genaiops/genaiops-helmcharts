@@ -83,7 +83,7 @@ data:
       - provider_id: llm-as-judge
         provider_type: inline::llm-as-judge
         config: {}
-      {{- if and .Values.rag.enabled (or (contains "test" .Release.Namespace) (contains "prod" .Release.Namespace)) }}
+      {{- if and .Values.rag.enabled }}
       agents:
       - provider_id: meta-reference
         provider_type: inline::meta-reference
@@ -154,7 +154,7 @@ data:
           vectorio_provider: milvus
           embeddings_provider: sentence-transformers
       {{- end }}
-      {{- if contains "canopy" .Release.Namespace }}
+      {{- if and .Values.rag.enabled (contains "canopy" .Release.Namespace) }}
       vector_io:
       - provider_id: milvus
         provider_type: inline::milvus
