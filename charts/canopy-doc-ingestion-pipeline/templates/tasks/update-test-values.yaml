@@ -23,19 +23,9 @@ spec:
       script: |
         #!/bin/sh
 
-        vector_db_ids_file=$(params.VECTOR_DB_ID)
+        vector_db_id=$(params.VECTOR_DB_ID)
 
-        test_vector_db_id=$(cat "${vector_db_ids_file}" | jq -r '.test_vector_db_ids')
-        prod_vector_db_id=$(cat "${vector_db_ids_file}" | jq -r '.prod_vector_db_ids')
-
-        echo "Test Vector DB ID: ${test_vector_db_id}"
-        echo "Prod Vector DB ID: ${prod_vector_db_id}"
-
-        # Update test values with test ID
-        yq eval -i .information-search.vector_db_id=\"${test_vector_db_id}\" values-test.yaml
-
-        # Update prod values with prod ID (assuming you have a values-prod.yaml)
-        yq eval -i .information-search.vector_db_id=\"${prod_vector_db_id}\" values-prod.yaml
+        yq eval -i .information-search.vector_db_id=\"${vector_db_id}\" values-test.yaml
 
     - name: commit-changes
       workingDir: $(workspaces.output.path)/$(params.WORK_DIRECTORY)
