@@ -165,6 +165,9 @@ data:
         config:
           uri: "http://{{ .Values.rag.milvus.service }}.{{ .Release.Namespace }}.svc.cluster.local:19530"
           token: "root:Milvus"
+          kvstore:
+            type: sqlite
+            db_path: ${env.SQLITE_STORE_DIR:=~/.llama/distributions}/milvus_registry.db
       {{- end }}
       {{- if .Values.telemetry.enabled }}
       telemetry:
