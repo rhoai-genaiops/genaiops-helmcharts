@@ -19,6 +19,27 @@ entries:
   canopy-doc-ingestion-pipeline:
   - apiVersion: v2
     appVersion: "1.0"
+    created: "2025-11-19T17:58:42.329463499Z"
+    description: A Helm chart for Canopy Doc Ingestion Pipeline using Tekton and Kubeflow
+    digest: 431302685e0bee7eb6910976c094c2311630c58184d25abcd6d6da3e9a9288de
+    home: https://github.com/rhoai-genaiops/genaiops-helmcharts
+    icon: https://cdn-icons-png.flaticon.com/512/10988/10988074.png
+    keywords:
+    - tekton
+    - kubeflow
+    - testing
+    - llm
+    - canopy
+    maintainers:
+    - email: genai@redhat.com
+      name: GenAI Team
+    name: canopy-doc-ingestion-pipeline
+    type: application
+    urls:
+    - https://github.com/rhoai-genaiops/genaiops-helmcharts/releases/download/canopy-doc-ingestion-pipeline-0.0.6/canopy-doc-ingestion-pipeline-0.0.6.tgz
+    version: 0.0.6
+  - apiVersion: v2
+    appVersion: "1.0"
     created: "2025-11-18T20:29:34.51280481Z"
     description: A Helm chart for Canopy Doc Ingestion Pipeline using Tekton and Kubeflow
     digest: f73d4e5d476a24137ed824dcb7680db2059760634610d975f39d3a55274b7de8
@@ -761,4 +782,4 @@ entries:
     urls:
     - https://github.com/rhoai-genaiops/genaiops-helmcharts/releases/download/token-visualizer-1.0.1/token-visualizer-1.0.1.tgz
     version: 1.0.1
-generated: "2025-11-19T17:01:56.59099287Z"
+generated: "2025-11-19T17:58:42.329541976Z"
