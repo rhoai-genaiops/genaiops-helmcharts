@@ -3,7 +3,7 @@ apiVersion: v2
 description: A Helm chart for Llama Stack Operator instances 🦙
 name: llama-stack-operator-instance
 type: application
-version: 1.1.7
+version: 1.1.8
 appVersion: "latest"
 home: https://rhoai-genaiops.github.io/genaiops/
 icon: https://aiagentframeworks.ai/content/images/2024/11/llama-stack.png
