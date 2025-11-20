@@ -22,20 +22,20 @@ data:
         type: text_contents
         service:
           hostname: guardrails-detector-ibm-hap-predictor.ai501.svc.cluster.local
-          port: 80
+          port: 8000
         chunker_id: whole_doc_chunker
         default_threshold: 0.5
       prompt_injection:
         type: text_contents
         service:
           hostname: prompt-injection-detector-predictor.ai501.svc.cluster.local
-          port: 80
+          port: 8000
         chunker_id: whole_doc_chunker
         default_threshold: 0.5
       language_detection:
         type: text_contents
         service:
           hostname: language-detector-predictor.ai501.svc.cluster.local
-          port: 80
+          port: 8000
         chunker_id: whole_doc_chunker
         default_threshold: 0.5
