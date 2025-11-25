@@ -113,15 +113,13 @@ data:
         config:
           kvstore:
             type: sqlite
-            namespace: null
-            db_path: ${env.SQLITE_STORE_DIR:=~/.llama/distributions/sample-notebook}/huggingface_datasetio.db
+            db_path: ${env.SQLITE_STORE_DIR:=~/.llama/distributions/starter}/huggingface_datasetio.db
       eval:
       - provider_id: meta-reference
         provider_type: inline::meta-reference
         config:
           kvstore:
             type: sqlite
-            namespace: null
             db_path: ${env.SQLITE_STORE_DIR:=~/.llama/distributions/starter}/eval_store.db
       {{- end }}
       files:
@@ -130,9 +128,6 @@ data:
         config:
           storage_dir: /opt/app-root/src/data/files
           create_if_missing: true
-          metadata_store:
-            type: sqlite
-            db_path: /opt/app-root/src/.llama/distributions/files_metadata.db
       tool_runtime:
       - provider_id: model-context-protocol
         provider_type: remote::model-context-protocol
@@ -216,6 +211,13 @@ data:
     {{- if .Values.eval.enabled }}
     benchmarks: []
     {{- end }}
+    registered_resources:
+      models: []
+      vector_dbs: []
+      datasets: []
+      scoring_fns: []
+      benchmarks: []
+      shields: []
     server:
       port: 8321
     {{- if .Values.guardrails.enabled }}
