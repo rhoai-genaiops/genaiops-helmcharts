@@ -6,6 +6,12 @@ MODEL_URL: "http://llama-32-predictor.ai501.svc.cluster.local:8080/v1"
 distribution:
   image: "quay.io/rhoai-genaiops/llama-stack-vllm-milvus-fms:rhoai-3.0-fix2" #0.13
 
+# Persistent storage for Milvus and SQLite data (canopy namespace only)
+# The operator automatically creates a PVC based on these settings
+persistence:
+  enabled: true
+  size: 10Gi
+  mountPath: /opt/app-root/src/data
 
 # ConfigMap for Llama Stack configuration
 configMap:

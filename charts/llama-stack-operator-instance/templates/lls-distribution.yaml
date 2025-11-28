@@ -23,8 +23,19 @@ spec:
           value: {{ .Values.MODEL_NAME | quote }}
         - name: MODEL_URL
           value: {{ .Values.MODEL_URL | quote }}
+        {{- if and .Values.persistence.enabled (contains "canopy" .Release.Namespace) }}
+        - name: MILVUS_DB_PATH
+          value: {{ .Values.persistence.mountPath }}/llama
+        - name: SQLITE_STORE_DIR
+          value: {{ .Values.persistence.mountPath }}/llama
+        {{- end }}
       name: llama-stack
       port: 8321
+    {{- if and .Values.persistence.enabled (contains "canopy" .Release.Namespace) }}
+    storage:
+      size: {{ .Values.persistence.size | quote }}
+      mountPath: {{ .Values.persistence.mountPath | quote }}
+    {{- end }}
     distribution:
       image: {{ .Values.distribution.image | quote }}
     userConfig:
