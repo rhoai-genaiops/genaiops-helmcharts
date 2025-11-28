@@ -199,14 +199,10 @@ data:
       provider_id: rag-runtime
     {{- end }}
     {{- if .Values.mcp.enabled }}
-    # - toolgroup_id: mcp::openshift
-    #   provider_id: model-context-protocol
-    #   mcp_endpoint:
-    #     uri: http://ocp-mcp-server.agent-demo.svc.cluster.local:8000/sse
-    # - toolgroup_id: mcp::github
-    #   provider_id: model-context-protocol
-    #   mcp_endpoint:
-    #     uri: http://github-mcp-server.agent-demo.svc.cluster.local:80/sse
+    - toolgroup_id: mcp::canopy-calendar
+      provider_id: model-context-protocol
+      mcp_endpoint:
+        uri: http://canopy-mcp-calendar-mcp-server:8080/sse
     {{- end }}
     {{- if .Values.eval.enabled }}
     benchmarks: []
