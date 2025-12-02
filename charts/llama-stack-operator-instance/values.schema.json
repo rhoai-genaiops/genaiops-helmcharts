@@ -113,6 +113,19 @@
       "required": ["enabled"],
       "additionalProperties": false
     },
+    "mcp-aihub": {
+      "type": "object",
+      "description": "MCP AI Hub integration configuration for deploying MCP servers to AI Hub",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "description": "Enable or disable MCP AI Hub integration and server deployment",
+          "default": false
+        }
+      },
+      "required": ["enabled"],
+      "additionalProperties": false
+    },
     "otelCollector": {
       "type": "object",
       "description": "OpenTelemetry Collector configuration",
@@ -238,6 +251,7 @@
     "telemetry",
     "rag",
     "mcp",
+    "mcp-aihub",
     "otelCollector",
     "eval",
     "guardrails"

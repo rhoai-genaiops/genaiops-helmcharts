@@ -23,6 +23,9 @@ rag:
 mcp:
   enabled: false
 
+mcp-aihub:
+  enabled: false
+
 otelCollector:
   enabled: false
 

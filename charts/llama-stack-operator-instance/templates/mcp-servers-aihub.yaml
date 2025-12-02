@@ -1,0 +1,15 @@
+{{- if .Values.mcp-aihub.enabled }}
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: gen-ai-aa-mcp-servers
+  namespace: redhat-ods-applications
+data:
+  Kubernetes-MCP-Server: |
+    {
+      "url": "http://canopy-mcp-calendar-mcp-server:8080/sse",
+      "transport": "sse",
+      "description": "Calendar RDU Canopy AI MCP Server",
+      "logo": "https://kubernetes.io/_common-resources/images/flower.svg"
+    }
+{{- end }}
