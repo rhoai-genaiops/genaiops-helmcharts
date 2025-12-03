@@ -9,7 +9,7 @@ metadata:
   labels:
     dashboards: grafana
 spec:
-  folder: {{ .Release.Namespace | trimPrefix "user" | title }} Canopy Dashboards
+  folder: {{ .Release.Namespace | title }} Canopy Dashboards
   instanceSelector:
     matchLabels:
       dashboards: grafana
@@ -132,7 +132,7 @@ spec:
               },
               "disableTextWrap": false,
               "editorMode": "builder",
-              "expr": "rate(vllm:generation_tokens_total{model_name=\"$model_name\"}[5m])",
+              "expr": "sum by(model_name) (rate(vllm:generation_tokens_total{model_name=\"$model_name\"}[5m]))",
               "fullMetaSearch": false,
               "hide": false,
               "includeNullMetadata": false,
@@ -233,7 +233,7 @@ spec:
               },
               "disableTextWrap": false,
               "editorMode": "builder",
-              "expr": "rate(vllm:prompt_tokens_total{model_name=\"$model_name\"}[5m])",
+              "expr": "sum by(model_name) (rate(vllm:prompt_tokens_total{model_name=\"$model_name\"}[5m]))",
               "fullMetaSearch": false,
               "includeNullMetadata": false,
               "instant": false,
@@ -499,7 +499,7 @@ spec:
               },
               "disableTextWrap": false,
               "editorMode": "builder",
-              "expr": "vllm:num_requests_running{model_name=\"$model_name\"}",
+              "expr": "max by(model_name) (vllm:num_requests_running{model_name=\"$model_name\"})",
               "fullMetaSearch": false,
               "includeNullMetadata": true,
               "instant": false,
@@ -515,7 +515,7 @@ spec:
               },
               "disableTextWrap": false,
               "editorMode": "builder",
-              "expr": "vllm:num_requests_swapped{model_name=\"$model_name\"}",
+              "expr": "max by(model_name) (vllm:num_requests_swapped{model_name=\"$model_name\"})",
               "fullMetaSearch": false,
               "hide": false,
               "includeNullMetadata": true,
@@ -532,7 +532,7 @@ spec:
               },
               "disableTextWrap": false,
               "editorMode": "builder",
-              "expr": "vllm:num_requests_waiting{model_name=\"$model_name\"}",
+              "expr": "max by(model_name) (vllm:num_requests_waiting{model_name=\"$model_name\"})",
               "fullMetaSearch": false,
               "hide": false,
               "includeNullMetadata": true,
@@ -544,204 +544,6 @@ spec:
             }
           ],
           "title": "Scheduler State",
-          "type": "timeseries"
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
-          },
-          "fieldConfig": {
-            "defaults": {
-              "color": {
-                "mode": "palette-classic"
-              },
-              "custom": {
-                "axisBorderShow": false,
-                "axisCenteredZero": false,
-                "axisColorMode": "text",
-                "axisLabel": "",
-                "axisPlacement": "auto",
-                "barAlignment": 0,
-                "drawStyle": "line",
-                "fillOpacity": 0,
-                "gradientMode": "none",
-                "hideFrom": {
-                  "legend": false,
-                  "tooltip": false,
-                  "viz": false
-                },
-                "insertNulls": false,
-                "lineInterpolation": "linear",
-                "lineWidth": 1,
-                "pointSize": 5,
-                "scaleDistribution": {
-                  "type": "linear"
-                },
-                "showPoints": "auto",
-                "spanNulls": false,
-                "stacking": {
-                  "group": "A",
-                  "mode": "none"
-                },
-                "thresholdsStyle": {
-                  "mode": "off"
-                }
-              },
-              "mappings": [],
-              "thresholds": {
-                "mode": "absolute",
-                "steps": [
-                  {
-                    "color": "green",
-                    "value": null
-                  },
-                  {
-                    "color": "red",
-                    "value": 80
-                  }
-                ]
-              }
-            },
-            "overrides": []
-          },
-          "gridPos": {
-            "h": 8,
-            "w": 12,
-            "x": 0,
-            "y": 16
-          },
-          "id": 15,
-          "options": {
-            "legend": {
-              "calcs": [],
-              "displayMode": "list",
-              "placement": "bottom",
-              "showLegend": true
-            },
-            "tooltip": {
-              "mode": "single",
-              "sort": "none"
-            }
-          },
-          "targets": [
-            {
-              "datasource": {
-                "type": "prometheus",
-                "uid": "${DS_PROMETHEUS}"
-              },
-              "disableTextWrap": false,
-              "editorMode": "code",
-              "expr": "DCGM_FI_DEV_GPU_UTIL",
-              "fullMetaSearch": false,
-              "includeNullMetadata": true,
-              "instant": true,
-              "legendFormat": "__auto",
-              "range": true,
-              "refId": "A",
-              "useBackend": false
-            }
-          ],
-          "title": "GPU Utilization",
-          "type": "timeseries"
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
-          },
-          "fieldConfig": {
-            "defaults": {
-              "color": {
-                "mode": "palette-classic"
-              },
-              "custom": {
-                "axisBorderShow": false,
-                "axisCenteredZero": false,
-                "axisColorMode": "text",
-                "axisLabel": "",
-                "axisPlacement": "auto",
-                "barAlignment": 0,
-                "drawStyle": "line",
-                "fillOpacity": 0,
-                "gradientMode": "none",
-                "hideFrom": {
-                  "legend": false,
-                  "tooltip": false,
-                  "viz": false
-                },
-                "insertNulls": false,
-                "lineInterpolation": "linear",
-                "lineWidth": 1,
-                "pointSize": 5,
-                "scaleDistribution": {
-                  "type": "linear"
-                },
-                "showPoints": "auto",
-                "spanNulls": false,
-                "stacking": {
-                  "group": "A",
-                  "mode": "none"
-                },
-                "thresholdsStyle": {
-                  "mode": "off"
-                }
-              },
-              "mappings": [],
-              "thresholds": {
-                "mode": "absolute",
-                "steps": [
-                  {
-                    "color": "green",
-                    "value": null
-                  },
-                  {
-                    "color": "red",
-                    "value": 80
-                  }
-                ]
-              }
-            },
-            "overrides": []
-          },
-          "gridPos": {
-            "h": 8,
-            "w": 12,
-            "x": 12,
-            "y": 16
-          },
-          "id": 16,
-          "options": {
-            "legend": {
-              "calcs": [],
-              "displayMode": "list",
-              "placement": "bottom",
-              "showLegend": true
-            },
-            "tooltip": {
-              "mode": "single",
-              "sort": "none"
-            }
-          },
-          "targets": [
-            {
-              "datasource": {
-                "type": "prometheus",
-                "uid": "${DS_PROMETHEUS}"
-              },
-              "disableTextWrap": false,
-              "editorMode": "code",
-              "expr": "DCGM_FI_PROF_PIPE_TENSOR_ACTIVE{instance=~\".+\", gpu=~\".+\"}",
-              "fullMetaSearch": false,
-              "includeNullMetadata": true,
-              "instant": true,
-              "legendFormat": "__auto",
-              "range": true,
-              "refId": "A",
-              "useBackend": false
-            }
-          ],
-          "title": "GPU Tensor Core Utilization",
           "type": "timeseries"
         },
         {
@@ -1034,7 +836,7 @@ spec:
             "type": "prometheus",
             "uid": "${DS_PROMETHEUS}"
           },
-          "description": "Percentage of used cache blocks by vLLM.",
+          "description": "Percentage of KV cache blocks used by vLLM.",
           "fieldConfig": {
             "defaults": {
               "color": {
@@ -1116,27 +918,14 @@ spec:
                 "uid": "${DS_PROMETHEUS}"
               },
               "editorMode": "code",
-              "expr": "vllm:gpu_cache_usage_perc{model_name=\"$model_name\"}",
+              "expr": "max by(model_name) (vllm:kv_cache_usage_perc{model_name=\"$model_name\"})",
               "instant": false,
-              "legendFormat": "GPU Cache Usage",
+              "legendFormat": "KV Cache Usage",
               "range": true,
               "refId": "A"
-            },
-            {
-              "datasource": {
-                "type": "prometheus",
-                "uid": "${DS_PROMETHEUS}"
-              },
-              "editorMode": "code",
-              "expr": "vllm:cpu_cache_usage_perc{model_name=\"$model_name\"}",
-              "hide": false,
-              "instant": false,
-              "legendFormat": "CPU Cache Usage",
-              "range": true,
-              "refId": "B"
             }
           ],
-          "title": "Cache Utilization",
+          "title": "KV Cache Utilization",
           "type": "timeseries"
         },
         {
@@ -1477,9 +1266,9 @@ spec:
         "list": [
           {
             "current": {
-              "selected": false,
-              "text": "Prometheus",
-              "value": "afc33eb2-ee03-4ff5-870c-772cc190ccd0"
+              "selected": true,
+              "text": "RHOAI Prometheus",
+              "value": "RHOAI Prometheus"
             },
             "hide": 0,
             "includeAll": false,

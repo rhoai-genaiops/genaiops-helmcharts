@@ -9,4 +9,4 @@ spec:
     matchLabels:
       dashboards: "grafana"
   resyncPeriod: 5m
-  title: {{ .Release.Namespace | title | replace "user" "User-" | replace "-Toolings" "-Toolings" }} Canopy Dashboards
+  title: {{ .Release.Namespace | title }} Canopy Dashboards
