@@ -5,13 +5,13 @@ metadata:
   name: {{ .Release.Name }}-traces-dashboard
   namespace: {{ .Release.Namespace }}
 spec:
-  folder: {{ .Release.Name }}-{{ .Release.Namespace }}-folder
+  folder: {{ .Release.Namespace | replace "-toolings" "" | title }}-Toolings Canopy Dashboards
   instanceSelector:
     matchLabels:
       dashboards: "grafana"
   json: |
     {
-      "title": "Llama Stack Traces - {{ .Release.Namespace | title }}",
+      "title": "Llama Stack Traces",
       "uid": "llama-stack-traces-{{ .Release.Namespace }}",
       "tags": ["traces", "tempo", "llama-stack"],
       "timezone": "browser",

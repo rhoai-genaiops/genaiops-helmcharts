@@ -9,7 +9,7 @@ metadata:
   labels:
     dashboards: grafana
 spec:
-  folder: {{ .Release.Namespace | title }} Canopy Dashboards
+  folder: {{ .Release.Namespace | replace "-toolings" "" | title }}-Toolings Canopy Dashboards
   instanceSelector:
     matchLabels:
       dashboards: grafana
@@ -1311,7 +1311,7 @@ spec:
       },
       "timepicker": {},
       "timezone": "",
-      "title": "vLLM",
+      "title": "vLLM AI501 Dashboard",
       "uid": "b281712d-8bff-41ef-9f3f-71ad43c05e9b",
       "version": 7,
       "weekStart": ""
