@@ -1,0 +1,42 @@
+---
+apiVersion: grafana.integreatly.org/v1beta1
+kind: GrafanaDatasource
+metadata:
+  name: tempo-grafanadatasource
+spec:
+  datasource:
+      access: proxy
+      editable: true
+      isDefault: false
+      jsonData:
+        httpHeaderName1: 'X-Scope-OrgID'
+        httpMethod: GET
+        backend: 'http'
+        tracesQuery:
+          timeShiftEnabled: true
+          spanStartTimeShift: '-1h'
+          spanEndTimeShift: '1h'
+        tracesToLogsV2:
+          datasourceUid: 'prometheus'
+          spanStartTimeShift: '-1h'
+          spanEndTimeShift: '1h'
+          filterByTraceID: false
+          filterBySpanID: false
+        tracesToMetrics:
+          datasourceUid: 'prometheus'
+        serviceMap:
+          datasourceUid: 'prometheus'
+        nodeGraph:
+          enabled: true
+        search:
+          hide: false
+        lokiSearch:
+          datasourceUid: ''
+      name: Tempo
+      secureJsonData:
+        httpHeaderValue1: "redhat-ods-monitoring"
+      type: tempo
+      url: 'http://tempo-data-science-tempomonolithic.redhat-ods-monitoring.svc.cluster.local:3200'
+  instanceSelector:
+    matchLabels:
+      dashboards: "grafana"
