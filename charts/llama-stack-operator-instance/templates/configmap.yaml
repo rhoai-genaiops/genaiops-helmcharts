@@ -23,7 +23,7 @@ data:
     {{- end }}
     - scoring
     - tool_runtime
-    {{- if .Values.rag.enabled }}
+    {{- if or .Values.rag.enabled (contains "canopy" .Release.Namespace) }}
     - vector_io
     {{- end }}
     - files
@@ -154,7 +154,7 @@ data:
           vectorio_provider: milvus
           embeddings_provider: sentence-transformers
       {{- end }}
-      {{- if and .Values.rag.enabled (contains "canopy" .Release.Namespace) }}
+      {{- if contains "canopy" .Release.Namespace }}
       vector_io:
       - provider_id: milvus
         provider_type: inline::milvus
