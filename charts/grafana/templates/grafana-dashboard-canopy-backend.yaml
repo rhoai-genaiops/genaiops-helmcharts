@@ -1,0 +1,538 @@
+---
+apiVersion: grafana.integreatly.org/v1beta1
+kind: GrafanaDashboard
+metadata:
+  name: {{ .Release.Name }}-canopy-backend-dashboard
+  namespace: {{ .Release.Namespace }}
+spec:
+  folder: {{ .Release.Namespace | replace "-toolings" "" | title }}-Toolings Canopy Dashboards
+  instanceSelector:
+    matchLabels:
+      dashboards: grafana
+  json: |
+    {
+      "title": "Canopy Backend Dashboard",
+      "uid": "canopy-backend-metrics-{{ .Release.Namespace }}",
+      "tags": ["canopy", "fastapi", "backend", "llm"],
+      "timezone": "browser",
+      "schemaVersion": 39,
+      "time": {
+        "from": "now-6h",
+        "to": "now"
+      },
+      "refresh": "30s",
+      "templating": {
+        "list": [
+          {
+            "current": {
+              "selected": true,
+              "text": "RHOAI Prometheus",
+              "value": "RHOAI Prometheus"
+            },
+            "hide": 0,
+            "includeAll": false,
+            "label": "datasource",
+            "multi": false,
+            "name": "DS_PROMETHEUS",
+            "options": [],
+            "query": "prometheus",
+            "refresh": 1,
+            "type": "datasource"
+          }
+        ]
+      },
+      "panels": [
+        {
+          "id": 1,
+          "type": "stat",
+          "title": "Total API Requests (Last Hour)",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "gridPos": {
+            "h": 4,
+            "w": 6,
+            "x": 0,
+            "y": 0
+          },
+          "targets": [
+            {
+              "refId": "A",
+              "expr": "sum(increase(http_server_duration_milliseconds_count{k8s_container_name=\"canopy-backend\", k8s_namespace_name=\"user4-canopy\"}[1h]))",
+              "legendFormat": "Requests"
+            }
+          ],
+          "options": {
+            "graphMode": "area",
+            "colorMode": "value"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "unit": "short",
+              "color": {
+                "mode": "thresholds"
+              },
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {"color": "green", "value": null},
+                  {"color": "yellow", "value": 50},
+                  {"color": "red", "value": 200}
+                ]
+              }
+            }
+          }
+        },
+        {
+          "id": 2,
+          "type": "stat",
+          "title": "API Response Time (p95)",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "gridPos": {
+            "h": 4,
+            "w": 6,
+            "x": 6,
+            "y": 0
+          },
+          "targets": [
+            {
+              "refId": "A",
+              "expr": "histogram_quantile(0.95, sum(rate(http_server_duration_milliseconds_bucket{k8s_container_name=\"canopy-backend\", k8s_namespace_name=\"user4-canopy\"}[5m])) by (le))",
+              "legendFormat": "p95"
+            }
+          ],
+          "options": {
+            "graphMode": "area",
+            "colorMode": "value"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "unit": "ms",
+              "color": {
+                "mode": "thresholds"
+              },
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {"color": "green", "value": null},
+                  {"color": "yellow", "value": 1000},
+                  {"color": "orange", "value": 5000},
+                  {"color": "red", "value": 10000}
+                ]
+              }
+            }
+          }
+        },
+        {
+          "id": 3,
+          "type": "stat",
+          "title": "Error Rate (%)",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "gridPos": {
+            "h": 4,
+            "w": 6,
+            "x": 12,
+            "y": 0
+          },
+          "targets": [
+            {
+              "refId": "A",
+              "expr": "(100 * sum(rate(http_server_duration_milliseconds_count{k8s_container_name=\"canopy-backend\", k8s_namespace_name=\"user4-canopy\", http_status_code=~\"5..\"}[5m])) / sum(rate(http_server_duration_milliseconds_count{k8s_container_name=\"canopy-backend\", k8s_namespace_name=\"user4-canopy\"}[5m]))) or on() vector(0)",
+              "legendFormat": "Error %"
+            }
+          ],
+          "options": {
+            "graphMode": "area",
+            "colorMode": "value"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "unit": "percent",
+              "color": {
+                "mode": "thresholds"
+              },
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {"color": "green", "value": null},
+                  {"color": "yellow", "value": 1},
+                  {"color": "red", "value": 5}
+                ]
+              }
+            }
+          }
+        },
+        {
+          "id": 4,
+          "type": "stat",
+          "title": "Active Requests",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "gridPos": {
+            "h": 4,
+            "w": 6,
+            "x": 18,
+            "y": 0
+          },
+          "targets": [
+            {
+              "refId": "A",
+              "expr": "sum(http_server_active_requests{k8s_container_name=\"canopy-backend\", k8s_namespace_name=\"user4-canopy\"})",
+              "legendFormat": "Active"
+            }
+          ],
+          "options": {
+            "graphMode": "area",
+            "colorMode": "value"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "unit": "short",
+              "color": {
+                "mode": "thresholds"
+              },
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {"color": "green", "value": null},
+                  {"color": "yellow", "value": 3},
+                  {"color": "red", "value": 8}
+                ]
+              }
+            }
+          }
+        },
+        {
+          "id": 5,
+          "type": "timeseries",
+          "title": "Request Rate by Endpoint",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 0,
+            "y": 4
+          },
+          "targets": [
+            {
+              "refId": "A",
+              "expr": "sum(rate(http_server_duration_milliseconds_count{k8s_container_name=\"canopy-backend\", k8s_namespace_name=\"user4-canopy\"}[1m])) by (http_target)",
+              "legendFormat": "{{ "{{" }}http_target{{ "}}" }}"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "reqps",
+              "custom": {
+                "drawStyle": "line",
+                "lineInterpolation": "smooth",
+                "fillOpacity": 10,
+                "stacking": {
+                  "mode": "normal"
+                }
+              }
+            }
+          },
+          "options": {
+            "legend": {
+              "displayMode": "table",
+              "placement": "right",
+              "showLegend": true,
+              "calcs": ["last", "mean"]
+            }
+          }
+        },
+        {
+          "id": 6,
+          "type": "timeseries",
+          "title": "Response Time by Endpoint (p95)",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 12,
+            "y": 4
+          },
+          "targets": [
+            {
+              "refId": "A",
+              "expr": "histogram_quantile(0.95, sum(rate(http_server_duration_milliseconds_bucket{k8s_container_name=\"canopy-backend\", k8s_namespace_name=\"user4-canopy\"}[5m])) by (le, http_target))",
+              "legendFormat": "{{ "{{" }}http_target{{ "}}" }}"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "ms",
+              "custom": {
+                "drawStyle": "line",
+                "lineInterpolation": "smooth",
+                "fillOpacity": 0
+              }
+            }
+          },
+          "options": {
+            "legend": {
+              "displayMode": "table",
+              "placement": "right",
+              "showLegend": true,
+              "calcs": ["last", "mean", "max"]
+            }
+          }
+        },
+        {
+          "id": 7,
+          "type": "timeseries",
+          "title": "LLM Call Duration (Outbound to llamastack)",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 0,
+            "y": 12
+          },
+          "targets": [
+            {
+              "refId": "A",
+              "expr": "histogram_quantile(0.50, sum(rate(http_client_duration_milliseconds_bucket{k8s_container_name=\"canopy-backend\", k8s_namespace_name=\"user4-canopy\"}[5m])) by (le))",
+              "legendFormat": "p50"
+            },
+            {
+              "refId": "B",
+              "expr": "histogram_quantile(0.95, sum(rate(http_client_duration_milliseconds_bucket{k8s_container_name=\"canopy-backend\", k8s_namespace_name=\"user4-canopy\"}[5m])) by (le))",
+              "legendFormat": "p95"
+            },
+            {
+              "refId": "C",
+              "expr": "histogram_quantile(0.99, sum(rate(http_client_duration_milliseconds_bucket{k8s_container_name=\"canopy-backend\", k8s_namespace_name=\"user4-canopy\"}[5m])) by (le))",
+              "legendFormat": "p99"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "ms",
+              "custom": {
+                "drawStyle": "line",
+                "lineInterpolation": "smooth",
+                "fillOpacity": 0
+              }
+            }
+          },
+          "options": {
+            "legend": {
+              "displayMode": "list",
+              "placement": "bottom"
+            }
+          }
+        },
+        {
+          "id": 8,
+          "type": "timeseries",
+          "title": "HTTP Status Distribution",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 12,
+            "y": 12
+          },
+          "targets": [
+            {
+              "refId": "A",
+              "expr": "sum(rate(http_server_duration_milliseconds_count{k8s_container_name=\"canopy-backend\", k8s_namespace_name=\"user4-canopy\"}[1m])) by (http_status_code)",
+              "legendFormat": "{{ "{{" }}http_status_code{{ "}}" }}"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "reqps",
+              "custom": {
+                "drawStyle": "bars",
+                "fillOpacity": 80,
+                "stacking": {
+                  "mode": "normal"
+                }
+              }
+            }
+          },
+          "options": {
+            "legend": {
+              "displayMode": "table",
+              "placement": "right",
+              "showLegend": true
+            }
+          }
+        },
+        {
+          "id": 9,
+          "type": "table",
+          "title": "Endpoint Performance Summary",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 24,
+            "x": 0,
+            "y": 20
+          },
+          "targets": [
+            {
+              "refId": "A",
+              "expr": "sum(rate(http_server_duration_milliseconds_count{k8s_container_name=\"canopy-backend\", k8s_namespace_name=\"user4-canopy\"}[5m])) by (http_target)",
+              "legendFormat": "{{ "{{" }}http_target{{ "}}" }}",
+              "format": "table",
+              "instant": true
+            },
+            {
+              "refId": "B",
+              "expr": "histogram_quantile(0.95, sum(rate(http_server_duration_milliseconds_bucket{k8s_container_name=\"canopy-backend\", k8s_namespace_name=\"user4-canopy\"}[5m])) by (le, http_target))",
+              "legendFormat": "{{ "{{" }}http_target{{ "}}" }}",
+              "format": "table",
+              "instant": true
+            },
+            {
+              "refId": "C",
+              "expr": "(100 * sum(rate(http_server_duration_milliseconds_count{k8s_container_name=\"canopy-backend\", k8s_namespace_name=\"user4-canopy\", http_status_code=~\"5..\"}[5m])) by (http_target) / sum(rate(http_server_duration_milliseconds_count{k8s_container_name=\"canopy-backend\", k8s_namespace_name=\"user4-canopy\"}[5m])) by (http_target)) or on() vector(0)",
+              "legendFormat": "{{ "{{" }}http_target{{ "}}" }}",
+              "format": "table",
+              "instant": true
+            }
+          ],
+          "transformations": [
+            {
+              "id": "merge",
+              "options": {}
+            },
+            {
+              "id": "organize",
+              "options": {
+                "excludeByName": {
+                  "Time": true
+                },
+                "renameByName": {
+                  "http_target": "Endpoint",
+                  "Value #A": "Req/sec",
+                  "Value #B": "p95 Latency (ms)",
+                  "Value #C": "Error Rate (%)"
+                }
+              }
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "custom": {
+                "align": "left",
+                "filterable": true
+              }
+            },
+            "overrides": [
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "Req/sec"
+                },
+                "properties": [
+                  {
+                    "id": "unit",
+                    "value": "reqps"
+                  },
+                  {
+                    "id": "decimals",
+                    "value": 2
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "p95 Latency (ms)"
+                },
+                "properties": [
+                  {
+                    "id": "unit",
+                    "value": "ms"
+                  },
+                  {
+                    "id": "decimals",
+                    "value": 0
+                  },
+                  {
+                    "id": "thresholds",
+                    "value": {
+                      "mode": "absolute",
+                      "steps": [
+                        {"color": "green", "value": null},
+                        {"color": "yellow", "value": 1000},
+                        {"color": "orange", "value": 5000},
+                        {"color": "red", "value": 10000}
+                      ]
+                    }
+                  },
+                  {
+                    "id": "custom.cellOptions",
+                    "value": {
+                      "type": "color-background"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "Error Rate (%)"
+                },
+                "properties": [
+                  {
+                    "id": "unit",
+                    "value": "percent"
+                  },
+                  {
+                    "id": "decimals",
+                    "value": 1
+                  },
+                  {
+                    "id": "thresholds",
+                    "value": {
+                      "mode": "absolute",
+                      "steps": [
+                        {"color": "green", "value": null},
+                        {"color": "yellow", "value": 1},
+                        {"color": "red", "value": 5}
+                      ]
+                    }
+                  },
+                  {
+                    "id": "custom.cellOptions",
+                    "value": {
+                      "type": "color-background"
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    }

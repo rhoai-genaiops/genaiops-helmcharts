@@ -1,0 +1,28 @@
+---
+apiVersion: grafana.integreatly.org/v1beta1
+kind: GrafanaDatasource
+metadata:
+  name: prometheus-grafanadatasource
+spec:
+  valuesFrom:
+    - targetPath: "secureJsonData.httpHeaderValue1"
+      valueFrom:
+        secretKeyRef:
+          name: "canopy-grafana-sa-token"
+          key: "token"
+  datasource:
+      access: proxy
+      editable: true
+      isDefault: false
+      jsonData:
+        httpHeaderName1: 'Authorization'
+        timeInterval: 5s
+        tlsSkipVerify: true
+      name: UWM Prometheus
+      secureJsonData:
+        httpHeaderValue1: "Bearer ${token}"
+      type: prometheus
+      url: 'https://thanos-querier.openshift-monitoring.svc.cluster.local:9091'
+  instanceSelector:
+    matchLabels:
+      dashboards: "grafana"

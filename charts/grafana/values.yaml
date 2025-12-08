@@ -1,0 +1,5 @@
+# override in argo
+operator: false
+# override in argo
+ignoreHelmHooks: true
+include_trusty: false
