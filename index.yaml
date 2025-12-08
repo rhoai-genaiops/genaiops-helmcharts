@@ -163,6 +163,20 @@ entries:
     urls:
     - https://github.com/rhoai-genaiops/genaiops-helmcharts/releases/download/canopy-evals-pipeline-0.0.1/canopy-evals-pipeline-0.0.1.tgz
     version: 0.0.1
+  canopy-grafana:
+  - apiVersion: v2
+    created: "2025-12-08T12:16:12.003586649Z"
+    description: "A Helm chart for enable and deploy Canopy Grafana Dashboard \U0001F4CA"
+    digest: a834777004196d1ea6eb3d911da2e5264403b10e6b0fda034e65a72f77f3b299
+    home: https://rhoai-genaiops.github.io/genaiops/
+    maintainers:
+    - name: RHRolun
+    - name: rcarrata
+    - name: ckavili
+    name: canopy-grafana
+    urls:
+    - https://github.com/rhoai-genaiops/genaiops-helmcharts/releases/download/canopy-grafana-0.0.1/canopy-grafana-0.0.1.tgz
+    version: 0.0.1
   canopy-tekton-pipeline:
   - apiVersion: v2
     appVersion: "1.0"
@@ -886,4 +900,4 @@ entries:
     urls:
     - https://github.com/rhoai-genaiops/genaiops-helmcharts/releases/download/token-visualizer-1.0.1/token-visualizer-1.0.1.tgz
     version: 1.0.1
-generated: "2025-12-05T14:56:31.533025858Z"
+generated: "2025-12-08T12:16:12.003691274Z"
