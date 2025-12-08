@@ -23,7 +23,7 @@ rag:
 mcp:
   enabled: false
 
-mcp-aihub:
+mcp_aihub:
   enabled: false
 
 otelCollector:

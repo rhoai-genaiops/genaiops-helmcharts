@@ -113,7 +113,7 @@
       "required": ["enabled"],
       "additionalProperties": false
     },
-    "mcp-aihub": {
+    "mcp_aihub": {
       "type": "object",
       "description": "MCP AI Hub integration configuration for deploying MCP servers to AI Hub",
       "properties": {
@@ -251,7 +251,7 @@
     "telemetry",
     "rag",
     "mcp",
-    "mcp-aihub",
+    "mcp_aihub",
     "otelCollector",
     "eval",
     "guardrails"
