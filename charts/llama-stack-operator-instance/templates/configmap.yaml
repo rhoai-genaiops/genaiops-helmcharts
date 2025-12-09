@@ -199,8 +199,12 @@ data:
         provider_id: sentence-transformers
         model_type: embedding
       {{- end }}
-    {{- if .Values.mcp.enabled }}
+    {{- if .Values.rag.enabled }}
     tool_groups:
+    - toolgroup_id: insert_into_memory
+      provider_id: rag-runtime
+    {{- end }}
+    {{- if .Values.mcp.enabled }}
     - toolgroup_id: mcp::canopy-calendar
       provider_id: model-context-protocol
       mcp_endpoint:
