@@ -216,7 +216,7 @@ data:
     server:
       port: 8321
     {{- if .Values.guardrails.enabled }}
-    external_providers_dir: /.llama/providers.d/
+    external_providers_dir: /opt/app-root/src/.llama/providers.d/
     shields:
     {{- end }}
     {{- if .Values.guardrails.regex.enabled }}
