@@ -51,6 +51,8 @@ spec:
           value: /opt/app-root/src/data/llama
         - name: SQLITE_STORE_DIR
           value: /opt/app-root/src/data/llama
+        - name: FMS_VERIFY_SSL
+          value: "false"
       name: llama-stack
       port: 8321
     storage:

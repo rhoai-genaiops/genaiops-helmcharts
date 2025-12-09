@@ -36,7 +36,8 @@ data:
         - provider_id: trusty_fms
           provider_type: remote::trusty_fms
           config:
-            orchestrator_url: http://guardrails-orchestrator:8080
+            orchestrator_url: https://guardrails-orchestrator:8080
+            verify_ssl: false
       {{- end }}
           {{- if .Values.guardrails.regex.enabled }}
             shields:
