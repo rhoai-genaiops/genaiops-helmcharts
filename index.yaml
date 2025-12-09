@@ -1022,6 +1022,21 @@ entries:
   llama-stack-playground:
   - apiVersion: v2
     appVersion: latest
+    created: "2025-12-09T21:05:21.821125832Z"
+    description: A Helm chart for Llama Stack Playground UI
+    digest: 7b03f09fc67ff733d78145979a12d15ed32eb65dd910e7ec288bdb0f2459fcc7
+    icon: https://previews.123rf.com/images/eriek/eriek2007/eriek200700074/152273778-jumping-llama-cartoon-alpaca.jpg
+    maintainers:
+    - name: ckavili
+    - name: rhrolun
+    - name: rcarrata
+    name: llama-stack-playground
+    type: application
+    urls:
+    - https://github.com/rhoai-genaiops/genaiops-helmcharts/releases/download/llama-stack-playground-1.0.3/llama-stack-playground-1.0.3.tgz
+    version: 1.0.3
+  - apiVersion: v2
+    appVersion: latest
     created: "2025-11-19T11:53:54.938561341Z"
     description: A Helm chart for Llama Stack Playground UI
     digest: f4e52272d3e006aa8d8cac5966d82ea734302e3716d837582d5df45d55fc079e
@@ -1120,4 +1135,4 @@ entries:
     urls:
     - https://github.com/rhoai-genaiops/genaiops-helmcharts/releases/download/token-visualizer-1.0.1/token-visualizer-1.0.1.tgz
     version: 1.0.1
-generated: "2025-12-09T21:03:45.427658812Z"
+generated: "2025-12-09T21:05:21.821265073Z"
