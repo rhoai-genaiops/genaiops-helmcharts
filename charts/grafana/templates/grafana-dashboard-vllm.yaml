@@ -1312,7 +1312,7 @@ spec:
       "timepicker": {},
       "timezone": "",
       "tags": ["vllm", "llm", "inference", "ai501"],
-      "title": "vLLM AI501 Dashboard",
+      "title": "vLLM AI501 Metrics Dashboard",
       "uid": "b281712d-8bff-41ef-9f3f-71ad43c05e9b",
       "version": 7,
       "weekStart": ""

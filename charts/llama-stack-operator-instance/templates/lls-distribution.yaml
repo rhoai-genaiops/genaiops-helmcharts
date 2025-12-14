@@ -41,7 +41,7 @@ spec:
         - name: OTEL_METRIC_EXPORT_INTERVAL
           value: '60000'
         - name: TELEMETRY_SINKS
-          value: otel_trace
+          value: otel_trace, otel_metric
         {{- end }}
         - name: MODEL_NAME
           value: {{ .Values.MODEL_NAME | quote }}

@@ -11,7 +11,7 @@ spec:
       dashboards: grafana
   json: |
     {
-      "title": "Canopy UI Dashboard",
+      "title": "Canopy UI Metrics Dashboard",
       "uid": "canopy-ui-metrics-{{ .Release.Namespace }}",
       "tags": ["canopy", "streamlit", "frontend"],
       "timezone": "browser",
