@@ -81,7 +81,7 @@ spec:
           "targets": [
             {
               "limit": 200,
-              "query": "{resource.service.name=\"canopy-ui\"}",
+              "query": "{resource.k8s.namespace.name=\"$namespace\" && resource.service.name=\"canopy-ui\"}",
               "queryType": "traceql",
               "refId": "A",
               "tableType": "traces",
