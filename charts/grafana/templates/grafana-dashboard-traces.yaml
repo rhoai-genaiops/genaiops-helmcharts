@@ -21,6 +21,48 @@ spec:
         "to": "now"
       },
       "refresh": "30s",
+      "templating": {
+        "list": [
+          {
+            "current": {
+              "selected": true,
+              "text": "Tempo",
+              "value": "Tempo"
+            },
+            "hide": 0,
+            "includeAll": false,
+            "label": "datasource",
+            "multi": false,
+            "name": "DS_TEMPO",
+            "options": [],
+            "query": "tempo",
+            "refresh": 1,
+            "type": "datasource"
+          },
+          {
+            "current": {
+              "selected": true,
+              "text": "{{ .Release.Namespace | trimSuffix "-toolings" }}-canopy",
+              "value": "{{ .Release.Namespace | trimSuffix "-toolings" }}-canopy"
+            },
+            "hide": 2,
+            "includeAll": false,
+            "label": "Namespace",
+            "multi": false,
+            "name": "namespace",
+            "options": [
+              {
+                "selected": true,
+                "text": "{{ .Release.Namespace | trimSuffix "-toolings" }}-canopy",
+                "value": "{{ .Release.Namespace | trimSuffix "-toolings" }}-canopy"
+              }
+            ],
+            "query": "{{ .Release.Namespace | trimSuffix "-toolings" }}-canopy",
+            "refresh": 0,
+            "type": "custom"
+          }
+        ]
+      },
       "panels": [
         {
           "id": 1,
@@ -28,20 +70,40 @@ spec:
           "title": "Llama Stack Distributed Traces",
           "datasource": {
             "type": "tempo",
-            "uid": "Tempo"
+            "uid": "${DS_TEMPO}"
           },
           "gridPos": {
-            "h": 20,
+            "h": 10,
             "w": 24,
             "x": 0,
             "y": 0
           },
           "targets": [
             {
-              "refId": "A",
-              "queryType": "traceqlSearch",
               "limit": 200,
-              "query": "{}"
+              "query": "{resource.service.name=\"canopy-ui\"}",
+              "queryType": "traceql",
+              "refId": "A",
+              "tableType": "traces",
+              "metricsQueryType": "range",
+              "filters": [
+                {
+                  "id": "fb9b7f40",
+                  "operator": "=",
+                  "scope": "span"
+                },
+                {
+                  "id": "service-name",
+                  "tag": "service.name",
+                  "operator": "=",
+                  "scope": "resource",
+                  "value": [
+                    "canopy-ui"
+                  ],
+                  "valueType": "string",
+                  "isCustomValue": false
+                }
+              ]
             }
           ],
           "fieldConfig": {
