@@ -9,56 +9,6 @@ metadata:
     argocd.argoproj.io/sync-wave: "5"
 type: kubernetes.io/service-account-token
 ---
-apiVersion: rbac.authorization.k8s.io/v1
-kind: ClusterRole
-metadata:
-  name: canopy-grafana-proxy-{{ .Release.Name }}-{{ .Release.Namespace }}
-  annotations:
-    argocd.argoproj.io/sync-options: Skip=true
-rules:
-  - verbs:
-      - create
-    apiGroups:
-      - authentication.k8s.io
-    resources:
-      - tokenreviews
-  - verbs:
-      - create
-    apiGroups:
-      - authorization.k8s.io
-    resources:
-      - subjectaccessreviews
----
-apiVersion: rbac.authorization.k8s.io/v1
-kind: ClusterRoleBinding
-metadata:
-  name: canopy-grafana-proxy-{{ .Release.Name }}-{{ .Release.Namespace }}
-  annotations:
-    argocd.argoproj.io/sync-options: Skip=true
-roleRef:
-  apiGroup: rbac.authorization.k8s.io
-  name: canopy-grafana-proxy-{{ .Release.Name }}-{{ .Release.Namespace }}
-  kind: ClusterRole
-subjects:
-  - kind: ServiceAccount
-    name: canopy-grafana-sa
-    namespace: {{ .Release.Namespace }}
----
-apiVersion: rbac.authorization.k8s.io/v1
-kind: ClusterRoleBinding
-metadata:
-  name: canopy-grafana-application-monitoring-{{ .Release.Name }}-{{ .Release.Namespace }}
-  annotations:
-    argocd.argoproj.io/sync-options: Skip=true
-roleRef:
-  apiGroup: rbac.authorization.k8s.io
-  kind: ClusterRole
-  name: cluster-monitoring-view
-subjects:
-- kind: ServiceAccount
-  name: canopy-grafana-sa
-  namespace: {{ .Release.Namespace }}
----
 apiVersion: v1
 kind: ConfigMap
 metadata:
