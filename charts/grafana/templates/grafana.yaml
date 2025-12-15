@@ -6,12 +6,15 @@ metadata:
   namespace: {{ .Release.Namespace }}
   annotations:
     kubernetes.io/service-account.name: canopy-grafana-sa
+    argocd.argoproj.io/sync-wave: "5"
 type: kubernetes.io/service-account-token
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
   name: canopy-grafana-proxy-{{ .Release.Name }}-{{ .Release.Namespace }}
+  annotations:
+    argocd.argoproj.io/sync-options: Skip=true
 rules:
   - verbs:
       - create
@@ -30,6 +33,8 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
   name: canopy-grafana-proxy-{{ .Release.Name }}-{{ .Release.Namespace }}
+  annotations:
+    argocd.argoproj.io/sync-options: Skip=true
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   name: canopy-grafana-proxy-{{ .Release.Name }}-{{ .Release.Namespace }}
@@ -43,6 +48,8 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
   name: canopy-grafana-application-monitoring-{{ .Release.Name }}-{{ .Release.Namespace }}
+  annotations:
+    argocd.argoproj.io/sync-options: Skip=true
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
