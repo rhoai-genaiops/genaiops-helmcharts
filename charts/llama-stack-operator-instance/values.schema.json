@@ -63,7 +63,7 @@
         "enabled": {
           "type": "boolean",
           "description": "Enable or disable telemetry collection",
-          "default": false
+          "default": true
         }
       },
       "required": ["enabled"],
@@ -133,7 +133,7 @@
         "enabled": {
           "type": "boolean",
           "description": "Enable or disable OpenTelemetry Collector integration",
-          "default": false
+          "default": true
         }
       },
       "required": ["enabled"],

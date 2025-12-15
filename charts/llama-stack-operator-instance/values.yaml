@@ -13,7 +13,7 @@ configMap:
 
 # Telemetry configuration
 telemetry:
-  enabled: false
+  enabled: true
 
 rag:
   enabled: false
@@ -27,7 +27,7 @@ mcp_aihub:
   enabled: false
 
 otelCollector:
-  enabled: false
+  enabled: true
 
 eval:
   enabled: false
