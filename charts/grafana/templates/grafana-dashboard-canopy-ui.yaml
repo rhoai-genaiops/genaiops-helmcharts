@@ -59,7 +59,7 @@ spec:
           "targets": [
             {
               "refId": "A",
-              "expr": "sum(increase(http_server_duration_milliseconds_count{k8s_container_name=\"canopy-ui\", k8s_namespace_name=\"user4-canopy\"}[1h]))",
+              "expr": "sum(increase(http_server_duration_milliseconds_count{k8s_container_name=\"canopy-ui\", k8s_namespace_name=\"{{ .Release.Namespace | replace "-toolings" "" }}-canopy\"}[1h]))",
               "legendFormat": "Requests"
             }
           ],
@@ -101,7 +101,7 @@ spec:
           "targets": [
             {
               "refId": "A",
-              "expr": "histogram_quantile(0.50, sum(rate(http_server_duration_milliseconds_bucket{k8s_container_name=\"canopy-ui\", k8s_namespace_name=\"user4-canopy\"}[5m])) by (le))",
+              "expr": "histogram_quantile(0.50, sum(rate(http_server_duration_milliseconds_bucket{k8s_container_name=\"canopy-ui\", k8s_namespace_name=\"{{ .Release.Namespace | replace "-toolings" "" }}-canopy\"}[5m])) by (le))",
               "legendFormat": "p50"
             }
           ],
@@ -143,7 +143,7 @@ spec:
           "targets": [
             {
               "refId": "A",
-              "expr": "(100 * sum(rate(http_server_duration_milliseconds_count{k8s_container_name=\"canopy-ui\", k8s_namespace_name=\"user4-canopy\", http_status_code=~\"5..\"}[5m])) / sum(rate(http_server_duration_milliseconds_count{k8s_container_name=\"canopy-ui\", k8s_namespace_name=\"user4-canopy\"}[5m]))) or on() vector(0)",
+              "expr": "(100 * sum(rate(http_server_duration_milliseconds_count{k8s_container_name=\"canopy-ui\", k8s_namespace_name=\"{{ .Release.Namespace | replace "-toolings" "" }}-canopy\", http_status_code=~\"5..\"}[5m])) / sum(rate(http_server_duration_milliseconds_count{k8s_container_name=\"canopy-ui\", k8s_namespace_name=\"{{ .Release.Namespace | replace "-toolings" "" }}-canopy\"}[5m]))) or on() vector(0)",
               "legendFormat": "Error %"
             }
           ],
@@ -185,7 +185,7 @@ spec:
           "targets": [
             {
               "refId": "A",
-              "expr": "sum(http_server_active_requests{k8s_container_name=\"canopy-ui\", k8s_namespace_name=\"user4-canopy\"})",
+              "expr": "sum(http_server_active_requests{k8s_container_name=\"canopy-ui\", k8s_namespace_name=\"{{ .Release.Namespace | replace "-toolings" "" }}-canopy\"})",
               "legendFormat": "Active"
             }
           ],
@@ -227,7 +227,7 @@ spec:
           "targets": [
             {
               "refId": "A",
-              "expr": "sum(rate(http_server_duration_milliseconds_count{k8s_container_name=\"canopy-ui\", k8s_namespace_name=\"user4-canopy\"}[1m]))",
+              "expr": "sum(rate(http_server_duration_milliseconds_count{k8s_container_name=\"canopy-ui\", k8s_namespace_name=\"{{ .Release.Namespace | replace "-toolings" "" }}-canopy\"}[1m]))",
               "legendFormat": "Total Requests/sec"
             }
           ],
@@ -265,17 +265,17 @@ spec:
           "targets": [
             {
               "refId": "A",
-              "expr": "histogram_quantile(0.50, sum(rate(http_server_duration_milliseconds_bucket{k8s_container_name=\"canopy-ui\", k8s_namespace_name=\"user4-canopy\"}[5m])) by (le))",
+              "expr": "histogram_quantile(0.50, sum(rate(http_server_duration_milliseconds_bucket{k8s_container_name=\"canopy-ui\", k8s_namespace_name=\"{{ .Release.Namespace | replace "-toolings" "" }}-canopy\"}[5m])) by (le))",
               "legendFormat": "p50"
             },
             {
               "refId": "B",
-              "expr": "histogram_quantile(0.95, sum(rate(http_server_duration_milliseconds_bucket{k8s_container_name=\"canopy-ui\", k8s_namespace_name=\"user4-canopy\"}[5m])) by (le))",
+              "expr": "histogram_quantile(0.95, sum(rate(http_server_duration_milliseconds_bucket{k8s_container_name=\"canopy-ui\", k8s_namespace_name=\"{{ .Release.Namespace | replace "-toolings" "" }}-canopy\"}[5m])) by (le))",
               "legendFormat": "p95"
             },
             {
               "refId": "C",
-              "expr": "histogram_quantile(0.99, sum(rate(http_server_duration_milliseconds_bucket{k8s_container_name=\"canopy-ui\", k8s_namespace_name=\"user4-canopy\"}[5m])) by (le))",
+              "expr": "histogram_quantile(0.99, sum(rate(http_server_duration_milliseconds_bucket{k8s_container_name=\"canopy-ui\", k8s_namespace_name=\"{{ .Release.Namespace | replace "-toolings" "" }}-canopy\"}[5m])) by (le))",
               "legendFormat": "p99"
             }
           ],
@@ -313,7 +313,7 @@ spec:
           "targets": [
             {
               "refId": "A",
-              "expr": "sum(rate(http_server_duration_milliseconds_count{k8s_container_name=\"canopy-ui\", k8s_namespace_name=\"user4-canopy\"}[1m])) by (http_status_code)",
+              "expr": "sum(rate(http_server_duration_milliseconds_count{k8s_container_name=\"canopy-ui\", k8s_namespace_name=\"{{ .Release.Namespace | replace "-toolings" "" }}-canopy\"}[1m])) by (http_status_code)",
               "legendFormat": "{{ "{{" }}http_status_code{{ "}}" }}"
             }
           ],
@@ -354,7 +354,7 @@ spec:
           "targets": [
             {
               "refId": "A",
-              "expr": "histogram_quantile(0.95, sum(rate(http_client_duration_milliseconds_bucket{k8s_container_name=\"canopy-ui\", k8s_namespace_name=\"user4-canopy\"}[5m])) by (le, http_target))",
+              "expr": "histogram_quantile(0.95, sum(rate(http_client_duration_milliseconds_bucket{k8s_container_name=\"canopy-ui\", k8s_namespace_name=\"{{ .Release.Namespace | replace "-toolings" "" }}-canopy\"}[5m])) by (le, http_target))",
               "legendFormat": "{{ "{{" }}http_target{{ "}}" }} (p95)"
             }
           ],
