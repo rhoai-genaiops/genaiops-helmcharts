@@ -1,21 +1,7 @@
 ---
-apiVersion: rbac.authorization.k8s.io/v1
-kind: ClusterRole
-metadata:
-  name: canopy-grafana-proxy-{{ .Release.Namespace }}
-rules:
-  - verbs:
-      - create
-    apiGroups:
-      - authentication.k8s.io
-    resources:
-      - tokenreviews
-  - verbs:
-      - create
-    apiGroups:
-      - authorization.k8s.io
-    resources:
-      - subjectaccessreviews
+# ClusterRole must be pre-created manually for ArgoCD namespaced mode
+# ArgoCD will not manage this resource
+# Pre-create with: oc apply -f grafana-proxy-clusterrole.yaml
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
