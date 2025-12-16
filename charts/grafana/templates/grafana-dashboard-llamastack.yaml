@@ -41,6 +41,19 @@ spec:
           },
           {
             "current": {
+              "selected": true,
+              "text": "llamastack-{{ .Release.Namespace | replace "-toolings" "" }}.*",
+              "value": "llamastack-{{ .Release.Namespace | replace "-toolings" "" }}.*"
+            },
+            "hide": 2,
+            "label": "Service Pattern",
+            "multi": false,
+            "name": "service_pattern",
+            "query": "llamastack-{{ .Release.Namespace | replace "-toolings" "" }}.*",
+            "type": "constant"
+          },
+          {
+            "current": {
               "selected": false,
               "text": "All",
               "value": "$__all"
@@ -52,7 +65,7 @@ spec:
             "name": "model_id",
             "options": [],
             "query": {
-              "query": "label_values(prompt_tokens_total{service_name=~\"llamastack.*\"}, model_id)",
+              "query": "label_values(prompt_tokens_total{service_name=~\"$service_pattern\"}, model_id)",
               "refId": "PrometheusVariableQueryEditor-VariableQuery"
             },
             "refresh": 1,
@@ -82,7 +95,7 @@ spec:
           "targets": [
             {
               "refId": "A",
-              "expr": "sum(increase(tokens_total{service_name=~\"llamastack.*\", model_id=~\"$model_id\"}[1h]))",
+              "expr": "sum(increase(tokens_total{service_name=~\"$service_pattern\", model_id=~\"$model_id\"}[1h]))",
               "legendFormat": "Total Tokens",
               "instant": true
             }
@@ -126,7 +139,7 @@ spec:
           "targets": [
             {
               "refId": "A",
-              "expr": "sum(increase(prompt_tokens_total{service_name=~\"llamastack.*\", model_id=~\"$model_id\"}[1h]))",
+              "expr": "sum(increase(prompt_tokens_total{service_name=~\"$service_pattern\", model_id=~\"$model_id\"}[1h]))",
               "legendFormat": "Prompt Tokens",
               "instant": true
             }
@@ -167,7 +180,7 @@ spec:
           "targets": [
             {
               "refId": "A",
-              "expr": "sum(increase(completion_tokens_total{service_name=~\"llamastack.*\", model_id=~\"$model_id\"}[1h]))",
+              "expr": "sum(increase(completion_tokens_total{service_name=~\"$service_pattern\", model_id=~\"$model_id\"}[1h]))",
               "legendFormat": "Completion Tokens",
               "instant": true
             }
@@ -208,7 +221,7 @@ spec:
           "targets": [
             {
               "refId": "A",
-              "expr": "sum(rate(tokens_total{service_name=~\"llamastack.*\", model_id=~\"$model_id\"}[5m]))",
+              "expr": "sum(rate(tokens_total{service_name=~\"$service_pattern\", model_id=~\"$model_id\"}[5m]))",
               "legendFormat": "Tokens/sec",
               "instant": true
             }
@@ -252,17 +265,17 @@ spec:
           "targets": [
             {
               "refId": "A",
-              "expr": "sum(rate(prompt_tokens_total{service_name=~\"llamastack.*\", model_id=~\"$model_id\"}[1m]))",
+              "expr": "sum(rate(prompt_tokens_total{service_name=~\"$service_pattern\", model_id=~\"$model_id\"}[1m]))",
               "legendFormat": "Prompt Tokens/sec"
             },
             {
               "refId": "B",
-              "expr": "sum(rate(completion_tokens_total{service_name=~\"llamastack.*\", model_id=~\"$model_id\"}[1m]))",
+              "expr": "sum(rate(completion_tokens_total{service_name=~\"$service_pattern\", model_id=~\"$model_id\"}[1m]))",
               "legendFormat": "Completion Tokens/sec"
             },
             {
               "refId": "C",
-              "expr": "sum(rate(tokens_total{service_name=~\"llamastack.*\", model_id=~\"$model_id\"}[1m]))",
+              "expr": "sum(rate(tokens_total{service_name=~\"$service_pattern\", model_id=~\"$model_id\"}[1m]))",
               "legendFormat": "Total Tokens/sec"
             }
           ],
@@ -305,12 +318,12 @@ spec:
           "targets": [
             {
               "refId": "A",
-              "expr": "sum(prompt_tokens_total{service_name=~\"llamastack.*\", model_id=~\"$model_id\"})",
+              "expr": "sum(prompt_tokens_total{service_name=~\"$service_pattern\", model_id=~\"$model_id\"})",
               "legendFormat": "Prompt Tokens"
             },
             {
               "refId": "B",
-              "expr": "sum(completion_tokens_total{service_name=~\"llamastack.*\", model_id=~\"$model_id\"})",
+              "expr": "sum(completion_tokens_total{service_name=~\"$service_pattern\", model_id=~\"$model_id\"})",
               "legendFormat": "Completion Tokens"
             }
           ],
@@ -353,28 +366,28 @@ spec:
           "targets": [
             {
               "refId": "A",
-              "expr": "sum(rate(tokens_total{service_name=~\"llamastack.*\"}[5m])) by (model_id, provider_id)",
+              "expr": "sum(rate(tokens_total{service_name=~\"$service_pattern\"}[5m])) by (model_id, provider_id)",
               "legendFormat": "{{ "{{" }}model_id{{ "}}" }}",
               "format": "table",
               "instant": true
             },
             {
               "refId": "B",
-              "expr": "sum(prompt_tokens_total{service_name=~\"llamastack.*\"}) by (model_id, provider_id)",
+              "expr": "sum(prompt_tokens_total{service_name=~\"$service_pattern\"}) by (model_id, provider_id)",
               "legendFormat": "{{ "{{" }}model_id{{ "}}" }}",
               "format": "table",
               "instant": true
             },
             {
               "refId": "C",
-              "expr": "sum(completion_tokens_total{service_name=~\"llamastack.*\"}) by (model_id, provider_id)",
+              "expr": "sum(completion_tokens_total{service_name=~\"$service_pattern\"}) by (model_id, provider_id)",
               "legendFormat": "{{ "{{" }}model_id{{ "}}" }}",
               "format": "table",
               "instant": true
             },
             {
               "refId": "D",
-              "expr": "sum(tokens_total{service_name=~\"llamastack.*\"}) by (model_id, provider_id)",
+              "expr": "sum(tokens_total{service_name=~\"$service_pattern\"}) by (model_id, provider_id)",
               "legendFormat": "{{ "{{" }}model_id{{ "}}" }}",
               "format": "table",
               "instant": true
