@@ -83,7 +83,8 @@ spec:
             {
               "refId": "A",
               "expr": "sum(increase(tokens_total{service_name=~\"llamastack.*\", model_id=~\"$model_id\"}[1h]))",
-              "legendFormat": "Total Tokens"
+              "legendFormat": "Total Tokens",
+              "instant": true
             }
           ],
           "options": {
@@ -126,7 +127,8 @@ spec:
             {
               "refId": "A",
               "expr": "sum(increase(prompt_tokens_total{service_name=~\"llamastack.*\", model_id=~\"$model_id\"}[1h]))",
-              "legendFormat": "Prompt Tokens"
+              "legendFormat": "Prompt Tokens",
+              "instant": true
             }
           ],
           "options": {
@@ -166,7 +168,8 @@ spec:
             {
               "refId": "A",
               "expr": "sum(increase(completion_tokens_total{service_name=~\"llamastack.*\", model_id=~\"$model_id\"}[1h]))",
-              "legendFormat": "Completion Tokens"
+              "legendFormat": "Completion Tokens",
+              "instant": true
             }
           ],
           "options": {
@@ -206,7 +209,8 @@ spec:
             {
               "refId": "A",
               "expr": "sum(rate(tokens_total{service_name=~\"llamastack.*\", model_id=~\"$model_id\"}[5m]))",
-              "legendFormat": "Tokens/sec"
+              "legendFormat": "Tokens/sec",
+              "instant": true
             }
           ],
           "options": {
