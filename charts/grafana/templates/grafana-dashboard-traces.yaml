@@ -42,22 +42,22 @@ spec:
           {
             "current": {
               "selected": true,
-              "text": "{{ .Release.Namespace | trimSuffix "-toolings" }}-canopy",
-              "value": "{{ .Release.Namespace | trimSuffix "-toolings" }}-canopy"
+              "text": "{{ .Release.Namespace | trimSuffix "-toolings" }}-(test|prod|canopy)",
+              "value": "{{ .Release.Namespace | trimSuffix "-toolings" }}-(test|prod|canopy)"
             },
             "hide": 2,
             "includeAll": false,
-            "label": "Namespace",
+            "label": "Namespace Pattern",
             "multi": false,
-            "name": "namespace",
+            "name": "namespace_pattern",
             "options": [
               {
                 "selected": true,
-                "text": "{{ .Release.Namespace | trimSuffix "-toolings" }}-canopy",
-                "value": "{{ .Release.Namespace | trimSuffix "-toolings" }}-canopy"
+                "text": "{{ .Release.Namespace | trimSuffix "-toolings" }}-(test|prod|canopy)",
+                "value": "{{ .Release.Namespace | trimSuffix "-toolings" }}-(test|prod|canopy)"
               }
             ],
-            "query": "{{ .Release.Namespace | trimSuffix "-toolings" }}-canopy",
+            "query": "{{ .Release.Namespace | trimSuffix "-toolings" }}-(test|prod|canopy)",
             "refresh": 0,
             "type": "custom"
           }
@@ -81,7 +81,7 @@ spec:
           "targets": [
             {
               "limit": 200,
-              "query": "{resource.k8s.namespace.name=\"$namespace\" && resource.service.name=\"canopy-ui\"}",
+              "query": "{resource.k8s.namespace.name=~\"$namespace_pattern\" && resource.service.name=\"canopy-ui\"}",
               "queryType": "traceql",
               "refId": "A",
               "tableType": "traces",
