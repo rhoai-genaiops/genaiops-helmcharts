@@ -101,7 +101,7 @@ spec:
           "targets": [
             {
               "refId": "A",
-              "expr": "sum(increase(http_server_duration_milliseconds_sum{k8s_container_name=\"canopy-ui\", k8s_namespace_name=~\"{{ .Release.Namespace | replace "-toolings" "" }}-.*\"}[5m])) / sum(increase(http_server_duration_milliseconds_count{k8s_container_name=\"canopy-ui\", k8s_namespace_name=~\"{{ .Release.Namespace | replace "-toolings" "" }}-.*\"}[5m]))",
+              "expr": "sum(rate(http_server_duration_milliseconds_sum{k8s_container_name=\"canopy-ui\", k8s_namespace_name=~\"{{ .Release.Namespace | replace "-toolings" "" }}-.*\"}[1h])) / sum(rate(http_server_duration_milliseconds_count{k8s_container_name=\"canopy-ui\", k8s_namespace_name=~\"{{ .Release.Namespace | replace "-toolings" "" }}-.*\"}[1h]))",
               "legendFormat": "avg"
             }
           ],
