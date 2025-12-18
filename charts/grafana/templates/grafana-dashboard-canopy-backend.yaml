@@ -59,7 +59,7 @@ spec:
           "targets": [
             {
               "refId": "A",
-              "expr": "sum(increase(http_server_duration_milliseconds_count{k8s_container_name=\"canopy-backend\", k8s_namespace_name=\"{{ .Release.Namespace | replace "-toolings" "" }}-canopy\"}[1h]))",
+              "expr": "sum(increase(http_server_duration_milliseconds_count{k8s_container_name=\"canopy-backend\", k8s_namespace_name=~\"{{ .Release.Namespace | replace "-toolings" "" }}-.*\"}[1h]))",
               "legendFormat": "Requests"
             }
           ],
@@ -101,7 +101,7 @@ spec:
           "targets": [
             {
               "refId": "A",
-              "expr": "histogram_quantile(0.95, sum(rate(http_server_duration_milliseconds_bucket{k8s_container_name=\"canopy-backend\", k8s_namespace_name=\"{{ .Release.Namespace | replace "-toolings" "" }}-canopy\"}[5m])) by (le))",
+              "expr": "histogram_quantile(0.95, sum(rate(http_server_duration_milliseconds_bucket{k8s_container_name=\"canopy-backend\", k8s_namespace_name=~\"{{ .Release.Namespace | replace "-toolings" "" }}-.*\"}[5m])) by (le))",
               "legendFormat": "p95"
             }
           ],
@@ -144,7 +144,7 @@ spec:
           "targets": [
             {
               "refId": "A",
-              "expr": "(100 * sum(rate(http_server_duration_milliseconds_count{k8s_container_name=\"canopy-backend\", k8s_namespace_name=\"{{ .Release.Namespace | replace "-toolings" "" }}-canopy\", http_status_code=~\"5..\"}[5m])) / sum(rate(http_server_duration_milliseconds_count{k8s_container_name=\"canopy-backend\", k8s_namespace_name=\"{{ .Release.Namespace | replace "-toolings" "" }}-canopy\"}[5m]))) or on() vector(0)",
+              "expr": "(100 * sum(rate(http_server_duration_milliseconds_count{k8s_container_name=\"canopy-backend\", k8s_namespace_name=~\"{{ .Release.Namespace | replace "-toolings" "" }}-.*\", http_status_code=~\"5..\"}[5m])) / sum(rate(http_server_duration_milliseconds_count{k8s_container_name=\"canopy-backend\", k8s_namespace_name=~\"{{ .Release.Namespace | replace "-toolings" "" }}-.*\"}[5m]))) or on() vector(0)",
               "legendFormat": "Error %"
             }
           ],
@@ -186,7 +186,7 @@ spec:
           "targets": [
             {
               "refId": "A",
-              "expr": "sum(http_server_active_requests{k8s_container_name=\"canopy-backend\", k8s_namespace_name=\"{{ .Release.Namespace | replace "-toolings" "" }}-canopy\"})",
+              "expr": "sum(http_server_active_requests{k8s_container_name=\"canopy-backend\", k8s_namespace_name=~\"{{ .Release.Namespace | replace "-toolings" "" }}-.*\"})",
               "legendFormat": "Active"
             }
           ],
@@ -228,7 +228,7 @@ spec:
           "targets": [
             {
               "refId": "A",
-              "expr": "sum(rate(http_server_duration_milliseconds_count{k8s_container_name=\"canopy-backend\", k8s_namespace_name=\"{{ .Release.Namespace | replace "-toolings" "" }}-canopy\"}[1m])) by (http_target)",
+              "expr": "sum(rate(http_server_duration_milliseconds_count{k8s_container_name=\"canopy-backend\", k8s_namespace_name=~\"{{ .Release.Namespace | replace "-toolings" "" }}-.*\"}[1m])) by (http_target)",
               "legendFormat": "{{ "{{" }}http_target{{ "}}" }}"
             }
           ],
@@ -271,7 +271,7 @@ spec:
           "targets": [
             {
               "refId": "A",
-              "expr": "histogram_quantile(0.95, sum(rate(http_server_duration_milliseconds_bucket{k8s_container_name=\"canopy-backend\", k8s_namespace_name=\"{{ .Release.Namespace | replace "-toolings" "" }}-canopy\"}[5m])) by (le, http_target))",
+              "expr": "histogram_quantile(0.95, sum(rate(http_server_duration_milliseconds_bucket{k8s_container_name=\"canopy-backend\", k8s_namespace_name=~\"{{ .Release.Namespace | replace "-toolings" "" }}-.*\"}[5m])) by (le, http_target))",
               "legendFormat": "{{ "{{" }}http_target{{ "}}" }}"
             }
           ],
@@ -311,7 +311,7 @@ spec:
           "targets": [
             {
               "refId": "A",
-              "expr": "histogram_quantile(0.50, sum(rate(http_client_duration_milliseconds_bucket{k8s_container_name=\"canopy-backend\", k8s_namespace_name=\"{{ .Release.Namespace | replace "-toolings" "" }}-canopy\"}[5m])) by (le))",
+              "expr": "histogram_quantile(0.50, sum(rate(http_client_duration_milliseconds_bucket{k8s_container_name=\"canopy-backend\", k8s_namespace_name=~\"{{ .Release.Namespace | replace "-toolings" "" }}-.*\"}[5m])) by (le))",
               "legendFormat": "p50"
             },
             {
@@ -321,7 +321,7 @@ spec:
             },
             {
               "refId": "C",
-              "expr": "histogram_quantile(0.99, sum(rate(http_client_duration_milliseconds_bucket{k8s_container_name=\"canopy-backend\", k8s_namespace_name=\"{{ .Release.Namespace | replace "-toolings" "" }}-canopy\"}[5m])) by (le))",
+              "expr": "histogram_quantile(0.99, sum(rate(http_client_duration_milliseconds_bucket{k8s_container_name=\"canopy-backend\", k8s_namespace_name=~\"{{ .Release.Namespace | replace "-toolings" "" }}-.*\"}[5m])) by (le))",
               "legendFormat": "p99"
             }
           ],
@@ -359,7 +359,7 @@ spec:
           "targets": [
             {
               "refId": "A",
-              "expr": "sum(rate(http_server_duration_milliseconds_count{k8s_container_name=\"canopy-backend\", k8s_namespace_name=\"{{ .Release.Namespace | replace "-toolings" "" }}-canopy\"}[1m])) by (http_status_code)",
+              "expr": "sum(rate(http_server_duration_milliseconds_count{k8s_container_name=\"canopy-backend\", k8s_namespace_name=~\"{{ .Release.Namespace | replace "-toolings" "" }}-.*\"}[1m])) by (http_status_code)",
               "legendFormat": "{{ "{{" }}http_status_code{{ "}}" }}"
             }
           ],
@@ -400,21 +400,21 @@ spec:
           "targets": [
             {
               "refId": "A",
-              "expr": "sum(rate(http_server_duration_milliseconds_count{k8s_container_name=\"canopy-backend\", k8s_namespace_name=\"{{ .Release.Namespace | replace "-toolings" "" }}-canopy\"}[5m])) by (http_target)",
+              "expr": "sum(rate(http_server_duration_milliseconds_count{k8s_container_name=\"canopy-backend\", k8s_namespace_name=~\"{{ .Release.Namespace | replace "-toolings" "" }}-.*\"}[5m])) by (http_target)",
               "legendFormat": "{{ "{{" }}http_target{{ "}}" }}",
               "format": "table",
               "instant": true
             },
             {
               "refId": "B",
-              "expr": "histogram_quantile(0.95, sum(rate(http_server_duration_milliseconds_bucket{k8s_container_name=\"canopy-backend\", k8s_namespace_name=\"{{ .Release.Namespace | replace "-toolings" "" }}-canopy\"}[5m])) by (le, http_target))",
+              "expr": "histogram_quantile(0.95, sum(rate(http_server_duration_milliseconds_bucket{k8s_container_name=\"canopy-backend\", k8s_namespace_name=~\"{{ .Release.Namespace | replace "-toolings" "" }}-.*\"}[5m])) by (le, http_target))",
               "legendFormat": "{{ "{{" }}http_target{{ "}}" }}",
               "format": "table",
               "instant": true
             },
             {
               "refId": "C",
-              "expr": "(100 * sum(rate(http_server_duration_milliseconds_count{k8s_container_name=\"canopy-backend\", k8s_namespace_name=\"{{ .Release.Namespace | replace "-toolings" "" }}-canopy\", http_status_code=~\"5..\"}[5m])) by (http_target) / sum(rate(http_server_duration_milliseconds_count{k8s_container_name=\"canopy-backend\", k8s_namespace_name=\"{{ .Release.Namespace | replace "-toolings" "" }}-canopy\"}[5m])) by (http_target)) or on() vector(0)",
+              "expr": "(100 * sum(rate(http_server_duration_milliseconds_count{k8s_container_name=\"canopy-backend\", k8s_namespace_name=~\"{{ .Release.Namespace | replace "-toolings" "" }}-.*\", http_status_code=~\"5..\"}[5m])) by (http_target) / sum(rate(http_server_duration_milliseconds_count{k8s_container_name=\"canopy-backend\", k8s_namespace_name=~\"{{ .Release.Namespace | replace "-toolings" "" }}-.*\"}[5m])) by (http_target)) or on() vector(0)",
               "legendFormat": "{{ "{{" }}http_target{{ "}}" }}",
               "format": "table",
               "instant": true
