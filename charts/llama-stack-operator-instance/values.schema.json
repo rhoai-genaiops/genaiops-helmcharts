@@ -4,25 +4,50 @@
   "title": "Llama Stack Operator Instance Helm Chart Values Schema",
   "description": "Schema for validating values.yaml configuration for the Llama Stack Operator Instance Helm chart",
   "properties": {
-    "MODEL_NAME": {
-      "type": "string",
-      "description": "Name of the model to use for inference",
-      "minLength": 1,
-      "default": "llama32",
+    "models": {
+      "type": "array",
+      "description": "List of models to configure for inference",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Name of the model (used as model_id and provider_id)",
+            "minLength": 1
+          },
+          "url": {
+            "type": "string",
+            "description": "URL endpoint for the model inference service",
+            "pattern": "^https?://[^\\s]+$"
+          }
+        },
+        "required": ["name", "url"],
+        "additionalProperties": false
+      },
+      "default": [
+        {
+          "name": "llama32",
+          "url": "http://llama-32-predictor.ai501.svc.cluster.local:8080/v1"
+        }
+      ],
       "examples": [
-        "llama32",
-        "llama3.2",
-        "llama3.1"
-      ]
-    },
-    "MODEL_URL": {
-      "type": "string",
-      "description": "URL endpoint for the model inference service",
-      "pattern": "^https?://[^\\s]+$",
-      "default": "http://llama-32-predictor.ai501.svc.cluster.local:8080/v1",
-      "examples": [
-        "http://llama-32-predictor.ai501.svc.cluster.local:8080/v1",
-        "http://model-service:8080/v1"
+        [
+          {
+            "name": "llama32",
+            "url": "http://llama-32-predictor.ai501.svc.cluster.local:8080/v1"
+          }
+        ],
+        [
+          {
+            "name": "llama32",
+            "url": "http://llama-32-predictor.ai501.svc.cluster.local:8080/v1"
+          },
+          {
+            "name": "mistral-7b",
+            "url": "http://mistral-predictor.ai501.svc.cluster.local:8080/v1"
+          }
+        ]
       ]
     },
     "distribution": {
@@ -244,8 +269,7 @@
     }
   },
   "required": [
-    "MODEL_NAME",
-    "MODEL_URL",
+    "models",
     "distribution",
     "configMap",
     "telemetry",

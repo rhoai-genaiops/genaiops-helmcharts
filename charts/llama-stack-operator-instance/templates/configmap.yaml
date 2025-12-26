@@ -97,13 +97,12 @@ data:
             db_path: ${env.SQLITE_STORE_DIR:=~/.llama/distributions/starter}/responses_store.db
       {{- end }}
       inference:
-      - provider_id: vllm
+      {{- range .Values.models }}
+      - provider_id: {{ .name }}
         provider_type: "remote::vllm"
         config:
-          url: "${env.MODEL_URL}"
-          # max_tokens: 110000
-          # api_token: ${env.LLAMA_3_2_3B_API_TOKEN}
-          # tls_verify: true
+          url: "{{ .url }}"
+      {{- end }}
       {{- if .Values.rag.enabled }}
       - provider_id: sentence-transformers
         provider_type: inline::sentence-transformers
@@ -189,11 +188,13 @@ data:
           sqlite_db_path: ${env.SQLITE_DB_PATH:~/.llama/distributions/remote-vllm/trace_store.db}
       {{- end }}
     models:
+      {{- range .Values.models }}
       - metadata: {}
-        model_id: ${env.MODEL_NAME}
-        provider_id: vllm
-        provider_model_id: ${env.MODEL_NAME}
+        model_id: {{ .name }}
+        provider_id: {{ .name }}
+        provider_model_id: {{ .name }}
         model_type: llm
+      {{- end }}
       {{- if .Values.rag.enabled }}
       - metadata:
           embedding_dimension: 384
