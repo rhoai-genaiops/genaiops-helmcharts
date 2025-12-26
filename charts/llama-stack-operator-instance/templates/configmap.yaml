@@ -98,7 +98,7 @@ data:
       {{- end }}
       inference:
       {{- range .Values.models }}
-      - provider_id: {{ .name }}
+      - provider_id: vllm-{{ .name }}
         provider_type: "remote::vllm"
         config:
           url: "{{ .url }}"
@@ -191,7 +191,7 @@ data:
       {{- range .Values.models }}
       - metadata: {}
         model_id: {{ .name }}
-        provider_id: {{ .name }}
+        provider_id: vllm-{{ .name }}
         provider_model_id: {{ .name }}
         model_type: llm
       {{- end }}
