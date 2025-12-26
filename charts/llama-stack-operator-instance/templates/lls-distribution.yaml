@@ -43,10 +43,6 @@ spec:
         - name: TELEMETRY_SINKS
           value: otel_trace, otel_metric
         {{- end }}
-        - name: MODEL_NAME
-          value: {{ .Values.MODEL_NAME | quote }}
-        - name: MODEL_URL
-          value: {{ .Values.MODEL_URL | quote }}
         - name: MILVUS_DB_PATH
           value: /opt/app-root/src/data/llama
         - name: SQLITE_STORE_DIR

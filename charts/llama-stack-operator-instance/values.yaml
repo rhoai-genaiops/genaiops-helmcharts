@@ -1,6 +1,7 @@
 # Llama Stack Operator Instance configuration
-MODEL_NAME: "llama32"
-MODEL_URL: "http://llama-32-predictor.ai501.svc.cluster.local:8080/v1"
+models:
+  - name: "llama32"
+    url: "http://llama-32-predictor.ai501.svc.cluster.local:8080/v1"
 
 # Distribution configuration
 distribution:
