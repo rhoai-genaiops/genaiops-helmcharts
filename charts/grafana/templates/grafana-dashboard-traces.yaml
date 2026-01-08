@@ -11,9 +11,9 @@ spec:
       dashboards: "grafana"
   json: |
     {
-      "title": "Llama Stack Traces",
-      "uid": "llama-stack-traces-{{ .Release.Namespace }}",
-      "tags": ["traces", "tempo", "llama-stack"],
+      "title": "Canopy Distributed Traces",
+      "uid": "canopy-traces-{{ .Release.Namespace }}",
+      "tags": ["traces", "tempo", "canopy"],
       "timezone": "browser",
       "schemaVersion": 39,
       "time": {
@@ -67,7 +67,7 @@ spec:
         {
           "id": 1,
           "type": "table",
-          "title": "Llama Stack Distributed Traces",
+          "title": "Canopy Stack Distributed Traces",
           "datasource": {
             "type": "tempo",
             "uid": "${DS_TEMPO}"
@@ -81,29 +81,12 @@ spec:
           "targets": [
             {
               "limit": 200,
-              "query": "{resource.k8s.namespace.name=~\"$namespace_pattern\" && resource.service.name=\"canopy-ui\"}",
+              "query": "{resource.k8s.namespace.name=~\"$namespace_pattern\"}",
               "queryType": "traceql",
               "refId": "A",
               "tableType": "traces",
               "metricsQueryType": "range",
-              "filters": [
-                {
-                  "id": "fb9b7f40",
-                  "operator": "=",
-                  "scope": "span"
-                },
-                {
-                  "id": "service-name",
-                  "tag": "service.name",
-                  "operator": "=",
-                  "scope": "resource",
-                  "value": [
-                    "canopy-ui"
-                  ],
-                  "valueType": "string",
-                  "isCustomValue": false
-                }
-              ]
+              "filters": []
             }
           ],
           "fieldConfig": {
