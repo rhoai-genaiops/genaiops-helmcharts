@@ -20,6 +20,10 @@
             "type": "string",
             "description": "URL endpoint for the model inference service",
             "pattern": "^https?://[^\\s]+$"
+          },
+          "token": {
+            "type": "string",
+            "description": "Optional API token for authenticating with the model inference service"
           }
         },
         "required": ["name", "url"],

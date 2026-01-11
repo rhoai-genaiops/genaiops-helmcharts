@@ -102,6 +102,7 @@ data:
         provider_type: "remote::vllm"
         config:
           url: "{{ .url }}"
+          api_token: "{{ .token | default "" }}"
       {{- end }}
       {{- if .Values.rag.enabled }}
       - provider_id: sentence-transformers
