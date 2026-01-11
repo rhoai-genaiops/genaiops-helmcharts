@@ -165,6 +165,19 @@ entries:
     version: 0.0.1
   canopy-grafana:
   - apiVersion: v2
+    created: "2026-01-11T22:11:33.485098147Z"
+    description: "A Helm chart for enable and deploy Canopy Grafana Dashboard \U0001F4CA"
+    digest: 9299bd643c38fd556ffccbb9896df747c2ce9a6f50aa0ccf55691251a921604e
+    home: https://rhoai-genaiops.github.io/genaiops/
+    maintainers:
+    - name: RHRolun
+    - name: rcarrata
+    - name: ckavili
+    name: canopy-grafana
+    urls:
+    - https://github.com/rhoai-genaiops/genaiops-helmcharts/releases/download/canopy-grafana-0.0.5/canopy-grafana-0.0.5.tgz
+    version: 0.0.5
+  - apiVersion: v2
     created: "2025-12-26T11:28:27.045821443Z"
     description: "A Helm chart for enable and deploy Canopy Grafana Dashboard \U0001F4CA"
     digest: 82a68a85895338c4ce0f2a59a29cec302847937f91f8a64729ae36d8b4f4976d
@@ -332,6 +345,29 @@ entries:
     - https://github.com/rhoai-genaiops/genaiops-helmcharts/releases/download/guardrails-orchestrator-1.0.0/guardrails-orchestrator-1.0.0.tgz
     version: 1.0.0
   llama-stack-operator-instance:
+  - apiVersion: v2
+    appVersion: latest
+    created: "2026-01-11T22:11:33.648027053Z"
+    description: "A Helm chart for Llama Stack Operator instances \U0001F999"
+    digest: f102f914b3a445d67e045a12f0d6b50955033682f0ed4096602dd331ca960170
+    home: https://rhoai-genaiops.github.io/genaiops/
+    icon: https://aiagentframeworks.ai/content/images/2024/11/llama-stack.png
+    keywords:
+    - llama-stack
+    - ai
+    - operator
+    - instance
+    - mcp
+    - agents
+    maintainers:
+    - name: RHRolun
+    - name: rcarrata
+    - name: ckavili
+    name: llama-stack-operator-instance
+    type: application
+    urls:
+    - https://github.com/rhoai-genaiops/genaiops-helmcharts/releases/download/llama-stack-operator-instance-1.1.29/llama-stack-operator-instance-1.1.29.tgz
+    version: 1.1.29
   - apiVersion: v2
     appVersion: latest
     created: "2025-12-26T11:53:38.026869453Z"
@@ -1230,4 +1266,4 @@ entries:
     urls:
     - https://github.com/rhoai-genaiops/genaiops-helmcharts/releases/download/token-visualizer-1.0.1/token-visualizer-1.0.1.tgz
     version: 1.0.1
-generated: "2025-12-26T11:53:38.027190256Z"
+generated: "2026-01-11T22:11:33.648325829Z"
