@@ -19,9 +19,6 @@ spec:
         pwd
         ls -la
 
-        echo "Navigating to canopy-be/tests..."
-        cd canopy-be
-
         echo "Installing test dependencies..."
         pip install -r tests/requirements-test.txt
 
