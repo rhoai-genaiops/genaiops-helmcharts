@@ -19,7 +19,7 @@ spec:
         pwd
         ls -la
 
-        la -la /canopy
+        ls -la /canopy
 
         echo "Installing test dependencies..."
         pip install -r app/requirements.txt
