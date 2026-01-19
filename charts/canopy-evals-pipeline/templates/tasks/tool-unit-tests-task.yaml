@@ -10,10 +10,17 @@ spec:
   steps:
     - name: run-unit-tests
       image: registry.redhat.io/ubi9/python-311:latest
-      workingDir: $(workspaces.output.path)/backend/main/canopy-be
+      workingDir: $(workspaces.output.path)/backend/main
       script: |
         #!/bin/bash
         set -e
+
+        echo "Checking directory structure..."
+        pwd
+        ls -la
+
+        echo "Navigating to canopy-be/tests..."
+        cd canopy-be
 
         echo "Installing test dependencies..."
         pip install -r tests/requirements-test.txt
