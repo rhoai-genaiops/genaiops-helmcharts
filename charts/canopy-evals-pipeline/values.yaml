@@ -11,5 +11,5 @@ testing:
   enableUnitTests: false
   # Configuration for unit tests (points to test namespace services)
   llamaStackUrl: "http://llama-stack-service.{{ .Values.USER_NAME }}-test.svc.cluster.local:8321"
-  vectorDbId: "test"
+  vectorDbId: "latest"
   mcpCalendarUrl: "http://canopy-mcp-calendar-mcp-server.{{ .Values.USER_NAME }}-test.svc.cluster.local:8080/sse"
