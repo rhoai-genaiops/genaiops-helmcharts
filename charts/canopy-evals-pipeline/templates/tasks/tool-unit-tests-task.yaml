@@ -30,7 +30,8 @@ spec:
         echo "All unit tests passed successfully!"
       volumeMounts:
         - name: canopy-config
-          mountPath: tests
+          mountPath: /workspace/output/backend/main/tests/canopy-config.yaml
+          subPath: canopy-config.yaml
           readOnly: true
   volumes:
     - name: canopy-config
