@@ -9,7 +9,7 @@ spec:
       description: Workspace for test files
   steps:
     - name: run-unit-tests
-      image: registry.redhat.io/ubi9/python-311:latest
+      image: registry.redhat.io/ubi9/python-312:latest
       workingDir: $(workspaces.output.path)/backend/main
       script: |
         #!/bin/bash
