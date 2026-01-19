@@ -20,6 +20,7 @@ spec:
         ls -la
 
         echo "Installing test dependencies..."
+        pip install -r main/requirements.txt
         pip install -r tests/requirements-test.txt
 
         echo "Running pytest unit tests for agent tools..."
