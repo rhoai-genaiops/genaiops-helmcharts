@@ -30,7 +30,7 @@ spec:
         echo "All unit tests passed successfully!"
       volumeMounts:
         - name: canopy-config
-          mountPath: /tests
+          mountPath: tests
           readOnly: true
   volumes:
     - name: canopy-config
