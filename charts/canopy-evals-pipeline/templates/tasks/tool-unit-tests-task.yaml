@@ -1,0 +1,68 @@
+{{- if .Values.testing.enableUnitTests }}
+apiVersion: tekton.dev/v1
+kind: Task
+metadata:
+  name: tool-unit-tests-task
+spec:
+  description: "Run pytest unit tests for agent tools (LangChain and MCP)"
+  workspaces:
+    - name: output
+      description: Workspace for test files
+  params:
+    - name: GIT_URL
+      description: Git repository URL for backend
+      type: string
+      default: https://gitea-gitea.{{ .Values.CLUSTER_DOMAIN }}/{{ .Values.USER_NAME }}/backend.git
+    - name: GIT_BRANCH
+      type: string
+      default: "main"
+      description: Git branch to clone
+  steps:
+    - name: clone-backend
+      image: registry.redhat.io/ubi9/python-311:latest
+      workingDir: $(workspaces.output.path)
+      script: |
+        #!/bin/bash
+        set -e
+
+        echo "Cloning backend repository..."
+
+        # Install git if not available
+        if ! command -v git &> /dev/null; then
+            echo "Installing git..."
+            microdnf install -y git
+        fi
+
+        # Clone the repository
+        git clone -b $(params.GIT_BRANCH) $(params.GIT_URL) backend
+
+        echo "Repository cloned successfully"
+        ls -la backend/
+
+    - name: run-unit-tests
+      image: registry.redhat.io/ubi9/python-311:latest
+      workingDir: $(workspaces.output.path)/backend/canopy-be
+      script: |
+        #!/bin/bash
+        set -e
+
+        echo "Installing test dependencies..."
+        pip install -r tests/requirements-test.txt
+
+        echo "Running pytest unit tests for agent tools..."
+        cd tests
+        pytest -v test_tools.py
+
+        echo "All unit tests passed successfully!"
+      env:
+        - name: CANOPY_CONFIG_PATH
+          value: /canopy/canopy-config.yaml
+      volumeMounts:
+        - name: canopy-config
+          mountPath: /canopy
+          readOnly: true
+  volumes:
+    - name: canopy-config
+      configMap:
+        name: canopy-config
+{{- end }}
