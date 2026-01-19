@@ -133,15 +133,10 @@ spec:
       taskRef:
         name: tool-unit-tests-task
       runAfter:
-        - git-clone
+        - fetch-backend-repository
       workspaces:
         - name: output
           workspace: shared-workspace
-      params:
-        - name: GIT_URL
-          value: "https://gitea-gitea.{{ .Values.CLUSTER_DOMAIN }}/{{ .Values.USER_NAME }}/backend.git"
-        - name: GIT_BRANCH
-          value: "main"
 {{- end }}
 
     # Fetch Backend repository

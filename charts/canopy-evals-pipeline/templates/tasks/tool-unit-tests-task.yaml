@@ -7,40 +7,10 @@ spec:
   workspaces:
     - name: output
       description: Workspace for test files
-  params:
-    - name: GIT_URL
-      description: Git repository URL for backend
-      type: string
-      default: https://gitea-gitea.{{ .Values.CLUSTER_DOMAIN }}/{{ .Values.USER_NAME }}/backend.git
-    - name: GIT_BRANCH
-      type: string
-      default: "main"
-      description: Git branch to clone
   steps:
-    - name: clone-backend
-      image: registry.redhat.io/ubi9/python-311:latest
-      workingDir: $(workspaces.output.path)
-      script: |
-        #!/bin/bash
-        set -e
-
-        echo "Cloning backend repository..."
-
-        # Install git if not available
-        if ! command -v git &> /dev/null; then
-            echo "Installing git..."
-            microdnf install -y git
-        fi
-
-        # Clone the repository
-        git clone -b $(params.GIT_BRANCH) $(params.GIT_URL) backend
-
-        echo "Repository cloned successfully"
-        ls -la backend/
-
     - name: run-unit-tests
       image: registry.redhat.io/ubi9/python-311:latest
-      workingDir: $(workspaces.output.path)/backend/canopy-be
+      workingDir: $(workspaces.output.path)/backend/main/canopy-be
       script: |
         #!/bin/bash
         set -e
