@@ -30,10 +30,10 @@ spec:
         echo "All unit tests passed successfully!"
       env:
         - name: CANOPY_CONFIG_PATH
-          value: /canopy/canopy-config.yaml
+          value: /tests/canopy-config.yaml
       volumeMounts:
         - name: canopy-config
-          mountPath: /canopy
+          mountPath: /tests
           readOnly: true
   volumes:
     - name: canopy-config
