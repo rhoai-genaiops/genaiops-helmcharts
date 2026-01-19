@@ -6,8 +6,8 @@ metadata:
   name: canopy-config
 data:
   canopy-config.yaml: |
-    LLAMA_STACK_URL: "{{ .Values.testing.llamaStackUrl }}"
+    LLAMA_STACK_URL: "{{ tpl .Values.testing.llamaStackUrl . }}"
     student-assistant:
       vector_db_id: "{{ .Values.testing.vectorDbId }}"
-      mcp_calendar_url: "{{ .Values.testing.mcpCalendarUrl }}"
+      mcp_calendar_url: "{{ tpl .Values.testing.mcpCalendarUrl . }}"
 {{- end }}
