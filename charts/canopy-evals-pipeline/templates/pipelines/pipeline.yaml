@@ -149,7 +149,7 @@ spec:
           - name: name
             value: git-clone
           - name: namespace
-            value: openshift-pipelines 
+            value: openshift-pipelines
       workspaces:
         - name: output
           workspace: shared-workspace
@@ -164,12 +164,6 @@ spec:
           value: "true"
         - name: SSL_VERIFY
           value: "false"
-      runAfter:
-        - guidellm-task
-        - kfp-evaluation-task
-{{- if .Values.testing.enableUnitTests }}
-        - tool-unit-tests
-{{- end }}
 
     # Update model version in Git
     - name: raise-pr-to-prod
@@ -178,6 +172,11 @@ spec:
         kind: Task
       runAfter:
         - fetch-backend-repository
+        - guidellm-task
+        - kfp-evaluation-task
+{{- if .Values.testing.enableUnitTests }}
+        - tool-unit-tests
+{{- end }}
       workspaces:
         - name: output
           workspace: shared-workspace
