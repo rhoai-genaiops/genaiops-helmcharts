@@ -28,9 +28,6 @@ spec:
         pytest -v test_tools.py
 
         echo "All unit tests passed successfully!"
-      env:
-        - name: CANOPY_CONFIG_PATH
-          value: /tests/canopy-config.yaml
       volumeMounts:
         - name: canopy-config
           mountPath: /tests
