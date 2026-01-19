@@ -1,0 +1,13 @@
+{{- if .Values.testing.enableUnitTests }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: canopy-config
+data:
+  canopy-config.yaml: |
+    LLAMA_STACK_URL: "{{ .Values.testing.llamaStackUrl }}"
+    student-assistant:
+      vector_db_id: "{{ .Values.testing.vectorDbId }}"
+      mcp_calendar_url: "{{ .Values.testing.mcpCalendarUrl }}"
+{{- end }}

@@ -1,5 +1,5 @@
-CLUSTER_DOMAIN: apps.cluster-z84h8.z84h8.sandbox3227.opentlc.com
-USER_NAME: user1
+CLUSTER_DOMAIN: apps.somecluster.com
+USER_NAME: userX
 kfp:
   llsUrl: "http://llama-stack"
   backendUrl: "http://canopy-backend"
@@ -9,3 +9,7 @@ secrets:
     name: "test-results"
 testing:
   enableUnitTests: false
+  # Configuration for unit tests (points to test namespace services)
+  llamaStackUrl: "http://llama-stack-service.{{ .Values.USER_NAME }}-test.svc.cluster.local:8321"
+  vectorDbId: "test"
+  mcpCalendarUrl: "http://canopy-mcp-calendar-mcp-server.{{ .Values.USER_NAME }}-test.svc.cluster.local:8080/sse"
