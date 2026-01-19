@@ -18,6 +18,7 @@ spec:
         echo "Checking directory structure..."
         pwd
         ls -la
+        ls -la tests
 
         echo "Installing test dependencies..."
         pip install -r app/requirements.txt
