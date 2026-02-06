@@ -1,0 +1,39 @@
+apiVersion: tekton.dev/v1
+kind: Task
+metadata:
+  name: tool-unit-tests-task
+spec:
+  description: "Run pytest unit tests for agent tools (LangChain and MCP)"
+  workspaces:
+    - name: output
+      description: Workspace for test files
+  steps:
+    - name: run-unit-tests
+      image: registry.redhat.io/ubi9/python-312:latest
+      workingDir: $(workspaces.output.path)/backend/main
+      script: |
+        #!/bin/bash
+        set -e
+
+        echo "Checking directory structure..."
+        pwd
+        ls -la
+        ls -la tests
+
+        echo "Installing test dependencies..."
+        pip install -r app/requirements.txt
+        pip install -r tests/requirements-test.txt
+
+        echo "Running pytest unit tests for agent tools..."
+        pytest -v tests/test_tools.py
+
+        echo "All unit tests passed successfully!"
+      volumeMounts:
+        - name: canopy-config
+          mountPath: /workspace/output/backend/main/tests/canopy-config.yaml
+          subPath: canopy-config.yaml
+          readOnly: true
+  volumes:
+    - name: canopy-config
+      configMap:
+        name: canopy-config
