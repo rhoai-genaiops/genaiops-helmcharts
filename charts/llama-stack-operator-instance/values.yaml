@@ -1,3 +1,6 @@
+sealed_secrets:
+  enabled: true
+  secretName: whatever
 # Llama Stack Operator Instance configuration
 models:
   - name: "llama32"
