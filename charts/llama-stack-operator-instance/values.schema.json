@@ -261,6 +261,23 @@
       "required": ["enabled"],
       "additionalProperties": false
     },
+    "sealed_secrets": {
+      "type": "object",
+      "description": "Sealed Secrets configuration for encrypted secret management",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "description": "Enable or disable Sealed Secrets integration",
+          "default": false
+        },
+        "secretName": {
+          "type": "string",
+          "description": "Name of the sealed secret to use",
+          "minLength": 1
+        }
+      },
+      "additionalProperties": false
+    },
     "chart_path": {
       "type": "string",
       "description": "Target namespace for deployment (format: userX-environment)",
