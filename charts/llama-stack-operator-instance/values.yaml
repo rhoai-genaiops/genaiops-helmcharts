@@ -1,6 +1,3 @@
-sealed_secrets:
-  enabled: true
-  secretName: whatever
 # Llama Stack Operator Instance configuration
 models:
   - name: "llama32"
@@ -47,3 +44,6 @@ guardrails:
     enabled: false
   language_detection:
     enabled: false
+
+sealed_secrets:
+  enabled: false
