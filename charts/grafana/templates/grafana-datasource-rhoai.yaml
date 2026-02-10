@@ -13,7 +13,7 @@ spec:
         tlsSkipVerify: true
       name: RHOAI Prometheus
       type: prometheus
-      url: 'http://data-science-monitoringstack-prometheus.redhat-ods-monitoring.svc.cluster.local:9090'
+      url: 'https://data-science-monitoringstack-prometheus.redhat-ods-monitoring.svc.cluster.local:9090'
   instanceSelector:
     matchLabels:
       dashboards: "grafana"
