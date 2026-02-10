@@ -40,7 +40,7 @@ data:
       - name: hap
         detectors:
           - hap
-        fallback_message: "You know I can't let you ask me that."
+        fallback_message: "💂 You know I can't let you ask me that 💂"
       - name: passthrough
         detectors:
 {{- end }}

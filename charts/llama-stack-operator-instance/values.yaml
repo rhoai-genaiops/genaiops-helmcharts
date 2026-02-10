@@ -44,3 +44,6 @@ guardrails:
     enabled: false
   language_detection:
     enabled: false
+
+sealed_secrets:
+  enabled: false

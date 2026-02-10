@@ -9,6 +9,13 @@ spec:
   server:
     containerSpec:
       env:
+        {{- if .Values.sealed_secrets.enabled }}
+        - name: API_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Values.sealed_secrets.secretName }}
+              key: api_token
+        {{- end}}
         {{- if .Values.otelCollector.enabled }}
         - name: OTEL_SERVICE_NAME
           value: llamastack-{{ .Release.Namespace }}

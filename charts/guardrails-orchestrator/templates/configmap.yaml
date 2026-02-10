@@ -1,15 +1,20 @@
+---
 kind: ConfigMap
 apiVersion: v1
 metadata:
   name: fms-orchestr8-config-nlp
 data:
   config.yaml: |
-  {{- if .Values.orchestrator_gateway.enabled }}
+    chunkers:
+      sentence:
+        type: sentence
+        service:
+            hostname: chunker-service.ai501.svc.cluster.local
+            port: 8085
     openai: 
         service:
           hostname: llama-32-predictor.ai501.svc.cluster.local
           port: 8080
-  {{- end }}
     detectors:
       regex_competitor:
         type: text_contents
