@@ -150,6 +150,9 @@ spec:
             value: git-clone
           - name: namespace
             value: openshift-pipelines
+      runAfter:
+        - guidellm-task
+        - kfp-evaluation-task
       workspaces:
         - name: output
           workspace: shared-workspace
@@ -172,8 +175,6 @@ spec:
         kind: Task
       runAfter:
         - fetch-backend-repository
-        - guidellm-task
-        - kfp-evaluation-task
 {{- if .Values.testing.enableUnitTests }}
         - tool-unit-tests
 {{- end }}
