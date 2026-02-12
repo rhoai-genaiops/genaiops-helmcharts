@@ -44,3 +44,36 @@ subjects:
 - kind: ServiceAccount
   name: canopy-grafana-sa
   namespace: {{ .Release.Namespace }}
+---
+# NOTE: Tempo ClusterRoleBinding removed - no longer needed with per-user local Tempo
+# Grafana now connects to local tempo-tempo-local:3200 via HTTP (same namespace)
+---
+# ClusterRoleBinding to allow Grafana SA to access UWM Prometheus (thanos-querier)
+# This enables querying user-workload metrics from all namespaces
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: canopy-grafana-uwm-access-{{ .Release.Namespace }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cluster-monitoring-view
+subjects:
+- kind: ServiceAccount
+  name: canopy-grafana-sa
+  namespace: {{ .Release.Namespace }}
+---
+# RoleBinding in ai501 to allow Grafana to query metrics from vLLM/InferenceServices
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: canopy-grafana-metrics-view
+  namespace: ai501
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: view
+subjects:
+- kind: ServiceAccount
+  name: canopy-grafana-sa
+  namespace: {{ .Release.Namespace }}

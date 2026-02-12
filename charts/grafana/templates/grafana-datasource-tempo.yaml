@@ -1,4 +1,6 @@
 ---
+# Tempo datasource for per-user local Tempo instance
+# Uses HTTP (no TLS) within the same namespace - no mTLS complexity
 apiVersion: grafana.integreatly.org/v1beta1
 kind: GrafanaDatasource
 metadata:
@@ -9,9 +11,7 @@ spec:
       editable: true
       isDefault: false
       jsonData:
-        httpHeaderName1: 'X-Scope-OrgID'
         httpMethod: GET
-        backend: 'http'
         tracesQuery:
           timeShiftEnabled: true
           spanStartTimeShift: '-1h'
@@ -33,10 +33,8 @@ spec:
         lokiSearch:
           datasourceUid: ''
       name: Tempo
-      secureJsonData:
-        httpHeaderValue1: "redhat-ods-monitoring"
       type: tempo
-      url: 'http://tempo-data-science-tempomonolithic.redhat-ods-monitoring.svc.cluster.local:3200'
+      url: 'http://tempo-tempo-local:3200'
   instanceSelector:
     matchLabels:
       dashboards: "grafana"
