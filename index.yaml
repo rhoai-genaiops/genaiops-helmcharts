@@ -393,6 +393,29 @@ entries:
   llama-stack-operator-instance:
   - apiVersion: v2
     appVersion: latest
+    created: "2026-02-12T17:03:07.258205762Z"
+    description: "A Helm chart for Llama Stack Operator instances \U0001F999"
+    digest: 6eea0273a3792fa3edaf9b9a8323bc561d2bc9dbdc0b419d1b9673d14ee2283b
+    home: https://rhoai-genaiops.github.io/genaiops/
+    icon: https://aiagentframeworks.ai/content/images/2024/11/llama-stack.png
+    keywords:
+    - llama-stack
+    - ai
+    - operator
+    - instance
+    - mcp
+    - agents
+    maintainers:
+    - name: RHRolun
+    - name: rcarrata
+    - name: ckavili
+    name: llama-stack-operator-instance
+    type: application
+    urls:
+    - https://github.com/rhoai-genaiops/genaiops-helmcharts/releases/download/llama-stack-operator-instance-1.1.37/llama-stack-operator-instance-1.1.37.tgz
+    version: 1.1.37
+  - apiVersion: v2
+    appVersion: latest
     created: "2026-02-08T22:57:36.680323904Z"
     description: "A Helm chart for Llama Stack Operator instances \U0001F999"
     digest: dc09561c2a19f1f2a15179bc2cd9068da163a9224281d77dc4fb542d377556fe
@@ -1450,4 +1473,4 @@ entries:
     urls:
     - https://github.com/rhoai-genaiops/genaiops-helmcharts/releases/download/token-visualizer-1.0.1/token-visualizer-1.0.1.tgz
     version: 1.0.1
-generated: "2026-02-12T17:01:07.743824553Z"
+generated: "2026-02-12T17:03:07.258968413Z"
