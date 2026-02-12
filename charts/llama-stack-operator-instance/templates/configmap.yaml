@@ -208,8 +208,9 @@ data:
         provider_id: sentence-transformers
         model_type: embedding
       {{- end }}
-    {{- if .Values.rag.enabled }}
+    {{- if or .Values.rag.enabled .Values.mcp.enabled }}
     tool_groups:
+    {{- if .Values.rag.enabled }}
     - toolgroup_id: insert_into_memory
       provider_id: rag-runtime
     {{- end }}
@@ -218,6 +219,7 @@ data:
       provider_id: model-context-protocol
       mcp_endpoint:
         uri: http://canopy-mcp-calendar-mcp-server:8080/sse
+    {{- end }}
     {{- end }}
     {{- if .Values.eval.enabled }}
     benchmarks: []
