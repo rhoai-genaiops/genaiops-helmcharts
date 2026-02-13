@@ -160,7 +160,7 @@ data:
           vectorio_provider: milvus
           embeddings_provider: sentence-transformers
       {{- end }}
-      {{- if or .Values.eval.enabled (and (contains "canopy" .Release.Namespace) (or (not .Values.rag.enabled) (or (contains "test" .Release.Namespace) (contains "prod" .Release.Namespace)))) }}
+      {{- if or (and .Values.eval.enabled (not (or (contains "test" .Release.Namespace) (contains "prod" .Release.Namespace)))) (and (contains "canopy" .Release.Namespace) (or (not .Values.rag.enabled) (or (contains "test" .Release.Namespace) (contains "prod" .Release.Namespace)))) }}
       vector_io:
       - provider_id: milvus
         provider_type: inline::milvus
