@@ -312,7 +312,85 @@ spec:
             for yaml_file, error in failed_html:
                 print(f"  {yaml_file}: {error}")
         EOF
-        
+
+        # Fix HTML reports (patches GuideLLM HTML generator bugs)
+        echo "🔧 Fixing HTML reports..."
+        python3 << 'EOF'
+        import re
+        import json
+        import os
+        import glob
+
+        def add_percentile_rows(obj):
+            """Recursively add missing percentileRows to all statistics objects."""
+            if isinstance(obj, dict):
+                if 'percentiles' in obj and 'percentileRows' not in obj and obj['percentiles']:
+                    p = obj['percentiles']
+                    obj['percentileRows'] = [
+                        {"percentile": "p50", "value": p.get('p50', 0)},
+                        {"percentile": "p90", "value": p.get('p90', 0)},
+                        {"percentile": "p95", "value": p.get('p95', 0)},
+                        {"percentile": "p99", "value": p.get('p99', 0)},
+                    ]
+                if 'statistics' in obj and obj['statistics'] is None:
+                    obj['statistics'] = {
+                        "mean": 0, "median": 0, "mode": 0, "variance": 0,
+                        "min": 0, "max": 0, "count": 0, "stdDev": 0, "totalSum": 0,
+                        "percentiles": {"p50": 0, "p90": 0, "p95": 0, "p99": 0},
+                        "percentileRows": [
+                            {"percentile": "p50", "value": 0},
+                            {"percentile": "p90", "value": 0},
+                            {"percentile": "p95", "value": 0},
+                            {"percentile": "p99", "value": 0},
+                        ]
+                    }
+                for v in obj.values():
+                    add_percentile_rows(v)
+            elif isinstance(obj, list):
+                for item in obj:
+                    add_percentile_rows(item)
+
+        # Find all HTML files
+        html_files = glob.glob("guidellm_*_results.html")
+
+        print(f"Found {len(html_files)} HTML files to fix")
+
+        for html_file in html_files:
+            try:
+                print(f"Fixing {html_file}...")
+
+                with open(html_file, 'r') as f:
+                    content = f.read()
+
+                # Fix workloadDetails
+                match = re.search(r'window\.workloadDetails = (\{.*?\});', content, re.DOTALL)
+                if match:
+                    workload = json.loads(match.group(1))
+                    add_percentile_rows(workload)
+                    content = content.replace(match.group(0), f'window.workloadDetails = {json.dumps(workload)};')
+
+                # Fix benchmarks
+                match = re.search(r'window\.benchmarks = (\[.*?\]);', content, re.DOTALL)
+                if match:
+                    benchmarks = json.loads(match.group(1))
+                    add_percentile_rows(benchmarks)
+                    for b in benchmarks:
+                        if 'tpot' in b and 'itl' not in b:
+                            b['itl'] = b['tpot']  # UI expects 'itl', not 'tpot'
+                    content = content.replace(match.group(0), f'window.benchmarks = {json.dumps(benchmarks)};')
+
+                # Overwrite original file with fixed content
+                with open(html_file, 'w') as f:
+                    f.write(content)
+
+                print(f"  ✅ Fixed: {html_file}")
+
+            except Exception as e:
+                print(f"  ❌ Error fixing {html_file}: {e}")
+
+        print("HTML fixing complete!")
+        EOF
+
         echo "Listing all generated files:"
         ls -la *.yaml *.txt *.html 2>/dev/null || echo "No result files found"
       env:
@@ -423,11 +501,11 @@ spec:
                 print(f"Error uploading {yaml_file}: {e}")
                 failed_yamls.append(yaml_file)
         
-        # Upload all HTML result files
+        # Upload all fixed HTML result files
         html_files = glob.glob("guidellm_*_results.html")
         uploaded_htmls = []
         failed_htmls = []
-        
+
         for html_file in html_files:
             html_s3_key = f"{git_hash}/{html_file}"
             try:
