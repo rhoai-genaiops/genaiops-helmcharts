@@ -3,7 +3,7 @@ apiVersion: v2
 description: A Helm chart for token visualizer for AI501 GenAIOps Enablement📈
 name: token-visualizer
 version: 1.0.1
-home: https://rhoai-genaiops.github.io/genaiops/
+home: https://rhoai-genaiops.github.io/genaiops-helmcharts/
 icon: https://cdn-icons-png.flaticon.com/512/2165/2165640.png
 maintainers:
   - name: claudecode

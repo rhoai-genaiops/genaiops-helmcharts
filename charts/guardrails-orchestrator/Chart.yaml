@@ -5,5 +5,5 @@ name: guardrails-orchestrator
 type: application
 version: 1.0.6
 appVersion: "latest"
-home: https://rhoai-genaiops.github.io/genaiops/
+home: https://rhoai-genaiops.github.io/genaiops-helmcharts/
 icon: https://cdn-icons-png.freepik.com/512/5896/5896766.png
