@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>vLLM Token Visualizer</title>
+    <!-- Environment configuration (uncomment and set values as needed) -->
+    <!-- <meta name="vllm-server-url" content="http://your-server:8000"> -->
+    <!-- <meta name="vllm-refresh-interval" content="2000"> -->
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%);
+            color: #e4e6ea;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        .container {
+            text-align: center;
+            padding: 2rem;
+            max-width: 800px;
+            width: 100%;
+        }
+
+        .title {
+            font-size: 2.5rem;
+            font-weight: 300;
+            margin-bottom: 1rem;
+            opacity: 0.9;
+            letter-spacing: 2px;
+        }
+
+        .subtitle {
+            font-size: 1.1rem;
+            opacity: 0.7;
+            margin-bottom: 3rem;
+            font-weight: 300;
+        }
+
+        .token-displays-grid {
+            margin-bottom: 2rem;
+        }
+
+        .token-display-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .token-display {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(100, 255, 218, 0.1);
+            border-radius: 20px;
+            padding: 2rem 1.5rem;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(100, 255, 218, 0.05);
+            transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+
+        .token-display.total-tokens {
+            padding: 2.5rem 2rem;
+        }
+
+        .token-display:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(100, 255, 218, 0.15);
+        }
+
+        /* Color variations for different token types */
+        .token-display.input-tokens {
+            border-color: rgba(100, 255, 218, 0.1);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(100, 255, 218, 0.05);
+        }
+
+        .token-display.output-tokens {
+            border-color: rgba(255, 193, 7, 0.1);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(255, 193, 7, 0.05);
+        }
+
+        .token-display.total-tokens {
+            border-color: rgba(156, 39, 176, 0.1);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(156, 39, 176, 0.05);
+        }
+
+        .token-label {
+            font-size: 1.2rem;
+            opacity: 0.8;
+            margin-bottom: 1rem;
+            font-weight: 400;
+        }
+
+        .token-counter {
+            font-size: 3rem;
+            font-weight: 800;
+            transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            font-variant-numeric: tabular-nums;
+            margin-bottom: 0.5rem;
+        }
+
+        .token-display.total-tokens .token-counter {
+            font-size: 3.5rem;
+        }
+
+        .token-counter.input-counter {
+            color: #64ffda;
+            text-shadow: 0 0 25px rgba(100, 255, 218, 0.4);
+            background: linear-gradient(135deg, #64ffda 0%, #18ffff 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .token-counter.output-counter {
+            color: #ffc107;
+            text-shadow: 0 0 25px rgba(255, 193, 7, 0.4);
+            background: linear-gradient(135deg, #ffc107 0%, #ff8f00 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .token-counter.total-counter {
+            color: #9c27b0;
+            text-shadow: 0 0 30px rgba(156, 39, 176, 0.4);
+            background: linear-gradient(135deg, #9c27b0 0%, #673ab7 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .token-counter.updating {
+            transform: scale(1.05);
+            filter: brightness(1.2);
+        }
+
+        .token-counter.input-counter.updating {
+            text-shadow: 0 0 35px rgba(100, 255, 218, 0.7);
+        }
+
+        .token-counter.output-counter.updating {
+            text-shadow: 0 0 35px rgba(255, 193, 7, 0.7);
+        }
+
+        .token-counter.total-counter.updating {
+            text-shadow: 0 0 40px rgba(156, 39, 176, 0.7);
+        }
+
+        .token-subtitle {
+            font-size: 0.9rem;
+            opacity: 0.6;
+            font-weight: 300;
+            margin-top: 0.5rem;
+        }
+
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            font-size: 1rem;
+            margin-bottom: 2rem;
+            opacity: 0.8;
+        }
+
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #64ffda;
+            animation: pulse 2s infinite;
+            box-shadow: 0 0 10px rgba(100, 255, 218, 0.6);
+        }
+
+        .status-dot.error {
+            background: #ff5252;
+            animation: none;
+            box-shadow: 0 0 10px rgba(255, 82, 82, 0.6);
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.6; transform: scale(1.2); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+
+        .settings {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(100, 255, 218, 0.08);
+            border-radius: 20px;
+            padding: 2rem;
+            margin-top: 2rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .setting-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+        }
+
+        .setting-row label {
+            font-size: 0.9rem;
+            opacity: 0.8;
+            min-width: 120px;
+            text-align: left;
+        }
+
+        .setting-row input {
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(100, 255, 218, 0.15);
+            border-radius: 12px;
+            padding: 0.75rem;
+            color: #e4e6ea;
+            font-size: 0.9rem;
+            width: 200px;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+
+        .setting-row input:focus {
+            outline: none;
+            border-color: #64ffda;
+            box-shadow: 0 0 0 3px rgba(100, 255, 218, 0.15);
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .error-message {
+            background: rgba(255, 82, 82, 0.1);
+            border: 1px solid rgba(255, 82, 82, 0.2);
+            border-radius: 16px;
+            padding: 1.25rem;
+            margin-top: 1rem;
+            font-size: 0.9rem;
+            color: #ff8a80;
+            backdrop-filter: blur(10px);
+        }
+
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            overflow: hidden;
+            z-index: -1;
+        }
+
+        .particle {
+            position: absolute;
+            width: 3px;
+            height: 3px;
+            background: rgba(100, 255, 218, 0.15);
+            border-radius: 50%;
+            animation: float 6s infinite linear;
+            box-shadow: 0 0 6px rgba(100, 255, 218, 0.3);
+        }
+
+        @keyframes float {
+            0% {
+                transform: translateY(100vh) rotate(0deg);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-100px) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                max-width: 100%;
+                padding: 1rem;
+            }
+            .title {
+                font-size: 2rem;
+            }
+            .token-display-row {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+            .token-counter {
+                font-size: 2.5rem;
+            }
+            .token-display.total-tokens .token-counter {
+                font-size: 3rem;
+            }
+            .setting-row {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .setting-row label {
+                text-align: center;
+                min-width: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="particles" id="particles"></div>
+    
+    <div class="container">
+        <h1 class="title">vLLM Token Visualizer</h1>
+        <p class="subtitle">Real-time token consumption monitoring</p>
+        
+        <div class="status-indicator">
+            <div class="status-dot" id="statusDot"></div>
+            <span id="statusText">Connecting...</span>
+        </div>
+        
+        <div class="token-displays-grid">
+            <div class="token-display-row">
+                <div class="token-display input-tokens">
+                    <div class="token-label">Input Tokens</div>
+                    <div class="token-counter input-counter" id="inputTokenCounter">0</div>
+                    <div class="token-subtitle">Prompt tokens processed</div>
+                </div>
+                
+                <div class="token-display output-tokens">
+                    <div class="token-label">Output Tokens</div>
+                    <div class="token-counter output-counter" id="outputTokenCounter">0</div>
+                    <div class="token-subtitle">Generation tokens produced</div>
+                </div>
+            </div>
+            
+            <div class="token-display total-tokens">
+                <div class="token-label">Total Tokens</div>
+                <div class="token-counter total-counter" id="totalTokenCounter">0</div>
+                <div class="token-subtitle">Combined input + output tokens</div>
+            </div>
+        </div>
+        
+        <div class="settings">
+            <div class="setting-row">
+                <label for="serverUrl">Server URL:</label>
+                <input type="text" id="serverUrl" value="http://localhost:8000" placeholder="http://localhost:8000">
+            </div>
+            <div class="setting-row">
+                <label for="refreshInterval">Refresh Interval (ms):</label>
+                <input type="number" id="refreshInterval" value="2000" min="500" max="30000">
+            </div>
+        </div>
+        
+        <div id="errorMessage" class="error-message" style="display: none;"></div>
+    </div>
+
+    <script>
+        class TokenVisualizer {
+            constructor() {
+                this.currentTokens = {
+                    input: 0,
+                    output: 0,
+                    total: 0
+                };
+                this.displayedTokens = {
+                    input: 0,
+                    output: 0,
+                    total: 0
+                };
+                this.animatingCounters = new Set();
+                this.intervalId = null;
+                
+                this.elements = {
+                    inputTokenCounter: document.getElementById('inputTokenCounter'),
+                    outputTokenCounter: document.getElementById('outputTokenCounter'),
+                    totalTokenCounter: document.getElementById('totalTokenCounter'),
+                    statusDot: document.getElementById('statusDot'),
+                    statusText: document.getElementById('statusText'),
+                    errorMessage: document.getElementById('errorMessage'),
+                    serverUrl: document.getElementById('serverUrl'),
+                    refreshInterval: document.getElementById('refreshInterval')
+                };
+                
+                this.init();
+            }
+            
+            init() {
+                this.loadEnvironmentConfig();
+                this.createParticles();
+                this.setupEventListeners();
+                this.startPolling();
+            }
+            
+            loadEnvironmentConfig() {
+                // Check for environment variables from URL parameters
+                const urlParams = new URLSearchParams(window.location.search);
+                const serverUrlFromParam = urlParams.get('serverUrl') || urlParams.get('VLLM_SERVER_URL');
+                
+                // Check for environment variables set via build-time replacement or meta tags
+                const metaServerUrl = document.querySelector('meta[name="vllm-server-url"]')?.content;
+                
+                // Priority order: URL params > meta tag > default
+                const envServerUrl = serverUrlFromParam || 
+                                   metaServerUrl || 
+                                   window.VLLM_SERVER_URL || 
+                                   this.elements.serverUrl.value;
+                
+                if (envServerUrl && envServerUrl !== this.elements.serverUrl.value) {
+                    this.elements.serverUrl.value = envServerUrl;
+                    console.log('Server URL loaded from environment:', envServerUrl);
+                }
+                
+                // Also check for refresh interval from environment
+                const envRefreshInterval = urlParams.get('refreshInterval') || 
+                                         urlParams.get('VLLM_REFRESH_INTERVAL') ||
+                                         window.VLLM_REFRESH_INTERVAL;
+                
+                if (envRefreshInterval) {
+                    this.elements.refreshInterval.value = envRefreshInterval;
+                    console.log('Refresh interval loaded from environment:', envRefreshInterval);
+                }
+            }
+            
+            createParticles() {
+                const particlesContainer = document.getElementById('particles');
+                for (let i = 0; i < 20; i++) {
+                    const particle = document.createElement('div');
+                    particle.className = 'particle';
+                    particle.style.left = Math.random() * 100 + '%';
+                    particle.style.animationDelay = Math.random() * 6 + 's';
+                    particle.style.animationDuration = (4 + Math.random() * 4) + 's';
+                    particlesContainer.appendChild(particle);
+                }
+            }
+            
+            setupEventListeners() {
+                this.elements.serverUrl.addEventListener('change', () => {
+                    this.restartPolling();
+                });
+                
+                this.elements.refreshInterval.addEventListener('change', () => {
+                    this.restartPolling();
+                });
+            }
+            
+            async fetchMetrics() {
+                try {
+                    const serverUrl = this.elements.serverUrl.value.trim();
+                    if (!serverUrl) {
+                        throw new Error('Server URL is required');
+                    }
+                    
+                    const url = serverUrl.endsWith('/') ? serverUrl + 'metrics' : serverUrl + '/metrics';
+                    const response = await fetch(url);
+                    
+                    if (!response.ok) {
+                        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                    }
+                    
+                    const metricsText = await response.text();
+                    return this.parseTokenMetrics(metricsText);
+                    
+                } catch (error) {
+                    this.handleError(error.message);
+                    return null;
+                }
+            }
+            
+            parseTokenMetrics(metricsText) {
+                const lines = metricsText.split('\n');
+                const metrics = {
+                    input: 'vllm:prompt_tokens_total',
+                    output: 'vllm:generation_tokens_total',
+                    total: 'vllm:prompt_tokens_total' // We'll calculate total from input + output
+                };
+
+                const results = {
+                    input: 0,
+                    output: 0,
+                    total: 0
+                };
+
+                // Regex to match numbers including scientific notation (e.g., 1.234e+06)
+                const numberRegex = /(\d+(?:\.\d+)?(?:[eE][+-]?\d+)?)\s*$/;
+
+                // Parse input (prompt) tokens
+                for (const line of lines) {
+                    if (line.startsWith(metrics.input) && !line.startsWith('#')) {
+                        const match = line.match(numberRegex);
+                        if (match) {
+                            results.input = parseFloat(match[1]);
+                            break;
+                        }
+                    }
+                }
+
+                // Parse output (generation) tokens
+                for (const line of lines) {
+                    if (line.startsWith(metrics.output) && !line.startsWith('#')) {
+                        const match = line.match(numberRegex);
+                        if (match) {
+                            results.output = parseFloat(match[1]);
+                            break;
+                        }
+                    }
+                }
+                
+                // Calculate total
+                results.total = results.input + results.output;
+                
+                return results;
+            }
+            
+            animateNumber(type, targetValue) {
+                if (this.animatingCounters.has(type)) return;
+                
+                this.animatingCounters.add(type);
+                const element = this.elements[`${type}TokenCounter`];
+                element.classList.add('updating');
+                
+                const startValue = this.displayedTokens[type];
+                const duration = 800;
+                const startTime = performance.now();
+                
+                const animate = (currentTime) => {
+                    const elapsed = currentTime - startTime;
+                    const progress = Math.min(elapsed / duration, 1);
+                    
+                    const easeOutCubic = 1 - Math.pow(1 - progress, 3);
+                    const currentValue = Math.round(startValue + (targetValue - startValue) * easeOutCubic);
+                    
+                    this.displayedTokens[type] = currentValue;
+                    element.textContent = this.formatNumber(currentValue);
+                    
+                    if (progress < 1) {
+                        requestAnimationFrame(animate);
+                    } else {
+                        this.animatingCounters.delete(type);
+                        element.classList.remove('updating');
+                    }
+                };
+                
+                requestAnimationFrame(animate);
+            }
+            
+            formatNumber(num) {
+                return new Intl.NumberFormat().format(num);
+            }
+            
+            updateStatus(isConnected, message = '') {
+                if (isConnected) {
+                    this.elements.statusDot.classList.remove('error');
+                    this.elements.statusText.textContent = message || 'Connected';
+                    this.elements.errorMessage.style.display = 'none';
+                } else {
+                    this.elements.statusDot.classList.add('error');
+                    this.elements.statusText.textContent = 'Connection Error';
+                    this.elements.errorMessage.style.display = 'block';
+                    this.elements.errorMessage.textContent = message;
+                }
+            }
+            
+            handleError(errorMessage) {
+                console.error('Metrics fetch error:', errorMessage);
+                this.updateStatus(false, errorMessage);
+            }
+            
+            async updateTokens() {
+                const tokens = await this.fetchMetrics();
+                if (tokens !== null) {
+                    // Update each counter if the value has changed
+                    if (tokens.input !== this.currentTokens.input) {
+                        this.currentTokens.input = tokens.input;
+                        this.animateNumber('input', tokens.input);
+                    }
+                    
+                    if (tokens.output !== this.currentTokens.output) {
+                        this.currentTokens.output = tokens.output;
+                        this.animateNumber('output', tokens.output);
+                    }
+                    
+                    if (tokens.total !== this.currentTokens.total) {
+                        this.currentTokens.total = tokens.total;
+                        this.animateNumber('total', tokens.total);
+                    }
+                    
+                    this.updateStatus(true, 'Connected');
+                }
+            }
+            
+            startPolling() {
+                this.updateTokens();
+                
+                const interval = parseInt(this.elements.refreshInterval.value) || 1000;
+                this.intervalId = setInterval(() => {
+                    this.updateTokens();
+                }, interval);
+            }
+            
+            stopPolling() {
+                if (this.intervalId) {
+                    clearInterval(this.intervalId);
+                    this.intervalId = null;
+                }
+            }
+            
+            restartPolling() {
+                this.stopPolling();
+                this.startPolling();
+            }
+        }
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            new TokenVisualizer();
+        });
+    </script>
+</body>

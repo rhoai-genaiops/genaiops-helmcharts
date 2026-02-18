@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: token-visualizer
-          image: 'quay.io/rhoai-genaiops/token-visualizer:0.0.1'
+          image: 'quay.io/rhoai-genaiops/token-visualizer:0.0.2'
           ports:
             - containerPort: 8080
               protocol: TCP
