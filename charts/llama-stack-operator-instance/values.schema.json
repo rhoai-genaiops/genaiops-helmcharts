@@ -72,6 +72,21 @@
       "required": ["image"],
       "additionalProperties": false
     },
+    "updateStrategy": {
+      "type": "object",
+      "description": "Update strategy configuration to control how pods are replaced during updates. Use 'Recreate' to avoid multi-attach volume issues with persistent storage.",
+      "properties": {
+        "type": {
+          "type": "string",
+          "description": "Type of update strategy",
+          "enum": ["Recreate", "RollingUpdate"],
+          "default": "Recreate",
+          "examples": ["Recreate", "RollingUpdate"]
+        }
+      },
+      "required": ["type"],
+      "additionalProperties": false
+    },
     "configMap": {
       "type": "object",
       "description": "ConfigMap configuration settings",
@@ -292,6 +307,7 @@
   "required": [
     "models",
     "distribution",
+    "updateStrategy",
     "configMap",
     "telemetry",
     "rag",

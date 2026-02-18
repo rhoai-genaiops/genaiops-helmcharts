@@ -7,6 +7,10 @@ models:
 distribution:
   image: "quay.io/rhoai-genaiops/llama-stack-vllm-milvus-fms:rhoai-3.0-fix3"
 
+# Update strategy configuration to avoid multi-attach volume issues
+updateStrategy:
+  type: Recreate
+
 
 # ConfigMap for Llama Stack configuration
 configMap:
