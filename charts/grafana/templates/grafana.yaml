@@ -6,6 +6,7 @@ metadata:
   namespace: {{ .Release.Namespace }}
   annotations:
     kubernetes.io/service-account.name: canopy-grafana-sa
+    argocd.argoproj.io/sync-options: SkipHealthCheck=true
 type: kubernetes.io/service-account-token
 ---
 apiVersion: v1
