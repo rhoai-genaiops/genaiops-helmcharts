@@ -18,7 +18,7 @@ metadata:
 ---
 apiVersion: v1
 data:
-  session_secret: {{ (randAlphaNum 10) | b64enc }}
+  session_secret: {{ printf "%s-%s-grafana-proxy-session" .Release.Name .Release.Namespace | sha256sum | trunc 16 | b64enc }}
 kind: Secret
 metadata:
   name: grafana-proxy
