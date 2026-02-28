@@ -4,7 +4,7 @@ kind: GrafanaDatasource
 metadata:
   name: prometheus-grafanadatasource
   annotations:
-    argocd.argoproj.io/sync-wave: "10"
+    argocd.argoproj.io/sync-wave: "15"
 spec:
   valuesFrom:
     - targetPath: "secureJsonData.httpHeaderValue1"
