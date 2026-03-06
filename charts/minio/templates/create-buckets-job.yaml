@@ -32,6 +32,9 @@ metadata:
 spec:
   backoffLimit: 4
   template:
+    metadata:
+      annotations:
+        checksum/buckets: {{ .Values.buckets | toJson | sha256sum }}
     spec:
       serviceAccount: minio-manage
       serviceAccountName: minio-manage
