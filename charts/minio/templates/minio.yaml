@@ -10,16 +10,16 @@ spec:
     requests:
       storage: 20Gi
   volumeMode: Filesystem
----
-kind: Secret
-apiVersion: v1
-metadata:
-  name: minio-secret
-stringData:
-  # change the username and password to your own values.
-  # ensure that the user is at least 3 characters long and the password at least 8
-  minio_root_user: {{ (split "-" $.Release.Namespace)._0 }}
-  minio_root_password: {{ .Values.password | default "thisisthepassword" }}
+# ---
+# kind: Secret
+# apiVersion: v1
+# metadata:
+#   name: minio-secret
+# stringData:
+#   # change the username and password to your own values.
+#   # ensure that the user is at least 3 characters long and the password at least 8
+#   minio_root_user: {{ (split "-" $.Release.Namespace)._0 }}
+#   minio_root_password: {{ .Values.password | default "thisisthepassword" }}
 ---
 kind: Deployment
 apiVersion: apps/v1
