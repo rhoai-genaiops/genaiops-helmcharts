@@ -1,0 +1,9 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: bucket-checksum
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
+data:
+  checksum: {{ .Values.buckets | toJson | sha256sum }}
