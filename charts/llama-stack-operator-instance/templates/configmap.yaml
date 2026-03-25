@@ -23,7 +23,7 @@ data:
     {{- end }}
     - scoring
     - tool_runtime
-    {{- if or .Values.eval.enabled (contains "canopy" .Release.Namespace) }}
+    {{- if or .Values.eval.enabled (contains "canopy" .Release.Namespace) .Values.rag.enabled }}
     - vector_io
     {{- end }}
     - files
