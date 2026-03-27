@@ -16,7 +16,7 @@ spec:
       image: quay.io/redhat-cop/ubi8-git:latest
       script: |
         #!/bin/sh
-
+        git pull
         git config --global user.email "tekton@mlops.bot.com"
         git config --global user.name "🐈 Tekton 🐈"
         git config --global push.default simple
