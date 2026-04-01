@@ -32,6 +32,8 @@ spec:
       image: quay.io/redhat-cop/ubi8-git:latest
       script: |
         #!/bin/sh
+        # Refresh the local copy
+        git pull
         # Commit the changes :P
         git config --global user.email "tekton@mlops.bot.com"
         git config --global user.name "🐈 Tekton 🐈"
