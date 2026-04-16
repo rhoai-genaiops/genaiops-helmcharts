@@ -104,10 +104,9 @@ data:
           url: "{{ .url }}"
           {{- if .token }}
           api_token: {{ .token }}
-          {{- end }}
-          {{- if $.Values.sealed_secrets.enabled }}
+          {{- else if $.Values.sealed_secrets.enabled }}
           api_token: ${env.API_TOKEN}
-          {{- end}}
+          {{- end }}
       {{- end }}
       {{- if .Values.rag.enabled }}
       - provider_id: sentence-transformers
