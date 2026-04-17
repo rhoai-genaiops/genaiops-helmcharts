@@ -39,7 +39,7 @@ data:
             orchestrator_url: https://guardrails-orchestrator:8080
             verify_ssl: false
       {{- end }}
-      {{- if .Values.guardrails.regex.enabled }}
+          {{- if and .Values.guardrails.enabled .Values.guardrails.regex.enabled }}
             shields:
               regex:
                 detectors:
@@ -50,7 +50,7 @@ data:
                 confidence_threshold: 0.5
                 message_types: ["user", "system", "completion"]
       {{- end }}
-      {{- if .Values.guardrails.hap.enabled }}
+      {{- if and .Values.guardrails.enabled .Values.guardrails.hap.enabled }}
               hap:
                 type: content
                 confidence_threshold: 0.5
@@ -59,7 +59,7 @@ data:
                   hap:
                     detector_params: {} 
       {{- end }}
-      {{- if .Values.guardrails.language_detection.enabled }}
+      {{- if and .Values.guardrails.enabled .Values.guardrails.language_detection.enabled }}
               language_detection:
                 type: content
                 confidence_threshold: 0.5
