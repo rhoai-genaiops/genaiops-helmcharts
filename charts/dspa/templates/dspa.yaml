@@ -10,7 +10,6 @@ spec:
     deploy: true
     artifactSignedURLExpirySeconds: 60
     enableSamplePipeline: false
-    managedPipelines: {}
     enableOauth: true
     cacheEnabled: true
     pipelineStore: kubernetes
@@ -39,7 +38,7 @@ spec:
   persistenceAgent:
     deploy: true
     numWorkers: 2
-  podToPodTLS: true
+  podToPodTLS: false
   scheduledWorkflow:
     cronScheduleTimezone: UTC
     deploy: true
