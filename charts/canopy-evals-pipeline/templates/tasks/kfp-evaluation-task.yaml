@@ -7,11 +7,11 @@ spec:
     - name: output
       description: Workspace for pipeline files
   params:
-    - name: BASE_URL
-      description: Base URL for LlamaStack
-      type: string
     - name: BACKEND_URL
       description: Backend URL for canopy
+      type: string
+    - name: LLM_ENDPOINT
+      description: LLM endpoint URL for scoring
       type: string
     - name: GIT_URL
       type: string
@@ -36,6 +36,7 @@ spec:
     command: ["/bin/sh", "-c"]
     args:
     - |
+      ls -latr
       echo "Installing KFP dependencies..."
       python3 -m pip install kfp==2.14.6 kfp.kubernetes==2.14.6
       
@@ -49,7 +50,7 @@ spec:
       sys.path.insert(0, '.')
       
       # Import the pipeline
-      from kfp_pipeline import canopy_test_pipeline
+      from mlflow_pipeline import canopy_eval_pipeline
       
       # Get namespace from service account
       namespace_file_path = '/var/run/secrets/kubernetes.io/serviceaccount/namespace'
@@ -76,9 +77,9 @@ spec:
       arguments = {
           "repo_url": "$(params.GIT_URL)",
           "branch": "$(params.GIT_BRANCH)",
-          "base_url": "$(params.BASE_URL)",
           "backend_url": "$(params.BACKEND_URL)",
-          "secret_name": "{{ .Values.secrets.s3.name }}",
+          "llm_endpoint": "$(params.LLM_ENDPOINT)",
+          "mlflow_tracking_uri": "https://mlflow.redhat-ods-applications.svc.cluster.local:8443",
           "git_hash": "$(params.GIT_SHORT_REVISION)",
       }
 
@@ -86,7 +87,7 @@ spec:
       
       print("🏃‍♂️ Starting Kubeflow Pipeline run...")
       run_id = client.create_run_from_pipeline_func(
-          canopy_test_pipeline,
+          canopy_eval_pipeline,
           arguments=arguments,
           experiment_name="canopy-evals-pipeline",
           namespace=namespace,

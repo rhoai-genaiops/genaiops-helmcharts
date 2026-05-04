@@ -7,10 +7,13 @@ spec:
   params:
     - name: git-branch
       description: The git branch
+      default: "main"
     - name: git-revision
       description: The git revision
+      default: "latest"
     - name: git-short-revision
       description: Seven character git sha
+      default: "latest"
     - name: git-ref
       description: The full git ref
       default: refs/heads/main
@@ -64,6 +67,22 @@ spec:
 
 ---
 apiVersion: triggers.tekton.dev/v1beta1
+kind: Trigger
+metadata:
+  name: canopy-evals-mlflow-trigger
+spec:
+  interceptors:
+    - ref:
+        name: "cel"
+      params:
+        - name: filter
+          value: body.workspace == '{{ .Values.USER_NAME }}-toolings'
+  bindings: []
+  template:
+    ref: canopy-evals-trigger-template
+
+---
+apiVersion: triggers.tekton.dev/v1beta1
 kind: EventListener
 metadata:
   name: canopy-evals-event-listener
@@ -71,3 +90,4 @@ spec:
   serviceAccountName: pipeline
   triggers:
     - triggerRef: canopy-evals-git-trigger
+    - triggerRef: canopy-evals-mlflow-trigger

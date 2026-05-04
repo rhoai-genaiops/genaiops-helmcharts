@@ -3,7 +3,7 @@ USER_NAME: userX
 kfp:
   llsUrl: "http://llama-stack"
   backendUrl: "http://canopy-backend"
-  endpointPath: "/summarize"
+  endpointPath: "/summarization"
 secrets:
   s3:
     name: "test-results"

@@ -23,10 +23,6 @@ spec:
       type: string
       default: "latest"
       description: Short Git commit hash
-    - name: LLS_URL
-      type: string
-      default: {{ .Values.kfp.llsUrl | quote }}
-      description: Base URL for LlamaStack
     - name: BACKEND_URL
       type: string
       default: {{ .Values.kfp.backendUrl | quote }}
@@ -85,8 +81,6 @@ spec:
         - name: output
           workspace: shared-workspace
       params:
-        - name: BASE_URL
-          value: "$(params.LLS_URL)"
         - name: BACKEND_URL
           value: "$(params.BACKEND_URL)"
         - name: GIT_URL
