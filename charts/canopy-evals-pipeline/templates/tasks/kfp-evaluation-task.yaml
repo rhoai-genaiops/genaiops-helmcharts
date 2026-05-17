@@ -1,107 +1,104 @@
+---
 apiVersion: tekton.dev/v1
 kind: Task
 metadata:
   name: kfp-evaluation-task
 spec:
-  workspaces:
-    - name: output
-      description: Workspace for pipeline files
   params:
-    - name: BACKEND_URL
-      description: Backend URL for canopy
+    - description: Backend URL for canopy
+      name: BACKEND_URL
       type: string
-    - name: LLM_ENDPOINT
-      description: LLM endpoint URL for scoring
+    - description: LLM endpoint URL for scoring
+      name: LLM_ENDPOINT
       type: string
-    - name: GIT_URL
-      type: string
-      default: https://github.com/rhoai-genaiops/evals
+    - default: 'https://github.com/rhoai-genaiops/evals'
       description: Git repository URL
-    - name: GIT_BRANCH
+      name: GIT_URL
       type: string
-      default: "main"
+    - default: main
       description: Git branch to clone
-    - name: GIT_REVISION
+      name: GIT_BRANCH
       type: string
-      default: "latest"
+    - default: latest
       description: Git revision to clone
-    - name: GIT_SHORT_REVISION
-      description: Short Git commit hash
+      name: GIT_REVISION
       type: string
-      default: "latest"
+    - default: latest
+      description: Short Git commit hash
+      name: GIT_SHORT_REVISION
+      type: string
   steps:
-  - name: kfp-evaluation-task
-    workingDir: $(workspaces.output.path)/evals-pipeline
-    image: registry.redhat.io/ubi9/python-311:latest
-    command: ["/bin/sh", "-c"]
-    args:
-    - |
-      ls -latr
-      echo "Installing KFP dependencies..."
-      python3 -m pip install kfp==2.14.6 kfp.kubernetes==2.14.6
-      
-      echo "Executing Kubeflow Pipeline..."
-      cat << 'EOF' | python3
-      import kfp
-      import sys
-      import os
-      
-      # Add current directory to Python path
-      sys.path.insert(0, '.')
-      
-      # Import the pipeline
-      from mlflow_pipeline import canopy_eval_pipeline
-      
-      # Get namespace from service account
-      namespace_file_path = '/var/run/secrets/kubernetes.io/serviceaccount/namespace'
-      with open(namespace_file_path, 'r') as namespace_file:
-          namespace = namespace_file.read()
-      
-      # Setup KFP client
-      kubeflow_endpoint = f'https://ds-pipeline-dspa.{namespace}.svc:8443'
-      
-      sa_token_file_path = '/var/run/secrets/kubernetes.io/serviceaccount/token'
-      with open(sa_token_file_path, 'r') as token_file:
-          bearer_token = token_file.read()
-      
-      ssl_ca_cert = '/var/run/secrets/kubernetes.io/serviceaccount/service-ca.crt'
-      
-      print(f'Connecting to Data Science Pipelines: {kubeflow_endpoint}')
-      client = kfp.Client(
-          host=kubeflow_endpoint,
-          existing_token=bearer_token,
-          ssl_ca_cert=ssl_ca_cert
-      )
-      
-      # Pipeline arguments
-      arguments = {
-          "repo_url": "$(params.GIT_URL)",
-          "branch": "$(params.GIT_BRANCH)",
-          "backend_url": "$(params.BACKEND_URL)",
-          "llm_endpoint": "$(params.LLM_ENDPOINT)",
-          "mlflow_tracking_uri": "https://mlflow.redhat-ods-applications.svc.cluster.local:8443",
-          "git_hash": "$(params.GIT_SHORT_REVISION)",
-      }
+    - name: kfp-evaluation-task
+      image: 'registry.redhat.io/ubi9/python-311:latest'
+      workingDir: $(workspaces.output.path)/evals-pipeline
+      script: |
+        #!/bin/sh
+        set -e
 
-      print(f"Arguments for the pipeline: {arguments}")
-      
-      print("🏃‍♂️ Starting Kubeflow Pipeline run...")
-      run_id = client.create_run_from_pipeline_func(
-          canopy_eval_pipeline,
-          arguments=arguments,
-          experiment_name="canopy-evals-pipeline",
-          namespace=namespace,
-          enable_caching=False
-      )
+        ls -latr
 
-      print("🥱 wait for the run to finish")
-      # wait for the run to finish
-      client.wait_for_run_completion(
-          run_id=run_id.run_id, 
-          timeout=7200,
-          sleep_duration=5,
-      )
+        echo "Installing KFP dependencies..."
+        python3 -m pip install kfp==2.14.6 kfp.kubernetes==2.14.6
 
-      print(f"🎉 Pipeline run created with ID: {run_id.run_id}")
-      print("✅ Kubeflow Pipeline execution completed successfully!")
-      EOF
+        echo "Executing Kubeflow Pipeline..."
+        python3 << 'PYEOF'
+        import kfp
+        import sys
+        import os
+
+        sys.path.insert(0, '.')
+
+        from mlflow_pipeline import canopy_eval_pipeline
+
+        namespace_file_path = '/var/run/secrets/kubernetes.io/serviceaccount/namespace'
+        with open(namespace_file_path, 'r') as namespace_file:
+            namespace = namespace_file.read()
+
+        kubeflow_endpoint = f'https://ds-pipeline-dspa.{namespace}.svc:8443'
+
+        sa_token_file_path = '/var/run/secrets/kubernetes.io/serviceaccount/token'
+        with open(sa_token_file_path, 'r') as token_file:
+            bearer_token = token_file.read()
+
+        ssl_ca_cert = '/var/run/secrets/kubernetes.io/serviceaccount/service-ca.crt'
+
+        print(f'Connecting to Data Science Pipelines: {kubeflow_endpoint}')
+        client = kfp.Client(
+            host=kubeflow_endpoint,
+            existing_token=bearer_token,
+            ssl_ca_cert=ssl_ca_cert
+        )
+
+        arguments = {
+            "repo_url": "$(params.GIT_URL)",
+            "branch": "$(params.GIT_BRANCH)",
+            "backend_url": "$(params.BACKEND_URL)",
+            "llm_endpoint": "$(params.LLM_ENDPOINT)",
+            "mlflow_tracking_uri": "https://mlflow.redhat-ods-applications.svc.cluster.local:8443",
+            "git_hash": "$(params.GIT_SHORT_REVISION)",
+        }
+
+        print(f"Arguments for the pipeline: {arguments}")
+
+        print("🏃‍♂️ Starting Kubeflow Pipeline run...")
+        run_id = client.create_run_from_pipeline_func(
+            canopy_eval_pipeline,
+            arguments=arguments,
+            experiment_name="canopy-evals-pipeline",
+            namespace=namespace,
+            enable_caching=False
+        )
+
+        print("🥱 wait for the run to finish")
+        client.wait_for_run_completion(
+            run_id=run_id.run_id,
+            timeout=7200,
+            sleep_duration=5,
+        )
+
+        print(f"🎉 Pipeline run created with ID: {run_id.run_id}")
+        print("✅ Kubeflow Pipeline execution completed successfully!")
+        PYEOF
+  workspaces:
+    - description: Workspace for pipeline files
+      name: output

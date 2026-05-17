@@ -1,0 +1,47 @@
+---
+apiVersion: tekton.dev/v1
+kind: Task
+metadata:
+  name: dump-payload
+spec:
+  params:
+    - name: GIT_URL
+      type: string
+    - name: GIT_BRANCH
+      type: string
+    - name: GIT_REVISION
+      type: string
+    - name: GIT_SHORT_REVISION
+      type: string
+    - name: BACKEND_URL
+      type: string
+    - name: MODEL_NAME
+      type: string
+    - name: PROCESSOR
+      type: string
+    - name: DATA_CONFIG
+      type: string
+    - name: RATE_TYPE
+      type: string
+    - name: MAX_SECONDS
+      type: string
+    - name: MAX_REQUESTS
+      type: string
+  steps:
+    - name: dump-payload
+      image: registry.redhat.io/ubi9/ubi-minimal:latest
+      script: |
+        #!/bin/sh
+        echo "========== Pipeline Payload =========="
+        echo "GIT_URL:            $(params.GIT_URL)"
+        echo "GIT_BRANCH:         $(params.GIT_BRANCH)"
+        echo "GIT_REVISION:       $(params.GIT_REVISION)"
+        echo "GIT_SHORT_REVISION: $(params.GIT_SHORT_REVISION)"
+        echo "BACKEND_URL:        $(params.BACKEND_URL)"
+        echo "MODEL_NAME:         $(params.MODEL_NAME)"
+        echo "PROCESSOR:          $(params.PROCESSOR)"
+        echo "DATA_CONFIG:        $(params.DATA_CONFIG)"
+        echo "RATE_TYPE:          $(params.RATE_TYPE)"
+        echo "MAX_SECONDS:        $(params.MAX_SECONDS)"
+        echo "MAX_REQUESTS:       $(params.MAX_REQUESTS)"
+        echo "======================================"
