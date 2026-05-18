@@ -20,6 +20,9 @@ spec:
     - name: WEBHOOK_DATA_TEMPLATE
       type: string
       default: ""
+    - name: WEBHOOK_DATA_ALIAS
+      type: string
+      default: ""
     - name: WEBHOOK_WORKSPACE
       type: string
       default: ""
@@ -39,4 +42,5 @@ spec:
         echo "data.name:      $(params.WEBHOOK_DATA_NAME)"
         echo "data.version:   $(params.WEBHOOK_DATA_VERSION)"
         echo "data.template:  $(params.WEBHOOK_DATA_TEMPLATE)"
+        echo "data.alias:     $(params.WEBHOOK_DATA_ALIAS)"
         echo "======================================"

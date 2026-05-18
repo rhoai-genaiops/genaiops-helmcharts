@@ -27,6 +27,8 @@ spec:
       default: ""
     - name: webhook-data-template
       default: ""
+    - name: webhook-data-alias
+      default: ""
     - name: webhook-workspace
       default: ""
     - name: webhook-timestamp
@@ -58,6 +60,8 @@ spec:
             value: $(tt.params.webhook-data-version)
           - name: WEBHOOK_DATA_TEMPLATE
             value: $(tt.params.webhook-data-template)
+          - name: WEBHOOK_DATA_ALIAS
+            value: $(tt.params.webhook-data-alias)
           - name: WEBHOOK_WORKSPACE
             value: $(tt.params.webhook-workspace)
           - name: WEBHOOK_TIMESTAMP
@@ -116,6 +120,8 @@ spec:
       value: $(body.data.version)
     - name: webhook-data-template
       value: $(body.data.template)
+    - name: webhook-data-alias
+      value: $(body.data.alias)
     - name: webhook-workspace
       value: $(body.workspace)
     - name: webhook-timestamp

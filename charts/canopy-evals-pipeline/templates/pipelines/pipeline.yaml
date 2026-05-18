@@ -70,6 +70,9 @@ spec:
     - name: WEBHOOK_DATA_TEMPLATE
       type: string
       default: ""
+    - name: WEBHOOK_DATA_ALIAS
+      type: string
+      default: ""
     - name: WEBHOOK_WORKSPACE
       type: string
       default: ""
@@ -91,6 +94,8 @@ spec:
           value: "$(params.WEBHOOK_DATA_VERSION)"
         - name: WEBHOOK_DATA_TEMPLATE
           value: "$(params.WEBHOOK_DATA_TEMPLATE)"
+        - name: WEBHOOK_DATA_ALIAS
+          value: "$(params.WEBHOOK_DATA_ALIAS)"
         - name: WEBHOOK_WORKSPACE
           value: "$(params.WEBHOOK_WORKSPACE)"
         - name: WEBHOOK_TIMESTAMP
