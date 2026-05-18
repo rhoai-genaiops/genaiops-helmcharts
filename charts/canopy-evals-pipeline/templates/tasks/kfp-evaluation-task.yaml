@@ -11,6 +11,7 @@ spec:
     - description: LLM endpoint URL for scoring
       name: LLM_ENDPOINT
       type: string
+      default: "http://llama-32-predictor.ai501.svc.cluster.local:8080"
     - default: 'https://github.com/rhoai-genaiops/evals'
       description: Git repository URL
       name: GIT_URL

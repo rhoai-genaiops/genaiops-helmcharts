@@ -27,6 +27,10 @@ spec:
       type: string
       default: {{ .Values.kfp.backendUrl | quote }}
       description: Backend URL for canopy
+    - name: LLM_ENDPOINT
+      type: string
+      default: "http://llama-32-predictor.ai501.svc.cluster.local:8080"
+      description: LLM endpoint URL for scoring
     - name: MODEL_NAME
       type: string
       description: "Model name identifier"
@@ -122,6 +126,8 @@ spec:
       params:
         - name: BACKEND_URL
           value: "$(params.BACKEND_URL)"
+        - name: LLM_ENDPOINT
+          value: "$(params.LLM_ENDPOINT)"
         - name: GIT_URL
           value: "$(params.GIT_URL)"
         - name: GIT_BRANCH
