@@ -1,0 +1,16 @@
+apiVersion: v2
+name: prompt-promotion-pipeline
+description: A Helm chart for Prompt Promotion Pipeline - updates production config when a prompt is tagged as prod in MLflow
+type: application
+version: 0.0.1
+appVersion: "1.0"
+keywords:
+  - tekton
+  - mlflow
+  - prompt
+  - gitops
+home: https://github.com/rhoai-genaiops/genaiops-helmcharts
+icon: https://cdn-icons-png.freepik.com/256/11501/11501870.png?semt=ais_white_label
+maintainers:
+  - name: GenAI Team
+    email: genai@redhat.com

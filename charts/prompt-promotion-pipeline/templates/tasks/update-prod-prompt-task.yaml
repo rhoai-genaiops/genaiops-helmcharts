@@ -1,0 +1,76 @@
+---
+apiVersion: tekton.dev/v1
+kind: Task
+metadata:
+  name: update-prod-prompt-task
+spec:
+  description: "Update production config with the promoted prompt version and push to main"
+  workspaces:
+    - name: output
+      description: Workspace containing the cloned genaiops-gitops repo
+  params:
+    - name: PROMPT_NAME
+      type: string
+      description: Name of the prompt (e.g., summarization)
+    - name: PROMPT_VERSION
+      type: string
+      description: Version number to set in production config
+  steps:
+    - name: update-and-push
+      image: quay.io/redhat-cop/ubi8-git:latest
+      workingDir: $(workspaces.output.path)
+      script: |
+        #!/bin/sh
+        set -e
+
+        CONFIG_FILE="canopy/prod/backend/config.yaml"
+        PROMPT_NAME="$(params.PROMPT_NAME)"
+        PROMPT_VERSION="$(params.PROMPT_VERSION)"
+
+        echo "========== Prompt Promotion =========="
+        echo "Prompt:  ${PROMPT_NAME}"
+        echo "Version: ${PROMPT_VERSION}"
+        echo "File:    ${CONFIG_FILE}"
+        echo "======================================"
+
+        if [ ! -f "${CONFIG_FILE}" ]; then
+          echo "ERROR: ${CONFIG_FILE} not found!"
+          ls -la canopy/prod/backend/ 2>/dev/null || echo "Directory does not exist"
+          exit 1
+        fi
+
+        echo "Current config:"
+        cat "${CONFIG_FILE}"
+        echo ""
+
+        # Update mlflow_prompt_version in the matching feature section
+        # Find the section for PROMPT_NAME and update the mlflow_prompt_version line within it
+        sed -i "/^${PROMPT_NAME}:/,/^[^ ]/{s/\(mlflow_prompt_version:\).*/\1 \"${PROMPT_VERSION}\"/}" "${CONFIG_FILE}"
+
+        echo "Updated config:"
+        cat "${CONFIG_FILE}"
+        echo ""
+
+        # Verify the update was applied
+        if grep -A 10 "^${PROMPT_NAME}:" "${CONFIG_FILE}" | grep -q "mlflow_prompt_version: \"${PROMPT_VERSION}\""; then
+          echo "Verification passed: ${PROMPT_NAME}.mlflow_prompt_version is now ${PROMPT_VERSION}"
+        else
+          echo "ERROR: Failed to update mlflow_prompt_version for ${PROMPT_NAME}"
+          exit 1
+        fi
+
+        git config --global user.email "tekton@mlops.bot.com"
+        git config --global user.name "🐈 Tekton Prompt Promotion 🐈"
+        git config --global push.default simple
+        git config --global --add safe.directory '*'
+
+        git add "${CONFIG_FILE}"
+        git commit -m "Promote ${PROMPT_NAME} prompt to version ${PROMPT_VERSION}" || {
+          echo "No changes to commit - version may already be set"
+          exit 0
+        }
+
+        git remote set-url origin $(cat $HOME/.git-credentials)/{{ .Values.USER_NAME }}/genaiops-gitops.git
+        git push origin main
+
+        echo "Pushed prompt promotion to main: ${PROMPT_NAME} v${PROMPT_VERSION}"
