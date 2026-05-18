@@ -71,6 +71,6 @@ spec:
         }
 
         git remote set-url origin $(cat $HOME/.git-credentials)/{{ .Values.USER_NAME }}/genaiops-gitops.git
-        git push origin main
+        git push origin HEAD:main
 
-        echo "Pushed prompt promotion to main: ${PROMPT_NAME} v${PROMPT_VERSION}"
+        echo "Pushed prompt promotion to main: ${PROMPT_NAME} v${PROMPT_VERSION} 🎉🌸"
