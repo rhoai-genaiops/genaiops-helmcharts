@@ -29,7 +29,7 @@ spec:
       description: Backend URL for canopy
     - name: LLM_ENDPOINT
       type: string
-      default: "http://llama-32-predictor.ai501.svc.cluster.local:8080"
+      default: {{ .Values.kfp.llmEndpoint | quote }}
       description: LLM endpoint URL for scoring
     - name: MODEL_NAME
       type: string
@@ -80,26 +80,6 @@ spec:
       type: string
       default: ""
   tasks:
-    - name: dump-payload
-      taskRef:
-        name: dump-payload
-      params:
-        - name: WEBHOOK_ACTION
-          value: "$(params.WEBHOOK_ACTION)"
-        - name: WEBHOOK_ENTITY
-          value: "$(params.WEBHOOK_ENTITY)"
-        - name: WEBHOOK_DATA_NAME
-          value: "$(params.WEBHOOK_DATA_NAME)"
-        - name: WEBHOOK_DATA_VERSION
-          value: "$(params.WEBHOOK_DATA_VERSION)"
-        - name: WEBHOOK_DATA_TEMPLATE
-          value: "$(params.WEBHOOK_DATA_TEMPLATE)"
-        - name: WEBHOOK_DATA_ALIAS
-          value: "$(params.WEBHOOK_DATA_ALIAS)"
-        - name: WEBHOOK_WORKSPACE
-          value: "$(params.WEBHOOK_WORKSPACE)"
-        - name: WEBHOOK_TIMESTAMP
-          value: "$(params.WEBHOOK_TIMESTAMP)"
     - name: git-clone
       taskRef:
         resolver: cluster

@@ -44,12 +44,10 @@ spec:
         params:
           - name: GIT_SHORT_REVISION
             value: $(tt.params.git-short-revision)
-          - name: LLS_URL
-            value: {{ .Values.kfp.llsUrl | quote }}
           - name: BACKEND_URL
             value: {{ .Values.kfp.backendUrl | quote }}
-          - name: ENDPOINT_PATH
-            value: {{ .Values.kfp.endpointPath | quote }}
+          - name: LLM_ENDPOINT
+            value: {{ .Values.kfp.llmEndpoint | quote }}
           - name: WEBHOOK_ACTION
             value: $(tt.params.webhook-action)
           - name: WEBHOOK_ENTITY
