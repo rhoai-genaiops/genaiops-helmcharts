@@ -17,6 +17,8 @@ spec:
     - name: git-ref
       description: The full git ref
       default: refs/heads/main
+    - name: webhook-payload
+      description: Raw webhook payload JSON
   resourcetemplates:
     - apiVersion: tekton.dev/v1
       kind: PipelineRun
@@ -34,6 +36,8 @@ spec:
             value: {{ .Values.kfp.backendUrl | quote }}
           - name: ENDPOINT_PATH
             value: {{ .Values.kfp.endpointPath | quote }}
+          - name: WEBHOOK_PAYLOAD
+            value: $(tt.params.webhook-payload)
         workspaces:
         - name: shared-workspace
           persistentVolumeClaim:
@@ -62,6 +66,8 @@ spec:
       value: $(body.ref)
     - name: git-short-revision
       value: $(extensions.truncated_sha)
+    - name: webhook-payload
+      value: $(body)
   template:
     ref: canopy-evals-trigger-template
 
@@ -77,7 +83,9 @@ spec:
       params:
         - name: filter
           value: body.workspace == '{{ .Values.USER_NAME }}-toolings'
-  bindings: []
+  bindings:
+    - name: webhook-payload
+      value: $(body)
   template:
     ref: canopy-evals-trigger-template
 

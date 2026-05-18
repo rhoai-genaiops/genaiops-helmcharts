@@ -51,7 +51,17 @@ spec:
       type: string
       description: "Maximum number of requests to send"
       default: "5"
+    - name: WEBHOOK_PAYLOAD
+      type: string
+      description: "Raw webhook payload JSON"
+      default: "{}"
   tasks:
+    - name: dump-payload
+      taskRef:
+        name: dump-payload
+      params:
+        - name: WEBHOOK_PAYLOAD
+          value: "$(params.WEBHOOK_PAYLOAD)"
     - name: git-clone
       taskRef:
         resolver: cluster
@@ -133,48 +143,48 @@ spec:
           workspace: shared-workspace
 {{- end }}
 
-    # Fetch Backend repository
-    - name: fetch-backend-repository
-      taskRef:
-        resolver: cluster
-        params:
-          - name: kind
-            value: task
-          - name: name
-            value: git-clone
-          - name: namespace
-            value: openshift-pipelines
-      runAfter:
-        - guidellm-task
-        - kfp-evaluation-task
-      workspaces:
-        - name: output
-          workspace: shared-workspace
-      params:
-        - name: URL
-          value: "https://gitea-gitea.{{ .Values.CLUSTER_DOMAIN }}/{{ .Values.USER_NAME }}/backend.git"
-        - name: REVISION
-          value: "main"
-        - name: SUBDIRECTORY
-          value: "backend/main"
-        - name: DELETE_EXISTING
-          value: "true"
-        - name: SSL_VERIFY
-          value: "false"
+    # # Fetch Backend repository
+    # - name: fetch-backend-repository
+    #   taskRef:
+    #     resolver: cluster
+    #     params:
+    #       - name: kind
+    #         value: task
+    #       - name: name
+    #         value: git-clone
+    #       - name: namespace
+    #         value: openshift-pipelines
+    #   runAfter:
+    #     - guidellm-task
+    #     - kfp-evaluation-task
+    #   workspaces:
+    #     - name: output
+    #       workspace: shared-workspace
+    #   params:
+    #     - name: URL
+    #       value: "https://gitea-gitea.{{ .Values.CLUSTER_DOMAIN }}/{{ .Values.USER_NAME }}/backend.git"
+    #     - name: REVISION
+    #       value: "main"
+    #     - name: SUBDIRECTORY
+    #       value: "backend/main"
+    #     - name: DELETE_EXISTING
+    #       value: "true"
+    #     - name: SSL_VERIFY
+    #       value: "false"
 
-    # Update model version in Git
-    - name: raise-pr-to-prod
-      taskRef:
-        name: raise-pr
-        kind: Task
-      runAfter:
-        - fetch-backend-repository
-{{- if .Values.testing.enableUnitTests }}
-        - tool-unit-tests
-{{- end }}
-      workspaces:
-        - name: output
-          workspace: shared-workspace
-      params:
-        - name: WORK_DIRECTORY
-          value: "backend/main/chart"
+    # # Update model version in Git
+    # - name: raise-pr-to-prod
+    #   taskRef:
+    #     name: raise-pr
+    #     kind: Task
+    #   runAfter:
+    #     - fetch-backend-repository
+# {{- if .Values.testing.enableUnitTests }}
+#         - tool-unit-tests
+# {{- end }}
+#       workspaces:
+#         - name: output
+#           workspace: shared-workspace
+#       params:
+#         - name: WORK_DIRECTORY
+#           value: "backend/main/chart"
