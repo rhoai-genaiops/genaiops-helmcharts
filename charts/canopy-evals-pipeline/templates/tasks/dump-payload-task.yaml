@@ -5,14 +5,38 @@ metadata:
   name: dump-payload
 spec:
   params:
-    - name: WEBHOOK_PAYLOAD
+    - name: WEBHOOK_ACTION
       type: string
-      description: Raw webhook payload JSON
+      default: ""
+    - name: WEBHOOK_ENTITY
+      type: string
+      default: ""
+    - name: WEBHOOK_DATA_NAME
+      type: string
+      default: ""
+    - name: WEBHOOK_DATA_VERSION
+      type: string
+      default: ""
+    - name: WEBHOOK_DATA_TEMPLATE
+      type: string
+      default: ""
+    - name: WEBHOOK_WORKSPACE
+      type: string
+      default: ""
+    - name: WEBHOOK_TIMESTAMP
+      type: string
+      default: ""
   steps:
     - name: dump-payload
       image: registry.redhat.io/ubi9/ubi-minimal:latest
       script: |
         #!/bin/sh
-        echo "========== Raw Webhook Payload =========="
-        echo '$(params.WEBHOOK_PAYLOAD)' | python3 -m json.tool 2>/dev/null || echo '$(params.WEBHOOK_PAYLOAD)'
-        echo "========================================="
+        echo "========== Webhook Payload =========="
+        echo "action:         $(params.WEBHOOK_ACTION)"
+        echo "entity:         $(params.WEBHOOK_ENTITY)"
+        echo "workspace:      $(params.WEBHOOK_WORKSPACE)"
+        echo "timestamp:      $(params.WEBHOOK_TIMESTAMP)"
+        echo "data.name:      $(params.WEBHOOK_DATA_NAME)"
+        echo "data.version:   $(params.WEBHOOK_DATA_VERSION)"
+        echo "data.template:  $(params.WEBHOOK_DATA_TEMPLATE)"
+        echo "======================================"

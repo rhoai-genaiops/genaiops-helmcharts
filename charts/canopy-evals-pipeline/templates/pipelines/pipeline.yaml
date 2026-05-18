@@ -51,17 +51,46 @@ spec:
       type: string
       description: "Maximum number of requests to send"
       default: "5"
-    - name: WEBHOOK_PAYLOAD
+    - name: WEBHOOK_ACTION
       type: string
-      description: "Raw webhook payload JSON"
-      default: "{}"
+      default: ""
+    - name: WEBHOOK_ENTITY
+      type: string
+      default: ""
+    - name: WEBHOOK_DATA_NAME
+      type: string
+      default: ""
+    - name: WEBHOOK_DATA_VERSION
+      type: string
+      default: ""
+    - name: WEBHOOK_DATA_TEMPLATE
+      type: string
+      default: ""
+    - name: WEBHOOK_WORKSPACE
+      type: string
+      default: ""
+    - name: WEBHOOK_TIMESTAMP
+      type: string
+      default: ""
   tasks:
     - name: dump-payload
       taskRef:
         name: dump-payload
       params:
-        - name: WEBHOOK_PAYLOAD
-          value: "$(params.WEBHOOK_PAYLOAD)"
+        - name: WEBHOOK_ACTION
+          value: "$(params.WEBHOOK_ACTION)"
+        - name: WEBHOOK_ENTITY
+          value: "$(params.WEBHOOK_ENTITY)"
+        - name: WEBHOOK_DATA_NAME
+          value: "$(params.WEBHOOK_DATA_NAME)"
+        - name: WEBHOOK_DATA_VERSION
+          value: "$(params.WEBHOOK_DATA_VERSION)"
+        - name: WEBHOOK_DATA_TEMPLATE
+          value: "$(params.WEBHOOK_DATA_TEMPLATE)"
+        - name: WEBHOOK_WORKSPACE
+          value: "$(params.WEBHOOK_WORKSPACE)"
+        - name: WEBHOOK_TIMESTAMP
+          value: "$(params.WEBHOOK_TIMESTAMP)"
     - name: git-clone
       taskRef:
         resolver: cluster
