@@ -70,4 +70,4 @@ spec:
     distribution:
       image: {{ .Values.distribution.image | quote }}
     userConfig:
-      configMapName: llama-stack-config
+      configMapName: ogx-config

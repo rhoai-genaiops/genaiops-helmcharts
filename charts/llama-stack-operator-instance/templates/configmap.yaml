@@ -3,7 +3,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: llama-stack-config
+  name: ogx-config
   labels:
     {{- include "llama-stack-operator-instance.labels" . | nindent 4 }}
 data:
@@ -159,17 +159,7 @@ data:
           vectorio_provider: milvus
           embeddings_provider: sentence-transformers
       {{- end }}
-      {{- if or .Values.eval.enabled (and (contains "canopy" .Release.Namespace) (or (not .Values.rag.enabled) (or (contains "test" .Release.Namespace) (contains "prod" .Release.Namespace)))) }}
-      vector_io:
-      - provider_id: milvus
-        provider_type: inline::milvus
-        config:
-          db_path: ${env.MILVUS_DB_PATH:=~/.llama/distributions}/milvus.db
-          kvstore:
-            type: sqlite
-            db_path: ${env.SQLITE_STORE_DIR:=~/.llama/distributions}/milvus_registry.db
-      {{- end }}
-      {{- if and .Values.rag.enabled (or (contains "test" .Release.Namespace) (contains "prod" .Release.Namespace)) }}
+      {{- if and .Values.rag.enabled }}
       vector_io:
       - provider_id: milvus
         provider_type: remote::milvus
