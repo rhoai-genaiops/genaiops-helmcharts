@@ -1,0 +1,27 @@
+---
+apiVersion: trustyai.opendatahub.io/v1alpha1
+kind: NemoGuardrails
+metadata:
+  name: canopy-guardrails
+spec:
+  nemoConfigs:
+    - name: canopy-guardrails
+      default: true
+      configMaps:
+        - canopy-guardrails-config
+  env:
+    - name: LLM_API_BASE
+      valueFrom:
+        secretKeyRef:
+          name: canopy-guardrails-secret
+          key: llm-api-base
+    - name: LLM_MODEL_NAME
+      valueFrom:
+        secretKeyRef:
+          name: canopy-guardrails-secret
+          key: llm-model-name
+    - name: OPENAI_API_KEY
+      valueFrom:
+        secretKeyRef:
+          name: canopy-guardrails-secret
+          key: llm-api-key
