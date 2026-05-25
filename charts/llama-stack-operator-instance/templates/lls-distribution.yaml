@@ -1,3 +1,4 @@
+---
 apiVersion: llamastack.io/v1alpha1
 kind: LlamaStackDistribution
 metadata:

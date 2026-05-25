@@ -1,0 +1,16 @@
+FROM quay.io/rh-ee-mmisiura/nemo-guardrails:hf_classifier_v5
+
+# Append /v1/guardrail/checks endpoint for llama stack remote::nvidia safety provider compatibility.
+# The patch runs in the same module scope as api.py so it has access to app, log,
+# registered_loggers, api_request_headers, _get_rails, LLMRails, RailsConfig, asyncio, etc.
+ADD guardrail_checks_patch.py /tmp/guardrail_checks_patch.py
+# Append patch only if not already present, then always clear the stale .pyc cache.
+# The base image may have api.py patched but with a stale .pyc that shadows the .py file.
+RUN for API in \
+        /app/nemoguardrails/server/api.py \
+        /app/.venv/lib/python3.12/site-packages/nemoguardrails/server/api.py; do \
+      grep -q "guardrail/checks" "$API" 2>/dev/null || \
+        { echo "" >> "$API" && cat /tmp/guardrail_checks_patch.py >> "$API"; }; \
+    done && \
+    find /app/nemoguardrails/server /app/.venv/lib/python3.12/site-packages/nemoguardrails/server \
+         -name "*.pyc" -delete -o -name "__pycache__" -type d -exec rm -rf {} + 2>/dev/null; true

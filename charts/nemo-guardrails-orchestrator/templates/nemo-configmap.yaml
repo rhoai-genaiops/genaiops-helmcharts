@@ -17,15 +17,15 @@ data:
     models:
       - type: main
         engine: openai
+        model: llama32
         parameters:
           base_url: "http://llama-32-predictor.ai501.svc.cluster.local:8080/v1"
-          model_name: "llama32"
 
       - type: self_check_input
         engine: openai
+        model: llama32
         parameters:
           base_url: "http://llama-32-predictor.ai501.svc.cluster.local:8080/v1"
-          model_name: "llama32"
 
     instructions:
       - type: general
@@ -88,8 +88,8 @@ data:
           - detect sensitive data on output
         streaming:
           enabled: true
-          chunk_size: 30
-          context_size: 50
+          chunk_size: 1000
+          context_size: 200
           stream_first: true
 
       config:
@@ -202,11 +202,21 @@ data:
     define bot refuse hap output
       "😔 I cannot provide that response as it may contain inappropriate content. Please rephrase your question."
 
+    define flow self check input
+      $is_long_enough = execute is_message_long_enough
+      if not $is_long_enough
+        return
+      $allowed = execute self_check_input
+      if not $allowed
+        bot refuse to respond
+        stop
+
     define bot refuse to respond
       "🤔 I'm sorry, I'm not able to help with that request. If you have an academic question or need help with your studies at Redwood Digital University, I'm happy to assist! 🎓"
 
     define bot inform answer unknown
       "🔒 Sensitive personal information detected. For your privacy, I cannot process messages containing personal data."
+
 
   actions.py: |
     import re
@@ -334,11 +344,21 @@ data:
 
 
     @action(is_system_action=True)
+    async def is_message_long_enough(context: Optional[dict] = None, min_length: int = 50, **kwargs: Any) -> bool:
+        context = context or {}
+        user_message = _extract_text(context.get("user_message", ""))
+        return len(user_message.strip()) >= min_length
+
+
+    @action(is_system_action=True)
     async def check_language(context: Optional[dict] = None) -> str:
         import aiohttp
 
         context = context or {}
         user_message = _extract_text(context.get("user_message", ""))
+
+        if len(user_message.strip()) < 30:
+            return "allowed"
 
         LANGUAGE_DETECTOR_URL = "http://lingua-detector.ai501.svc.cluster.local:8080/api/v1/text/contents"
 
@@ -361,3 +381,13 @@ data:
         except Exception as e:
             print(f"Language detection error: {e}")
             return "allowed"
+
+
+    @action(name="generate_bot_message", is_system_action=True)
+    async def generate_bot_message(**kwargs: Any) -> str:
+        # NeMo is used as a safety provider only — suppress LLM generation entirely.
+        # Without this, generate_async calls the real LLM after input rails complete,
+        # and its streaming tokens re-enter the pipeline as UtteranceUserActionFinished
+        # (user) events, re-triggering input rails (HF classifier, self_check_input)
+        # and causing false-positive injection/HAP blocks on the LLM's own output.
+        return ""

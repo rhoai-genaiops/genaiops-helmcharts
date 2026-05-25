@@ -1,9 +1,10 @@
 {{- if .Values.configMap.enabled }}
+{{- $guardrailsNamespace := ternary .Release.Namespace (printf "%s-toolings" (index (splitList "-" .Release.Namespace) 0)) (contains "canopy" .Release.Namespace) -}}
 ---
-apiVersion: v1
 kind: ConfigMap
+apiVersion: v1
 metadata:
-  name: ogx-config
+  name: ogx-config 
   labels:
     {{- include "llama-stack-operator-instance.labels" . | nindent 4 }}
 data:
@@ -11,125 +12,45 @@ data:
     version: '2'
     image_name: vllm
     apis:
-    {{- if and .Values.eval.enabled }}
-    - agents
-    {{- end }}
-    - datasetio
-    - eval
     - inference
-    - safety
     {{- if .Values.guardrails.enabled }}
-    - shields
+    - safety
     {{- end }}
-    - scoring
     - tool_runtime
-    {{- if or .Values.eval.enabled (contains "canopy" .Release.Namespace) .Values.rag.enabled }}
+    {{- if .Values.rag.enabled }}
     - vector_io
     {{- end }}
     - files
-    {{- if .Values.telemetry.enabled }}
-    - telemetry
-    {{- end }}
+    - responses
     providers:
-      {{- if .Values.guardrails.enabled }}
-      safety:
-        - provider_id: trusty_fms
-          provider_type: remote::trusty_fms
-          config:
-            orchestrator_url: https://guardrails-orchestrator:8080
-            verify_ssl: false
-      {{- end }}
-      {{- if .Values.guardrails.regex.enabled }}
-            shields:
-              regex:
-                detectors:
-                  regex_competitor:
-                    detector_params:
-                      regex: [{{- range $i, $f := .Values.guardrails.regex.filter }}{{ if $i }}, {{ end }}{{ $f | quote }}{{- end }}]
-                type: content
-                confidence_threshold: 0.5
-                message_types: ["user", "system", "completion"]
-      {{- end }}
-      {{- if .Values.guardrails.hap.enabled }}
-              hap:
-                type: content
-                confidence_threshold: 0.5
-                message_types: ["user", "system", "completion"]
-                detectors:
-                  hap:
-                    detector_params: {} 
-      {{- end }}
-      {{- if .Values.guardrails.language_detection.enabled }}
-              language_detection:
-                type: content
-                confidence_threshold: 0.5
-                message_types: ["user", "system", "completion"]
-                detectors:
-                  language_detection:
-                    detector_params: {}
-      {{- end }}
-      {{- if .Values.guardrails.prompt_injection.enabled }}
-              prompt_injection:
-                type: content
-                confidence_threshold: 0.5
-                message_types: ["user", "system", "completion"]
-                detectors:
-                  prompt_injection:
-                    detector_params: {}
-      {{- end }}
-      scoring:
-      - provider_id: basic
-        provider_type: inline::basic
-        config: {}
-      - provider_id: llm-as-judge
-        provider_type: inline::llm-as-judge
-        config: {}
-      {{- if and .Values.eval.enabled }}
-      agents:
-      - provider_id: meta-reference
-        provider_type: inline::meta-reference
+      responses:
+      - provider_id: builtin
+        provider_type: inline::builtin
         config:
-          persistence_store:
-            type: sqlite
-            db_path: ${env.SQLITE_STORE_DIR:=~/.llama/distributions/starter}/agents_store.db
-          responses_store:
-            type: sqlite
-            db_path: ${env.SQLITE_STORE_DIR:=~/.llama/distributions/starter}/responses_store.db
-      {{- end }}
+          persistence:
+            agent_state:
+              namespace: agents
+              backend: kv_default
+            responses:
+              table_name: responses
+              backend: sql_default
+              max_write_queue_size: 10000
+              num_writers: 4
       inference:
-      {{- range .Values.models }}
-      - provider_id: vllm-{{ .name }}
+      - provider_id: vllm-llama32
         provider_type: "remote::vllm"
         config:
-          url: "{{ .url }}"
-          {{- if .token }}
-          api_token: {{ .token }}
-          {{- else if $.Values.sealed_secrets.enabled }}
-          api_token: ${env.API_TOKEN}
-          {{- end }}
-      {{- end }}
-      {{- if .Values.rag.enabled }}
+          base_url: "http://llama-32-predictor.ai501.svc.cluster.local:8080/v1"
       - provider_id: sentence-transformers
         provider_type: inline::sentence-transformers
         config: {}
-      {{- end }}
-      {{- if .Values.eval.enabled }}
-      datasetio:
-      - provider_id: huggingface
-        provider_type: remote::huggingface
-        config:
-          kvstore:
-            type: sqlite
-            namespace: null
-            db_path: ${env.SQLITE_STORE_DIR:=~/.llama/distributions/sample-notebook}/huggingface_datasetio.db
-      eval:
-      - provider_id: meta-reference
-        provider_type: inline::meta-reference
-        config:
-          kvstore:
-            type: sqlite
-            namespace: null
-            db_path: ${env.SQLITE_STORE_DIR:=~/.llama/distributions/starter}/eval_store.db
+      {{- if .Values.guardrails.enabled }}
+      safety:
+        - provider_id: nvidia-local-nemo
+          provider_type: remote::nvidia
+          config:
+            guardrails_service_url: "http://canopy-guardrails.{{ $guardrailsNamespace }}.svc.cluster.local"
+            config_id: "canopy-guardrails"
       {{- end }}
       files:
       - provider_id: local-files
@@ -138,8 +59,8 @@ data:
           storage_dir: /opt/app-root/src/data/files
           create_if_missing: true
           metadata_store:
-            type: sqlite
-            db_path: /opt/app-root/src/.llama/distributions/files_metadata.db
+            backend: sql_default
+            table_name: files_metadata
       tool_runtime:
       - provider_id: model-context-protocol
         provider_type: remote::model-context-protocol
@@ -153,84 +74,44 @@ data:
         config: {}
       {{- if .Values.rag.enabled }}
       - provider_id: rag-runtime
-        provider_type: inline::rag-runtime
-        config:
-          files_provider: local-files 
-          vectorio_provider: milvus
-          embeddings_provider: sentence-transformers
-      {{- end }}
-      {{- if and .Values.rag.enabled }}
+        provider_type: inline::file-search
+        config: {}
       vector_io:
       - provider_id: milvus
         provider_type: remote::milvus
         config:
-          uri: "http://{{ .Values.rag.milvus.service }}.{{ .Release.Namespace }}.svc.cluster.local:19530"
+          uri: "http://{{ .Values.rag.milvus.service | default "milvus" }}.{{ .Release.Namespace }}.svc.cluster.local:19530"
           token: "root:Milvus"
-          kvstore:
-            type: sqlite
-            db_path: ${env.SQLITE_STORE_DIR:=~/.llama/distributions}/milvus_registry.db
-      {{- end }}
-      {{- if .Values.telemetry.enabled }}
-      telemetry:
-      - provider_id: meta-reference
-        provider_type: inline::meta-reference
-        config:
-          service_name: ${env.OTEL_SERVICE_NAME:=llama-stack}
-          sinks:
-          - otel_trace
-          - otel_metric
-          otel_exporter_otlp_endpoint: ${env.OTEL_EXPORTER_OTLP_ENDPOINT:=}
-          sqlite_db_path: ${env.SQLITE_DB_PATH:~/.llama/distributions/remote-vllm/trace_store.db}
+          persistence:
+            backend: kv_default
+            namespace: vector_io::milvus_remote
       {{- end }}
     models:
-      {{- range .Values.models }}
       - metadata: {}
-        model_id: {{ .name }}
-        provider_id: vllm-{{ .name }}
-        provider_model_id: {{ .name }}
+        model_id: llama32
+        provider_id: vllm-llama32
+        provider_model_id: llama32
         model_type: llm
-      {{- end }}
-      {{- if .Values.rag.enabled }}
       - metadata:
           embedding_dimension: 384
         model_id: all-MiniLM-L6-v2
         provider_id: sentence-transformers
         model_type: embedding
-      {{- end }}
-    {{- if .Values.rag.enabled }}
-    tool_groups:
-    - toolgroup_id: insert_into_memory
-      provider_id: rag-runtime
+    {{- if .Values.guardrails.enabled }}
+    shields:
+      - shield_id: nemo-guardrail
+        provider_id: nvidia-local-nemo
+        provider_resource_id: nemo-model
     {{- end }}
+    tool_groups:
+    - toolgroup_id: builtin::file_search
+      provider_id: rag-runtime
     {{- if .Values.mcp.enabled }}
     - toolgroup_id: mcp::canopy-calendar
       provider_id: model-context-protocol
       mcp_endpoint:
         uri: http://canopy-mcp-calendar-mcp-server:8080/sse
     {{- end }}
-    {{- if .Values.eval.enabled }}
-    benchmarks: []
-    {{- end }}
     server:
       port: 8321
-    {{- if .Values.guardrails.enabled }}
-    external_providers_dir: /opt/app-root/src/.llama/providers.d/
-    shields:
-    {{- end }}
-    {{- if .Values.guardrails.regex.enabled }}
-    - shield_id: regex
-      provider_id: trusty_fms
-    {{- end }}
-    {{- if .Values.guardrails.hap.enabled }}
-    - shield_id: hap
-      provider_id: trusty_fms
-    {{- end }}
-    {{- if .Values.guardrails.prompt_injection.enabled }}
-    - shield_id: prompt_injection
-      provider_id: trusty_fms
-    {{- end }}
-    {{- if .Values.guardrails.language_detection.enabled }}
-    - shield_id: language_detection
-      provider_id: trusty_fms
-    {{- end }}
 {{- end }}

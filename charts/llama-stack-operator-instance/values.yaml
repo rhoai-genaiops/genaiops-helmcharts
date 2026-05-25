@@ -5,7 +5,7 @@ models:
 
 # Distribution configuration
 distribution:
-  image: "quay.io/rhoai-genaiops/llama-stack-vllm-milvus-fms:rhoai-3.0-fix3"
+  image: "quay.io/rhoai-genaiops/odh-llama-stack-core-rhel9:rhoai-3.4-shields"
 
 
 # ConfigMap for Llama Stack configuration
@@ -17,7 +17,7 @@ telemetry:
   enabled: true
 
 rag:
-  enabled: true
+  enabled: false
   milvus:
     service: "milvus"
 
@@ -30,20 +30,8 @@ mcp_aihub:
 otelCollector:
   enabled: true
 
-eval:
-  enabled: false
-
 guardrails:
   enabled: false
-  regex:
-    enabled: false
-    filter: ["(?i).*fight club.*"]
-  hap:
-    enabled: false
-  prompt_injection:
-    enabled: false
-  language_detection:
-    enabled: false
 
 sealed_secrets:
   enabled: false

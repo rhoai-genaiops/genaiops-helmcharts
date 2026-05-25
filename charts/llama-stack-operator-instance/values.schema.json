@@ -168,94 +168,14 @@
       "required": ["enabled"],
       "additionalProperties": false
     },
-    "eval": {
-      "type": "object",
-      "description": "Evaluation functionality configuration",
-      "properties": {
-        "enabled": {
-          "type": "boolean",
-          "description": "Enable or disable evaluation capabilities",
-          "default": true
-        }
-      },
-      "required": ["enabled"],
-      "additionalProperties": false
-    },
     "guardrails": {
       "type": "object",
-      "description": "Guardrails configuration for content safety and filtering",
+      "description": "NeMo Guardrails configuration — when enabled, registers the nvidia-local-nemo safety provider pointing at the canopy-guardrails service",
       "properties": {
         "enabled": {
           "type": "boolean",
-          "description": "Enable or disable guardrails functionality",
+          "description": "Enable or disable NeMo Guardrails integration",
           "default": false
-        },
-        "regex": {
-          "type": "object",
-          "description": "Regex-based content filtering configuration",
-          "properties": {
-            "enabled": {
-              "type": "boolean",
-              "description": "Enable or disable regex-based filtering",
-              "default": false
-            },
-            "filter": {
-              "type": "array",
-              "description": "Array of regex patterns to filter content. Multiple filters can be specified in comma-separated format.",
-              "items": {
-                "type": "string",
-                "pattern": ".*"
-              },
-              "minItems": 1,
-              "default": ["(?i).*fight club.*"],
-              "examples": [
-                ["(?i).*fight club.*"],
-                ["(?i).*fight club.*", "(?i).*example.*"],
-                ["(?i).*prohibited.*", "(?i).*banned.*", "(?i).*restricted.*"]
-              ]
-            }
-          },
-          "required": ["enabled"],
-          "additionalProperties": false
-        },
-        "hap": {
-          "type": "object",
-          "description": "HAP (Hate, Abuse, Profanity) detection configuration",
-          "properties": {
-            "enabled": {
-              "type": "boolean",
-              "description": "Enable or disable HAP detection",
-              "default": false
-            }
-          },
-          "required": ["enabled"],
-          "additionalProperties": false
-        },
-        "prompt_injection": {
-          "type": "object",
-          "description": "Prompt injection detection configuration",
-          "properties": {
-            "enabled": {
-              "type": "boolean",
-              "description": "Enable or disable prompt injection detection",
-              "default": false
-            }
-          },
-          "required": ["enabled"],
-          "additionalProperties": false
-        },
-        "language_detection": {
-          "type": "object",
-          "description": "Language detection configuration",
-          "properties": {
-            "enabled": {
-              "type": "boolean",
-              "description": "Enable or disable language detection",
-              "default": false
-            }
-          },
-          "required": ["enabled"],
-          "additionalProperties": false
         }
       },
       "required": ["enabled"],
@@ -277,16 +197,6 @@
         }
       },
       "additionalProperties": false
-    },
-    "chart_path": {
-      "type": "string",
-      "description": "Target namespace for deployment (format: userX-environment)",
-      "examples": []
-    },
-    "target_revision": {
-      "type": "string",
-      "description": "Target revision for deployment",
-      "examples": []
     }
   },
   "required": [
@@ -298,7 +208,6 @@
     "mcp",
     "mcp_aihub",
     "otelCollector",
-    "eval",
     "guardrails"
   ],
   "additionalProperties": false
