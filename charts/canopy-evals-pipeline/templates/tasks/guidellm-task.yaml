@@ -113,9 +113,16 @@ spec:
             
             return list(endpoints), endpoint_files
         
+        # Map chat/multi-turn endpoints to their prompt-based equivalents for GuideLLM,
+        # which sends {"prompt": "..."} and cannot use the ChatRequest schema.
+        GUIDELLM_ENDPOINT_MAP = {
+            "/summarization/chat": "/summarization",
+        }
+
         def run_guidellm_for_endpoint(endpoint, base_url, model_name, processor, data_config, rate_type, max_seconds, max_requests):
             """Run guidellm benchmark for a specific endpoint"""
-            target_url = f"{base_url}{endpoint}"
+            benchmark_endpoint = GUIDELLM_ENDPOINT_MAP.get(endpoint, endpoint)
+            target_url = f"{base_url}{benchmark_endpoint}"
             # Create safe filename from endpoint
             safe_endpoint = endpoint.replace('/', '_').replace('-', '_').strip('_')
             output_file = f"guidellm_{safe_endpoint}_results.yaml"
