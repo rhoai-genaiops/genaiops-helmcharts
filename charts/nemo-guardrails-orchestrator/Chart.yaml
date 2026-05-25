@@ -3,7 +3,7 @@ name: nemo-guardrails-orchestrator
 description: A Helm chart for NeMo Guardrails deployment for Canopy GenAIOps platform
 type: application
 icon: "https://images-wixmp-ed30a86b8c4ca887773594c2.wixmp.com/f/cd1699c1-baaa-4632-8a2f-c609bcb3cb0e/dj6vk69-1d8e3045-f7be-4bc1-a057-8a1e56f1e149.png?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1cm46YXBwOjdlMGQxODg5ODIyNjQzNzNhNWYwZDQxNWVhMGQyNmUwIiwiaXNzIjoidXJuOmFwcDo3ZTBkMTg4OTgyMjY0MzczYTVmMGQ0MTVlYTBkMjZlMCIsIm9iaiI6W1t7InBhdGgiOiIvZi9jZDE2OTljMS1iYWFhLTQ2MzItOGEyZi1jNjA5YmNiM2NiMGUvZGo2dms2OS0xZDhlMzA0NS1mN2JlLTRiYzEtYTA1Ny04YTFlNTZmMWUxNDkucG5nIn1dXSwiYXVkIjpbInVybjpzZXJ2aWNlOmZpbGUuZG93bmxvYWQiXX0.bauHgF1CNymMtcr0lH9r0wiefN-s4ZQLtzWlHyndSMw"
-version: 0.0.1
+version: 0.0.2
 appVersion: "1.0.0"
 maintainers:
   - name: ckavili
