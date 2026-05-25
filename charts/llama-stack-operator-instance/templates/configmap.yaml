@@ -37,10 +37,17 @@ data:
               max_write_queue_size: 10000
               num_writers: 4
       inference:
-      - provider_id: vllm-llama32
+      {{- range .Values.models }}
+      - provider_id: vllm-{{ .name }}
         provider_type: "remote::vllm"
         config:
-          base_url: "http://llama-32-predictor.ai501.svc.cluster.local:8080/v1"
+          base_url: "{{ .url }}"
+          {{- if .token }}
+          api_token: {{ .token }}
+          {{- else if $.Values.sealed_secrets.enabled }}
+          api_token: ${env.API_TOKEN}
+          {{- end }}
+      {{- end }}
       - provider_id: sentence-transformers
         provider_type: inline::sentence-transformers
         config: {}
