@@ -382,12 +382,3 @@ data:
             print(f"Language detection error: {e}")
             return "allowed"
 
-
-    @action(name="generate_bot_message", is_system_action=True)
-    async def generate_bot_message(**kwargs: Any) -> str:
-        # NeMo is used as a safety provider only — suppress LLM generation entirely.
-        # Without this, generate_async calls the real LLM after input rails complete,
-        # and its streaming tokens re-enter the pipeline as UtteranceUserActionFinished
-        # (user) events, re-triggering input rails (HF classifier, self_check_input)
-        # and causing false-positive injection/HAP blocks on the LLM's own output.
-        return ""
