@@ -108,7 +108,7 @@ data:
     shields:
       - shield_id: nemo-guardrail
         provider_id: nvidia-local-nemo
-        provider_resource_id: nemo-model
+        provider_resource_id: canopy-guardrails
     {{- end }}
     tool_groups:
     - toolgroup_id: builtin::file_search
