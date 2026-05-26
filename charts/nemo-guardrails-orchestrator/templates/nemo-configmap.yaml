@@ -12,8 +12,6 @@ data:
     # PII: Presidio
     # Topic: LLM as judge for clearly harmful or off-topic requests
 
-    streaming: true
-
     models:
       - type: main
         engine: openai
@@ -84,7 +82,7 @@ data:
       output:
         flows:
           - regex check output
-          - hap classifier check output
+          - hf classifier check output
           - detect sensitive data on output
         streaming:
           enabled: true
@@ -161,7 +159,7 @@ data:
       "🚫 I'm sorry, that topic is outside the scope of what I can help with. If you have an academic question or need help with your studies at Redwood Digital University, I'm happy to assist! 🎓"
 
     define flow regex check output
-      $result = execute custom_detect_regex_pattern(source="output", text=$bot_message)
+      $result = execute detect_regex_pattern(source="output", text=$bot_message)
       if $result["is_match"]
         bot inform forbidden output
         stop
@@ -178,6 +176,7 @@ data:
     define bot inform non_english_language
       "🌐 Please use English only. I can only respond to questions in English."
 
+    # Unified HF classifier flow — handles both prompt-injection and hap via $classifier context
     define flow hf classifier check input
       $result = execute hf_classifier_check_input(classifier=$classifier)
       if not $result
@@ -193,7 +192,7 @@ data:
     define bot refuse hap input
       "🚫 Inappropriate content detected. Please keep your messages respectful and professional."
 
-    define flow hap classifier check output
+    define flow hf classifier check output
       $result = execute hf_classifier_check_output(classifier="hap")
       if not $result
         bot refuse hap output
@@ -202,166 +201,27 @@ data:
     define bot refuse hap output
       "😔 I cannot provide that response as it may contain inappropriate content. Please rephrase your question."
 
-    define flow self check input
-      $is_long_enough = execute is_message_long_enough
-      if not $is_long_enough
-        return
-      $allowed = execute self_check_input
-      if not $allowed
-        bot refuse to respond
-        stop
-
     define bot refuse to respond
       "🤔 I'm sorry, I'm not able to help with that request. If you have an academic question or need help with your studies at Redwood Digital University, I'm happy to assist! 🎓"
 
     define bot inform answer unknown
       "🔒 Sensitive personal information detected. For your privacy, I cannot process messages containing personal data."
 
-
   actions.py: |
-    import re
-    from typing import Any, Optional
-
+    from typing import Optional
     from nemoguardrails.actions import action
 
-
-    DEFAULT_REGEX_PATTERNS = {
-        "input": [
-            r"\bfight\s+club\b",
-            r"\btyler\s+durden\b",
-            r"\bdurden\b",
-            r"\bproject\s+mayhem\b",
-            r"\bmarla\s+singer\b",
-            r"\bfirst\s+rule\s+of\b",
-        ],
-        "output": [
-            r"\bfight\s+club\b",
-            r"\btyler\s+durden\b",
-            r"\bdurden\b",
-            r"\bproject\s+mayhem\b",
-            r"\bmarla\s+singer\b",
-            r"\bfirst\s+rule\s+of\b",
-        ],
-    }
-
-
-    def _extract_text(message: Any) -> str:
-        if message is None:
-            return ""
-
-        if isinstance(message, list):
-            parts = []
-            for item in message:
-                if isinstance(item, dict):
-                    parts.append(str(item.get("text", "")))
-                else:
-                    parts.append(str(item))
-            return " ".join(parts)
-
-        return str(message)
-
-
-    def _get_value(obj: Any, key: str, default: Any = None) -> Any:
-        if obj is None:
-            return default
-
-        if isinstance(obj, dict):
-            return obj.get(key, default)
-
-        return getattr(obj, key, default)
-
-
-    def _read_regex_config(config: Any, source: str) -> tuple[list[str], bool]:
-        patterns = DEFAULT_REGEX_PATTERNS.get(source, [])
-        case_insensitive = True
-
-        try:
-            rails = _get_value(config, "rails")
-            rails_config = _get_value(rails, "config")
-            regex_detection = _get_value(rails_config, "regex_detection")
-            source_config = _get_value(regex_detection, source)
-
-            configured_patterns = _get_value(source_config, "patterns")
-            configured_case_insensitive = _get_value(source_config, "case_insensitive")
-
-            if configured_patterns:
-                patterns = configured_patterns
-
-            if configured_case_insensitive is not None:
-                case_insensitive = bool(configured_case_insensitive)
-
-        except Exception as e:
-            print(f"Regex config read error: {e}")
-
-        return patterns, case_insensitive
-
-
-    @action(name="custom_detect_regex_pattern", is_system_action=True)
-    async def custom_detect_regex_pattern(
-        source: str = "output",
-        text: Any = "",
-        context: Optional[dict] = None,
-        config: Optional[Any] = None,
-        llm_task_manager: Optional[Any] = None,
-        model_name: Optional[str] = None,
-        llms: Optional[Any] = None,
-        **kwargs: Any,
-    ) -> dict:
-        """
-        Streaming-safe regex action.
-
-        NeMo output streaming may inject additional runtime parameters such as:
-        context, config, llm_task_manager, model_name, and llms.
-
-        The built-in detect_regex_pattern action may fail if it does not accept
-        those injected parameters. This custom action accepts and ignores them.
-        """
-        normalized_text = _extract_text(text)
-        patterns, case_insensitive = _read_regex_config(config, source)
-
-        flags = re.IGNORECASE if case_insensitive else 0
-        detections = []
-
-        for pattern in patterns:
-            try:
-                for match in re.finditer(pattern, normalized_text, flags):
-                    detections.append(
-                        {
-                            "pattern": pattern,
-                            "match": match.group(0),
-                            "start": match.start(),
-                            "end": match.end(),
-                        }
-                    )
-            except re.error as e:
-                print(f"Invalid regex pattern '{pattern}': {e}")
-
-        return {
-            "is_match": len(detections) > 0,
-            "text": normalized_text,
-            "detections": detections,
-        }
-
-
-    @action(is_system_action=True)
-    async def is_message_long_enough(context: Optional[dict] = None, min_length: int = 50, **kwargs: Any) -> bool:
-        context = context or {}
-        user_message = _extract_text(context.get("user_message", ""))
-        return len(user_message.strip()) >= min_length
-
+    def _extract_text(user_message) -> str:
+        # NeMo streaming passes user_message as [{'type': 'text', 'text': '...'}]
+        if isinstance(user_message, list):
+            return " ".join(item.get("text", "") for item in user_message if isinstance(item, dict))
+        return str(user_message)
 
     @action(is_system_action=True)
     async def check_language(context: Optional[dict] = None) -> str:
         import aiohttp
-
-        context = context or {}
         user_message = _extract_text(context.get("user_message", ""))
-
-        if len(user_message.strip()) < 30:
-            return "allowed"
-
         LANGUAGE_DETECTOR_URL = "http://lingua-detector.ai501.svc.cluster.local:8080/api/v1/text/contents"
-
         try:
             async with aiohttp.ClientSession() as session:
                 async with session.post(
@@ -375,10 +235,7 @@ data:
                             detection = result[0][0]
                             if detection.get("detection") == "non_english" and detection.get("score", 0.0) >= 0.85:
                                 return "blocked"
-
                     return "allowed"
-
         except Exception as e:
             print(f"Language detection error: {e}")
             return "allowed"
-
