@@ -28,7 +28,7 @@ mcp_aihub:
   enabled: false
 
 otelCollector:
-  enabled: true
+  enabled: false
 
 guardrails:
   enabled: false
