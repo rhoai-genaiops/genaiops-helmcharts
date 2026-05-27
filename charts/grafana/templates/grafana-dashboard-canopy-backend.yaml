@@ -26,8 +26,8 @@ spec:
           {
             "current": {
               "selected": true,
-              "text": "RHOAI Prometheus",
-              "value": "RHOAI Prometheus"
+              "text": "UMW Prometheus",
+              "value": "UMW Prometheus"
             },
             "hide": 0,
             "includeAll": false,
