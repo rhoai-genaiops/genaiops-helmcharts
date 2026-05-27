@@ -1,5 +1,4 @@
 {{- if .Values.configMap.enabled }}
-{{- $guardrailsNamespace := ternary .Release.Namespace (printf "%s-toolings" (index (splitList "-" .Release.Namespace) 0)) (contains "canopy" .Release.Namespace) -}}
 ---
 kind: ConfigMap
 apiVersion: v1
@@ -56,7 +55,7 @@ data:
         - provider_id: nvidia-local-nemo
           provider_type: remote::nvidia
           config:
-            guardrails_service_url: "http://canopy-guardrails.{{ $guardrailsNamespace }}.svc.cluster.local"
+            guardrails_service_url: "http://canopy-guardrails"
             config_id: "canopy-guardrails"
       {{- end }}
       files:
