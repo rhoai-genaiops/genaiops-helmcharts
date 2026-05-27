@@ -181,6 +181,10 @@
       "required": ["enabled"],
       "additionalProperties": false
     },
+    "chart_path": {
+      "type": "string",
+      "description": "Optional path to the chart source directory"
+    },
     "sealed_secrets": {
       "type": "object",
       "description": "Sealed Secrets configuration for encrypted secret management",
