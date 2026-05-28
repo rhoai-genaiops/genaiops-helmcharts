@@ -1,40 +1,40 @@
----
-# Tempo datasource for per-user local Tempo instance
-# Uses HTTP (no TLS) within the same namespace - no mTLS complexity
-apiVersion: grafana.integreatly.org/v1beta1
-kind: GrafanaDatasource
-metadata:
-  name: tempo-grafanadatasource
-spec:
-  datasource:
-      access: proxy
-      editable: true
-      isDefault: false
-      jsonData:
-        httpMethod: GET
-        tracesQuery:
-          timeShiftEnabled: true
-          spanStartTimeShift: '-1h'
-          spanEndTimeShift: '1h'
-        tracesToLogsV2:
-          datasourceUid: 'prometheus'
-          spanStartTimeShift: '-1h'
-          spanEndTimeShift: '1h'
-          filterByTraceID: false
-          filterBySpanID: false
-        tracesToMetrics:
-          datasourceUid: 'prometheus'
-        serviceMap:
-          datasourceUid: 'prometheus'
-        nodeGraph:
-          enabled: true
-        search:
-          hide: false
-        lokiSearch:
-          datasourceUid: ''
-      name: Tempo
-      type: tempo
-      url: 'http://tempo-tempo-local:3200'
-  instanceSelector:
-    matchLabels:
-      dashboards: "grafana"
+# ---
+# # Tempo datasource for per-user local Tempo instance
+# # Uses HTTP (no TLS) within the same namespace - no mTLS complexity
+# apiVersion: grafana.integreatly.org/v1beta1
+# kind: GrafanaDatasource
+# metadata:
+#   name: tempo-grafanadatasource
+# spec:
+#   datasource:
+#       access: proxy
+#       editable: true
+#       isDefault: false
+#       jsonData:
+#         httpMethod: GET
+#         tracesQuery:
+#           timeShiftEnabled: true
+#           spanStartTimeShift: '-1h'
+#           spanEndTimeShift: '1h'
+#         tracesToLogsV2:
+#           datasourceUid: 'prometheus'
+#           spanStartTimeShift: '-1h'
+#           spanEndTimeShift: '1h'
+#           filterByTraceID: false
+#           filterBySpanID: false
+#         tracesToMetrics:
+#           datasourceUid: 'prometheus'
+#         serviceMap:
+#           datasourceUid: 'prometheus'
+#         nodeGraph:
+#           enabled: true
+#         search:
+#           hide: false
+#         lokiSearch:
+#           datasourceUid: ''
+#       name: Tempo
+#       type: tempo
+#       url: 'http://tempo-tempo-local:3200'
+#   instanceSelector:
+#     matchLabels:
+#       dashboards: "grafana"

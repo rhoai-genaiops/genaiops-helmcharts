@@ -7,13 +7,32 @@ spec:
   params:
     - name: git-branch
       description: The git branch
+      default: "main"
     - name: git-revision
       description: The git revision
+      default: "latest"
     - name: git-short-revision
       description: Seven character git sha
+      default: "latest"
     - name: git-ref
       description: The full git ref
       default: refs/heads/main
+    - name: webhook-action
+      default: ""
+    - name: webhook-entity
+      default: ""
+    - name: webhook-data-name
+      default: ""
+    - name: webhook-data-version
+      default: ""
+    - name: webhook-data-template
+      default: ""
+    - name: webhook-data-alias
+      default: ""
+    - name: webhook-workspace
+      default: ""
+    - name: webhook-timestamp
+      default: ""
   resourcetemplates:
     - apiVersion: tekton.dev/v1
       kind: PipelineRun
@@ -25,12 +44,26 @@ spec:
         params:
           - name: GIT_SHORT_REVISION
             value: $(tt.params.git-short-revision)
-          - name: LLS_URL
-            value: {{ .Values.kfp.llsUrl | quote }}
           - name: BACKEND_URL
             value: {{ .Values.kfp.backendUrl | quote }}
-          - name: ENDPOINT_PATH
-            value: {{ .Values.kfp.endpointPath | quote }}
+          - name: LLM_ENDPOINT
+            value: {{ .Values.kfp.llmEndpoint | quote }}
+          - name: WEBHOOK_ACTION
+            value: $(tt.params.webhook-action)
+          - name: WEBHOOK_ENTITY
+            value: $(tt.params.webhook-entity)
+          - name: WEBHOOK_DATA_NAME
+            value: $(tt.params.webhook-data-name)
+          - name: WEBHOOK_DATA_VERSION
+            value: $(tt.params.webhook-data-version)
+          - name: WEBHOOK_DATA_TEMPLATE
+            value: $(tt.params.webhook-data-template)
+          - name: WEBHOOK_DATA_ALIAS
+            value: $(tt.params.webhook-data-alias)
+          - name: WEBHOOK_WORKSPACE
+            value: $(tt.params.webhook-workspace)
+          - name: WEBHOOK_TIMESTAMP
+            value: $(tt.params.webhook-timestamp)
         workspaces:
         - name: shared-workspace
           persistentVolumeClaim:
@@ -47,7 +80,7 @@ spec:
         name: "cel"
       params:
         - name: filter
-          value: (body.ref == 'refs/heads/main') && (header.match('X-GitHub-Event', 'push')) && ((body.repository.name == 'evals') || ((body.repository.name == 'backend') && body.commits.exists(c, c.modified.exists(m, m == 'chart/values-test.yaml' || m == 'chart/values-prod.yaml')))) 
+          value: (body.ref == 'refs/heads/main') && (header.match('X-GitHub-Event', 'push')) && ((body.repository.name == 'evals') || ((body.repository.name == 'genaiops-gitops') && body.commits.exists(c, c.modified.exists(m, m == 'canopy/test/backend/config.yaml' || m == 'canopy/prod/backend/config.yaml'))))
         - name: overlays
           value:
           - expression: body.head_commit.id.truncate(7)
@@ -64,6 +97,38 @@ spec:
 
 ---
 apiVersion: triggers.tekton.dev/v1beta1
+kind: Trigger
+metadata:
+  name: canopy-evals-mlflow-trigger
+spec:
+  interceptors:
+    - ref:
+        name: "cel"
+      params:
+        - name: filter
+          value: body.workspace == '{{ .Values.USER_NAME }}-toolings'
+  bindings:
+    - name: webhook-action
+      value: $(body.action)
+    - name: webhook-entity
+      value: $(body.entity)
+    - name: webhook-data-name
+      value: $(body.data.name)
+    - name: webhook-data-version
+      value: $(body.data.version)
+    - name: webhook-data-template
+      value: $(body.data.template)
+    - name: webhook-data-alias
+      value: $(body.data.alias)
+    - name: webhook-workspace
+      value: $(body.workspace)
+    - name: webhook-timestamp
+      value: $(body.timestamp)
+  template:
+    ref: canopy-evals-trigger-template
+
+---
+apiVersion: triggers.tekton.dev/v1beta1
 kind: EventListener
 metadata:
   name: canopy-evals-event-listener
@@ -71,3 +136,4 @@ spec:
   serviceAccountName: pipeline
   triggers:
     - triggerRef: canopy-evals-git-trigger
+    - triggerRef: canopy-evals-mlflow-trigger

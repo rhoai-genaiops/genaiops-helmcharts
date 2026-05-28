@@ -1,0 +1,58 @@
+---
+apiVersion: triggers.tekton.dev/v1beta1
+kind: TriggerTemplate
+metadata:
+  name: prompt-promotion-trigger-template
+spec:
+  params:
+    - name: prompt-name
+      description: Name of the prompt being promoted
+    - name: prompt-version
+      description: Version number of the prompt
+  resourcetemplates:
+    - apiVersion: tekton.dev/v1
+      kind: PipelineRun
+      metadata:
+        generateName: prompt-promotion-
+      spec:
+        pipelineRef:
+          name: prompt-promotion-pipeline
+        params:
+          - name: PROMPT_NAME
+            value: $(tt.params.prompt-name)
+          - name: PROMPT_VERSION
+            value: $(tt.params.prompt-version)
+        workspaces:
+        - name: shared-workspace
+          persistentVolumeClaim:
+            claimName: prompt-promotion-workspace
+
+---
+apiVersion: triggers.tekton.dev/v1beta1
+kind: Trigger
+metadata:
+  name: prompt-promotion-mlflow-trigger
+spec:
+  interceptors:
+    - ref:
+        name: "cel"
+      params:
+        - name: filter
+          value: body.workspace == '{{ .Values.USER_NAME }}-toolings' && body.data.alias == 'prod'
+  bindings:
+    - name: prompt-name
+      value: $(body.data.name)
+    - name: prompt-version
+      value: $(body.data.version)
+  template:
+    ref: prompt-promotion-trigger-template
+
+---
+apiVersion: triggers.tekton.dev/v1beta1
+kind: EventListener
+metadata:
+  name: prompt-promotion-event-listener
+spec:
+  serviceAccountName: pipeline
+  triggers:
+    - triggerRef: prompt-promotion-mlflow-trigger

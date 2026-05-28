@@ -25,7 +25,7 @@ spec:
 
         vector_db_id=$(params.VECTOR_DB_ID)
 
-        yq eval -i .information-search.vector_db_id=\"${vector_db_id}\" values-test.yaml
+        yq eval -i .information-search.vector_db_id=\"${vector_db_id}\" config.yaml
 
     - name: commit-changes
       workingDir: $(workspaces.output.path)/$(params.WORK_DIRECTORY)
@@ -39,7 +39,7 @@ spec:
         git config --global user.name "🐈 Tekton 🐈"
         git config --global push.default simple
         git config --global --add safe.directory '*'
-        git add values-test.yaml
+        git add config.yaml
         git commit -m "🚀 AUTOMATED COMMIT - Vector DB ID has updated 🚀" || rc=$?
-        git remote set-url origin $(cat $HOME/.git-credentials)/$(params.USERNAME)/backend.git
+        git remote set-url origin $(cat $HOME/.git-credentials)/$(params.USERNAME)/genaiops-gitops.git
         git push origin HEAD:main

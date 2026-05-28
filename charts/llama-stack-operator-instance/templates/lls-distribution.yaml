@@ -1,3 +1,4 @@
+---
 apiVersion: llamastack.io/v1alpha1
 kind: LlamaStackDistribution
 metadata:
@@ -70,4 +71,4 @@ spec:
     distribution:
       image: {{ .Values.distribution.image | quote }}
     userConfig:
-      configMapName: llama-stack-config
+      configMapName: ogx-config

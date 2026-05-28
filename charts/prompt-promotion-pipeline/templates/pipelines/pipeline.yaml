@@ -1,0 +1,51 @@
+---
+apiVersion: tekton.dev/v1
+kind: Pipeline
+metadata:
+  name: prompt-promotion-pipeline
+spec:
+  workspaces:
+    - name: shared-workspace
+  params:
+    - name: PROMPT_NAME
+      type: string
+      description: Name of the prompt in MLflow registry (e.g., summarization)
+    - name: PROMPT_VERSION
+      type: string
+      description: Version number of the prompt to promote to production
+  tasks:
+    - name: git-clone
+      taskRef:
+        resolver: cluster
+        params:
+          - name: kind
+            value: task
+          - name: name
+            value: git-clone
+          - name: namespace
+            value: openshift-pipelines
+      workspaces:
+        - name: output
+          workspace: shared-workspace
+      params:
+        - name: URL
+          value: "https://gitea-gitea.{{ .Values.CLUSTER_DOMAIN }}/{{ .Values.USER_NAME }}/genaiops-gitops.git"
+        - name: REVISION
+          value: "main"
+        - name: DELETE_EXISTING
+          value: "true"
+        - name: SSL_VERIFY
+          value: "false"
+    - name: update-prod-prompt
+      taskRef:
+        name: update-prod-prompt-task
+      runAfter:
+        - git-clone
+      workspaces:
+        - name: output
+          workspace: shared-workspace
+      params:
+        - name: PROMPT_NAME
+          value: "$(params.PROMPT_NAME)"
+        - name: PROMPT_VERSION
+          value: "$(params.PROMPT_VERSION)"

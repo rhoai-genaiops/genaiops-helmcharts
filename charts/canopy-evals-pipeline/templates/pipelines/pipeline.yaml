@@ -23,14 +23,14 @@ spec:
       type: string
       default: "latest"
       description: Short Git commit hash
-    - name: LLS_URL
-      type: string
-      default: {{ .Values.kfp.llsUrl | quote }}
-      description: Base URL for LlamaStack
     - name: BACKEND_URL
       type: string
       default: {{ .Values.kfp.backendUrl | quote }}
       description: Backend URL for canopy
+    - name: LLM_ENDPOINT
+      type: string
+      default: {{ .Values.kfp.llmEndpoint | quote }}
+      description: LLM endpoint URL for scoring
     - name: MODEL_NAME
       type: string
       description: "Model name identifier"
@@ -55,6 +55,30 @@ spec:
       type: string
       description: "Maximum number of requests to send"
       default: "5"
+    - name: WEBHOOK_ACTION
+      type: string
+      default: ""
+    - name: WEBHOOK_ENTITY
+      type: string
+      default: ""
+    - name: WEBHOOK_DATA_NAME
+      type: string
+      default: ""
+    - name: WEBHOOK_DATA_VERSION
+      type: string
+      default: ""
+    - name: WEBHOOK_DATA_TEMPLATE
+      type: string
+      default: ""
+    - name: WEBHOOK_DATA_ALIAS
+      type: string
+      default: ""
+    - name: WEBHOOK_WORKSPACE
+      type: string
+      default: ""
+    - name: WEBHOOK_TIMESTAMP
+      type: string
+      default: ""
   tasks:
     - name: git-clone
       taskRef:
@@ -85,10 +109,10 @@ spec:
         - name: output
           workspace: shared-workspace
       params:
-        - name: BASE_URL
-          value: "$(params.LLS_URL)"
         - name: BACKEND_URL
           value: "$(params.BACKEND_URL)"
+        - name: LLM_ENDPOINT
+          value: "$(params.LLM_ENDPOINT)"
         - name: GIT_URL
           value: "$(params.GIT_URL)"
         - name: GIT_BRANCH
@@ -139,48 +163,48 @@ spec:
           workspace: shared-workspace
 {{- end }}
 
-    # Fetch Backend repository
-    - name: fetch-backend-repository
-      taskRef:
-        resolver: cluster
-        params:
-          - name: kind
-            value: task
-          - name: name
-            value: git-clone
-          - name: namespace
-            value: openshift-pipelines
-      runAfter:
-        - guidellm-task
-        - kfp-evaluation-task
-      workspaces:
-        - name: output
-          workspace: shared-workspace
-      params:
-        - name: URL
-          value: "https://gitea-gitea.{{ .Values.CLUSTER_DOMAIN }}/{{ .Values.USER_NAME }}/backend.git"
-        - name: REVISION
-          value: "main"
-        - name: SUBDIRECTORY
-          value: "backend/main"
-        - name: DELETE_EXISTING
-          value: "true"
-        - name: SSL_VERIFY
-          value: "false"
+    # # Fetch Backend repository
+    # - name: fetch-backend-repository
+    #   taskRef:
+    #     resolver: cluster
+    #     params:
+    #       - name: kind
+    #         value: task
+    #       - name: name
+    #         value: git-clone
+    #       - name: namespace
+    #         value: openshift-pipelines
+    #   runAfter:
+    #     - guidellm-task
+    #     - kfp-evaluation-task
+    #   workspaces:
+    #     - name: output
+    #       workspace: shared-workspace
+    #   params:
+    #     - name: URL
+    #       value: "https://gitea-gitea.{{ .Values.CLUSTER_DOMAIN }}/{{ .Values.USER_NAME }}/backend.git"
+    #     - name: REVISION
+    #       value: "main"
+    #     - name: SUBDIRECTORY
+    #       value: "backend/main"
+    #     - name: DELETE_EXISTING
+    #       value: "true"
+    #     - name: SSL_VERIFY
+    #       value: "false"
 
-    # Update model version in Git
-    - name: raise-pr-to-prod
-      taskRef:
-        name: raise-pr
-        kind: Task
-      runAfter:
-        - fetch-backend-repository
-{{- if .Values.testing.enableUnitTests }}
-        - tool-unit-tests
-{{- end }}
-      workspaces:
-        - name: output
-          workspace: shared-workspace
-      params:
-        - name: WORK_DIRECTORY
-          value: "backend/main/chart"
+    # # Update model version in Git
+    # - name: raise-pr-to-prod
+    #   taskRef:
+    #     name: raise-pr
+    #     kind: Task
+    #   runAfter:
+    #     - fetch-backend-repository
+# {{- if .Values.testing.enableUnitTests }}
+#         - tool-unit-tests
+# {{- end }}
+#       workspaces:
+#         - name: output
+#           workspace: shared-workspace
+#       params:
+#         - name: WORK_DIRECTORY
+#           value: "backend/main/chart"
