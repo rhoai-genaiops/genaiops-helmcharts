@@ -120,6 +120,10 @@
                 "milvus-test",
                 "milvus-prod"
               ]
+            },
+            "namespace": {
+              "type": "string",
+              "description": "Namespace where Milvus runs (defaults to release namespace)"
             }
           },
           "required": ["service"],
