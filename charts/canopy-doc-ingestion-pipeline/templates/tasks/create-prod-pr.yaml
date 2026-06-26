@@ -1,0 +1,78 @@
+---
+apiVersion: tekton.dev/v1
+kind: Task
+metadata:
+  name: create-prod-pr-task
+spec:
+  workspaces:
+    - name: output
+  params:
+    - name: WORK_DIRECTORY
+      description: Directory to start build in (handle multiple branches)
+      type: string
+    - name: USERNAME
+      description: User name
+      type: string
+    - name: VECTOR_DB_ID
+      description: Vector DB ID used in the pipeline
+      type: string
+  steps:
+    - name: patch-prod-config
+      workingDir: $(workspaces.output.path)/$(params.WORK_DIRECTORY)
+      image: quay.io/redhat-cop/tekton-task-helm:3.6.3
+      script: |
+        #!/bin/sh
+        vector_db_id=$(params.VECTOR_DB_ID)
+        yq eval -i .information-search.vector_db_id=\"${vector_db_id}\" config.yaml
+        echo "Updated config.yaml with vector_db_id=${vector_db_id}"
+        cat config.yaml
+
+    - name: create-branch-and-push
+      workingDir: $(workspaces.output.path)/$(params.WORK_DIRECTORY)
+      image: quay.io/redhat-cop/ubi8-git:latest
+      script: |
+        #!/bin/sh
+        git config --global user.email "tekton@mlops.bot.com"
+        git config --global user.name "🐈 Tekton 🐈"
+        git config --global push.default simple
+        git config --global --add safe.directory '*'
+
+        branch_name="update-prod/$(params.VECTOR_DB_ID)"
+        git checkout -b "${branch_name}"
+        git add config.yaml
+        git commit -m "🚀 AUTOMATED - Update prod vector_db_id to $(params.VECTOR_DB_ID) 🚀"
+        git remote set-url origin $(cat $HOME/.git-credentials)/$(params.USERNAME)/genaiops-gitops.git
+        git push origin "${branch_name}"
+
+    - name: create-pull-request
+      workingDir: $(workspaces.output.path)
+      image: quay.io/redhat-cop/ubi8-git:latest
+      script: |
+        #!/bin/sh
+        CREDS=$(cat $HOME/.git-credentials)
+        AUTH=$(echo "${CREDS}" | sed 's|https://\([^@]*\)@.*|\1|')
+        GITEA_HOST=$(echo "${CREDS}" | sed 's|https://[^@]*@||')
+
+        BRANCH_NAME="update-prod/$(params.VECTOR_DB_ID)"
+
+        echo "Creating PR: ${BRANCH_NAME} -> main"
+        RESPONSE=$(curl -s -k -u "${AUTH}" \
+          -X POST "https://${GITEA_HOST}/api/v1/repos/$(params.USERNAME)/genaiops-gitops/pulls" \
+          -H "Content-Type: application/json" \
+          -d "{
+            \"title\": \"🚀 Update prod vector_db_id to $(params.VECTOR_DB_ID)\",
+            \"head\": \"${BRANCH_NAME}\",
+            \"base\": \"main\",
+            \"body\": \"Automated PR to update production vector_db_id to $(params.VECTOR_DB_ID)\"
+          }")
+
+        echo "Gitea API response:"
+        echo "${RESPONSE}"
+
+        PR_URL=$(echo "${RESPONSE}" | grep -o '"html_url":"[^"]*"' | head -1 | cut -d'"' -f4)
+        if [ -n "${PR_URL}" ]; then
+          echo "✅ PR created successfully: ${PR_URL}"
+        else
+          echo "❌ Failed to create PR"
+          exit 1
+        fi

@@ -91,6 +91,24 @@ spec:
         - name: VECTOR_DB_ID
           value: "$(tasks.kfp-doc-ingestion-task.results.VECTOR_DB_ID)"
 
+    # Create PR to update prod config
+    - name: create-prod-pr
+      taskRef:
+        name: create-prod-pr-task
+        kind: Task
+      runAfter:
+        - update-test-values
+      workspaces:
+        - name: output
+          workspace: shared-workspace
+      params:
+        - name: USERNAME
+          value: "{{ .Values.username }}"
+        - name: WORK_DIRECTORY
+          value: "canopy/prod/backend/"
+        - name: VECTOR_DB_ID
+          value: "$(tasks.kfp-doc-ingestion-task.results.VECTOR_DB_ID)"
+
   results:
     - name: VECTOR_DB_ID
       description: Vector DB ID used in the pipeline
