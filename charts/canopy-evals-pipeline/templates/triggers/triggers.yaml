@@ -17,6 +17,9 @@ spec:
     - name: git-ref
       description: The full git ref
       default: refs/heads/main
+    - name: vector-db-id
+      description: Vector DB ID extracted from the triggering commit message
+      default: ""
     - name: webhook-action
       default: ""
     - name: webhook-entity
@@ -44,6 +47,8 @@ spec:
         params:
           - name: GIT_SHORT_REVISION
             value: $(tt.params.git-short-revision)
+          - name: VECTOR_DB_ID
+            value: $(tt.params.vector-db-id)
           - name: BACKEND_URL
             value: {{ .Values.kfp.backendUrl | quote }}
           - name: LLM_ENDPOINT
@@ -87,11 +92,15 @@ spec:
             key: truncated_sha
           - expression: body.ref.split('/')[2]
             key: branch_name
+          - expression: "body.head_commit.message.contains('vector_db_id=') ? body.head_commit.message.split('vector_db_id=')[1].split(' ')[0] : ''"
+            key: vector_db_id
   bindings:
     - name: git-ref
       value: $(body.ref)
     - name: git-short-revision
       value: $(extensions.truncated_sha)
+    - name: vector-db-id
+      value: $(extensions.vector_db_id)
   template:
     ref: canopy-evals-trigger-template
 
