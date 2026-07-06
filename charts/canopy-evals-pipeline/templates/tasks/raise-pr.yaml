@@ -114,24 +114,26 @@ spec:
             print("⚠️  No guidellm_eval_summary.md found, using fallback")
 
         # Compose the full PR body
-        body = f"""## Promote `vector_db_id: {vector_db_id}` to Production
-
-This PR was automatically created by the evals pipeline after all evaluations passed.
-
----
-
-## Evaluation Results
-
-{kfp_summary}
-
-{guidellm_summary}
-
----
-
-🔗 **Links:**
-- [Prompt Tracker](https://prompt-tracker-ai501.{cluster_domain}/{username}/{cluster_domain})
-- Commit: `{git_hash}`
-"""
+        body_parts = [
+            f"## Promote `vector_db_id: {vector_db_id}` to Production",
+            "",
+            "This PR was automatically created by the evals pipeline after all evaluations passed.",
+            "",
+            "---",
+            "",
+            "## Evaluation Results",
+            "",
+            kfp_summary,
+            "",
+            guidellm_summary,
+            "",
+            "---",
+            "",
+            f"🔗 **Links:**",
+            f"- [Prompt Tracker](https://prompt-tracker-ai501.{cluster_domain}/{username}/{cluster_domain})",
+            f"- Commit: `{git_hash}`",
+        ]
+        body = "\n".join(body_parts)
 
         # Create PR via Gitea API
         gitea_url = f"https://gitea-gitea.{cluster_domain}/api/v1/repos/{username}/genaiops-gitops/pulls"
