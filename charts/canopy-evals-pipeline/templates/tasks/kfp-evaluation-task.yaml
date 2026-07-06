@@ -161,7 +161,7 @@ spec:
                     val = m["value"]
                     val_str = f"{val:.4f}" if isinstance(val, float) else str(val)
                     lines.append(f"| {exp_name} | {run_name} | {m['key']} | {val_str} |")
-                exp_links.append(f"- [{exp_name}](https://rh-ai.{{ .Values.CLUSTER_DOMAIN }}/develop-train/mlflow/experiments/{exp_id}/runs/{mlflow_run_id}/evaluations?workspace={namespace})")
+                exp_links.append(f"- [{exp_name}](https://rh-ai.{{ .Values.CLUSTER_DOMAIN }}/develop-train/mlflow/experiments/{exp_id}/runs/{mlflow_run_id}?workspace={namespace})")
 
             if not found_runs:
                 lines.append(f"| - | - | No runs found for git_hash={git_hash} | - |")
