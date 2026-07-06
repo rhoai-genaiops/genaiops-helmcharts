@@ -123,6 +123,7 @@ spec:
             req = urllib.request.Request(url, data=data, method=method)
             req.add_header("Authorization", f"Bearer {bearer_token}")
             req.add_header("Content-Type", "application/json")
+            req.add_header("X-MLflow-Workspace", namespace)
             with urllib.request.urlopen(req, context=ctx) as resp:
                 return json.loads(resp.read().decode())
 
@@ -157,7 +158,7 @@ spec:
                 lines.append(f"| - | - | No runs found for git_hash={git_hash} | - |")
 
             lines.append("")
-            lines.append("> Detailed results: [MLflow Experiments](https://rhods-dashboard-redhat-ods-applications.{{ .Values.CLUSTER_DOMAIN }})")
+            lines.append("> Detailed results: [OpenShift AI Experiments](https://rhods-dashboard-redhat-ods-applications.{{ .Values.CLUSTER_DOMAIN }}/experiments)")
             lines.append("")
 
             with open(summary_path, "w") as f:
@@ -169,7 +170,7 @@ spec:
             with open(summary_path, "w") as f:
                 f.write("### KFP Evaluations (MLflow)\n\n")
                 f.write(f"> Could not retrieve MLflow metrics: {e}\n")
-                f.write("> Check [MLflow Experiments](https://rhods-dashboard-redhat-ods-applications.{{ .Values.CLUSTER_DOMAIN }}) for details.\n")
+                f.write("> Check [OpenShift AI Experiments](https://rhods-dashboard-redhat-ods-applications.{{ .Values.CLUSTER_DOMAIN }}/experiments) for details.\n")
             print(f"⚠️  Fallback summary written to {summary_path}")
 
         PYEOF

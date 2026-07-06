@@ -130,7 +130,7 @@ spec:
             "---",
             "",
             f"🔗 **Links:**",
-            f"- [Prompt Tracker](https://prompt-tracker-ai501.{cluster_domain}/{username}/{cluster_domain})",
+            f"- [MinIO Test Results](https://minio-ui-{username}-toolings.{cluster_domain}/browser/test-results)",
             f"- Commit: `{git_hash}`",
         ]
         body = "\n".join(body_parts)

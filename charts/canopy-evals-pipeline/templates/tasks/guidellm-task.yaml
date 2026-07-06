@@ -544,7 +544,7 @@ spec:
                     lines.append(f"| /{endpoint_name} | - | - | - | - | ERROR: {e} |")
 
         lines.append("")
-        lines.append("> Detailed reports: [Prompt Tracker](https://prompt-tracker-ai501.{{ .Values.CLUSTER_DOMAIN }}/{{ .Values.USER_NAME }}/{{ .Values.CLUSTER_DOMAIN }})")
+        lines.append("> Detailed reports: [MinIO Test Results](https://minio-ui-{{ .Values.USER_NAME }}-toolings.{{ .Values.CLUSTER_DOMAIN }}/browser/test-results)")
         lines.append("")
 
         with open(summary_path, "w") as f:
