@@ -241,3 +241,5 @@ spec:
           value: "{{ .Values.USER_NAME }}"
         - name: VECTOR_DB_ID
           value: "$(params.VECTOR_DB_ID)"
+        - name: GIT_SHORT_REVISION
+          value: "$(params.GIT_SHORT_REVISION)"

@@ -37,14 +37,15 @@ spec:
 
         ls -latr
 
-        echo "Installing KFP dependencies..."
-        python3 -m pip install kfp==2.14.6 kfp.kubernetes==2.14.6
+        echo "Installing KFP and MLflow dependencies..."
+        python3 -m pip install kfp==2.14.6 kfp.kubernetes==2.14.6 mlflow==2.21.3
 
         echo "Executing Kubeflow Pipeline..."
         python3 << 'PYEOF'
         import kfp
         import sys
         import os
+        import time
 
         sys.path.insert(0, '.')
 
@@ -69,13 +70,16 @@ spec:
             ssl_ca_cert=ssl_ca_cert
         )
 
+        git_hash = "$(params.GIT_SHORT_REVISION)"
+        mlflow_tracking_uri = "https://mlflow.redhat-ods-applications.svc.cluster.local:8443"
+
         arguments = {
             "repo_url": "$(params.GIT_URL)",
             "branch": "$(params.GIT_BRANCH)",
             "backend_url": "$(params.BACKEND_URL)",
             "llm_endpoint": "$(params.LLM_ENDPOINT)",
-            "mlflow_tracking_uri": "https://mlflow.redhat-ods-applications.svc.cluster.local:8443",
-            "git_hash": "$(params.GIT_SHORT_REVISION)",
+            "mlflow_tracking_uri": mlflow_tracking_uri,
+            "git_hash": git_hash,
         }
 
         print(f"Arguments for the pipeline: {arguments}")
@@ -98,6 +102,62 @@ spec:
 
         print(f"🎉 Pipeline run created with ID: {run_id.run_id}")
         print("✅ Kubeflow Pipeline execution completed successfully!")
+
+        # --- Phase 2: Query MLflow for evaluation metrics ---
+        print("📊 Querying MLflow for evaluation metrics...")
+        time.sleep(30)  # Allow MLflow to flush all metrics
+
+        workspace_path = "$(workspaces.output.path)"
+        summary_path = os.path.join(workspace_path, "kfp_eval_summary.md")
+
+        try:
+            import mlflow
+            from mlflow.tracking import MlflowClient
+
+            os.environ["MLFLOW_TRACKING_URI"] = mlflow_tracking_uri
+            os.environ["MLFLOW_TRACKING_TOKEN"] = bearer_token
+
+            mlflow_client = MlflowClient(tracking_uri=mlflow_tracking_uri)
+
+            experiments = mlflow_client.search_experiments()
+            lines = []
+            lines.append("### KFP Evaluations (MLflow)\n")
+            lines.append("| Experiment | Run | Metric | Value |")
+            lines.append("|------------|-----|--------|-------|")
+
+            found_runs = False
+            for exp in experiments:
+                runs = mlflow_client.search_runs(
+                    experiment_ids=[exp.experiment_id],
+                    filter_string=f"params.git_hash = '{git_hash}'",
+                    max_results=50,
+                )
+                for run in runs:
+                    found_runs = True
+                    run_name = run.info.run_name or run.info.run_id[:8]
+                    for metric_key, metric_val in sorted(run.data.metrics.items()):
+                        val_str = f"{metric_val:.4f}" if isinstance(metric_val, float) else str(metric_val)
+                        lines.append(f"| {exp.name} | {run_name} | {metric_key} | {val_str} |")
+
+            if not found_runs:
+                lines.append(f"| - | - | No runs found for git_hash={git_hash} | - |")
+
+            lines.append("")
+            lines.append("> Detailed results: [MLflow Experiments](https://rhods-dashboard-redhat-ods-applications.{{ .Values.CLUSTER_DOMAIN }})")
+            lines.append("")
+
+            with open(summary_path, "w") as f:
+                f.write("\n".join(lines))
+            print(f"✅ KFP eval summary written to {summary_path}")
+
+        except Exception as e:
+            print(f"⚠️  Failed to query MLflow: {e}")
+            with open(summary_path, "w") as f:
+                f.write("### KFP Evaluations (MLflow)\n\n")
+                f.write(f"> ⚠️ Could not retrieve MLflow metrics: {e}\n")
+                f.write("> Check [MLflow Experiments](https://rhods-dashboard-redhat-ods-applications.{{ .Values.CLUSTER_DOMAIN }}) for details.\n")
+            print(f"⚠️  Fallback summary written to {summary_path}")
+
         PYEOF
   workspaces:
     - description: Workspace for pipeline files
