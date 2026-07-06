@@ -545,9 +545,7 @@ spec:
 
         lines.append("")
         git_hash = "$(params.GIT_SHORT_REVISION)"
-        import base64
-        minio_path_b64 = base64.b64encode(f"{git_hash}/".encode()).decode()
-        lines.append(f"> Detailed reports: [MinIO Test Results](https://minio-ui-{{ .Values.USER_NAME }}-toolings.{{ .Values.CLUSTER_DOMAIN }}/browser/test-results/{minio_path_b64})")
+        lines.append(f"> Detailed reports: [MinIO Test Results](https://minio-ui-{{ .Values.USER_NAME }}-toolings.{{ .Values.CLUSTER_DOMAIN }}/browser/test-results) (folder: `{git_hash}`)")
         lines.append("")
 
         with open(summary_path, "w") as f:
