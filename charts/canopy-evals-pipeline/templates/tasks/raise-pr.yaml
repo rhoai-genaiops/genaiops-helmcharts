@@ -130,7 +130,7 @@ spec:
             "---",
             "",
             f"🔗 **Links:**",
-            f"- [MinIO Test Results](https://minio-ui-{username}-toolings.{cluster_domain}/browser/test-results)",
+            f"- [MinIO Test Results](https://minio-ui-{username}-toolings.{cluster_domain}/browser/test-results/{git_hash}/)",
             f"- Commit: `{git_hash}`",
         ]
         body = "\n".join(body_parts)

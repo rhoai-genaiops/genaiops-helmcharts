@@ -544,7 +544,8 @@ spec:
                     lines.append(f"| /{endpoint_name} | - | - | - | - | ERROR: {e} |")
 
         lines.append("")
-        lines.append("> Detailed reports: [MinIO Test Results](https://minio-ui-{{ .Values.USER_NAME }}-toolings.{{ .Values.CLUSTER_DOMAIN }}/browser/test-results)")
+        git_hash = "$(params.GIT_SHORT_REVISION)"
+        lines.append(f"> Detailed reports: [MinIO Test Results](https://minio-ui-{{ .Values.USER_NAME }}-toolings.{{ .Values.CLUSTER_DOMAIN }}/browser/test-results/{git_hash}/)")
         lines.append("")
 
         with open(summary_path, "w") as f:
