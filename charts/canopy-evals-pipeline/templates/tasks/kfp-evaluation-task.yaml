@@ -139,6 +139,7 @@ spec:
             lines.append("|------------|-----|--------|-------|")
 
             found_runs = False
+            exp_links = []
             for exp in experiments:
                 exp_id = exp["experiment_id"]
                 exp_name = exp.get("name", exp_id)
@@ -153,19 +154,22 @@ spec:
                     continue
                 run = runs[0]
                 found_runs = True
-                run_name = run.get("info", {}).get("run_name", run["info"]["run_id"][:8])
+                mlflow_run_id = run["info"]["run_id"]
+                run_name = run.get("info", {}).get("run_name", mlflow_run_id[:8])
                 metrics = run.get("data", {}).get("metrics", [])
                 for m in sorted(metrics, key=lambda x: x["key"]):
                     val = m["value"]
                     val_str = f"{val:.4f}" if isinstance(val, float) else str(val)
                     lines.append(f"| {exp_name} | {run_name} | {m['key']} | {val_str} |")
+                exp_links.append(f"- [{exp_name}](https://rh-ai.{{ .Values.CLUSTER_DOMAIN }}/develop-train/mlflow/experiments/{exp_id}/runs/{mlflow_run_id}/evaluations?workspace={namespace})")
 
             if not found_runs:
                 lines.append(f"| - | - | No runs found for git_hash={git_hash} | - |")
 
             lines.append("")
-            rhoai_run_url = f"https://rh-ai.{{ .Values.CLUSTER_DOMAIN }}/develop-train/pipelines/runs/{namespace}/runs/{kfp_run_id}"
-            lines.append(f"> Detailed results: [OpenShift AI - Pipeline Run]({rhoai_run_url})")
+            lines.append("> Detailed results:")
+            for link in exp_links:
+                lines.append(f">   {link}")
             lines.append("")
 
             with open(summary_path, "w") as f:
