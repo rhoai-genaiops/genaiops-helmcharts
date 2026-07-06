@@ -126,12 +126,6 @@ spec:
             kfp_summary,
             "",
             guidellm_summary,
-            "",
-            "---",
-            "",
-            f"🔗 **Links:**",
-            f"- [MinIO Test Results](https://minio-ui-{username}-toolings.{cluster_domain}/browser/test-results/{git_hash}/)",
-            f"- Commit: `{git_hash}`",
         ]
         body = "\n".join(body_parts)
 

@@ -145,16 +145,20 @@ spec:
                 runs_resp = mlflow_api("/api/2.0/mlflow/runs/search", "POST", {
                     "experiment_ids": [exp_id],
                     "filter": f"params.git_hash = '{git_hash}'",
-                    "max_results": 50,
+                    "order_by": ["start_time DESC"],
+                    "max_results": 1,
                 })
-                for run in runs_resp.get("runs", []):
-                    found_runs = True
-                    run_name = run.get("info", {}).get("run_name", run["info"]["run_id"][:8])
-                    metrics = run.get("data", {}).get("metrics", [])
-                    for m in sorted(metrics, key=lambda x: x["key"]):
-                        val = m["value"]
-                        val_str = f"{val:.4f}" if isinstance(val, float) else str(val)
-                        lines.append(f"| {exp_name} | {run_name} | {m['key']} | {val_str} |")
+                runs = runs_resp.get("runs", [])
+                if not runs:
+                    continue
+                run = runs[0]
+                found_runs = True
+                run_name = run.get("info", {}).get("run_name", run["info"]["run_id"][:8])
+                metrics = run.get("data", {}).get("metrics", [])
+                for m in sorted(metrics, key=lambda x: x["key"]):
+                    val = m["value"]
+                    val_str = f"{val:.4f}" if isinstance(val, float) else str(val)
+                    lines.append(f"| {exp_name} | {run_name} | {m['key']} | {val_str} |")
 
             if not found_runs:
                 lines.append(f"| - | - | No runs found for git_hash={git_hash} | - |")
