@@ -496,6 +496,8 @@ spec:
         #!/bin/bash
         set -e
 
+        pip install -q pyyaml
+
         echo "📊 Generating markdown eval summary from benchmark YAML files..."
 
         python3 << 'PYEOF'
