@@ -45,6 +45,10 @@ spec:
         import kfp
         import sys
         import os
+        import time
+        import json
+        import urllib.request
+        import ssl
 
         sys.path.insert(0, '.')
 
@@ -69,13 +73,16 @@ spec:
             ssl_ca_cert=ssl_ca_cert
         )
 
+        git_hash = "$(params.GIT_SHORT_REVISION)"
+        mlflow_tracking_uri = "https://mlflow.redhat-ods-applications.svc.cluster.local:8443"
+
         arguments = {
             "repo_url": "$(params.GIT_URL)",
             "branch": "$(params.GIT_BRANCH)",
             "backend_url": "$(params.BACKEND_URL)",
             "llm_endpoint": "$(params.LLM_ENDPOINT)",
-            "mlflow_tracking_uri": "https://mlflow.redhat-ods-applications.svc.cluster.local:8443",
-            "git_hash": "$(params.GIT_SHORT_REVISION)",
+            "mlflow_tracking_uri": mlflow_tracking_uri,
+            "git_hash": git_hash,
         }
 
         print(f"Arguments for the pipeline: {arguments}")
@@ -98,6 +105,85 @@ spec:
 
         print(f"🎉 Pipeline run created with ID: {run_id.run_id}")
         print("✅ Kubeflow Pipeline execution completed successfully!")
+
+        kfp_run_id = run_id.run_id
+
+        # --- Phase 2: Query MLflow REST API for evaluation metrics ---
+        print("📊 Querying MLflow for evaluation metrics...")
+        time.sleep(30)
+
+        workspace_path = "$(workspaces.output.path)"
+        summary_path = os.path.join(workspace_path, "kfp_eval_summary.md")
+
+        ctx = ssl.create_default_context()
+        ctx.check_hostname = False
+        ctx.verify_mode = ssl.CERT_NONE
+
+        def mlflow_api(endpoint, method="GET", body=None):
+            url = f"{mlflow_tracking_uri}{endpoint}"
+            data = json.dumps(body).encode() if body else None
+            req = urllib.request.Request(url, data=data, method=method)
+            req.add_header("Authorization", f"Bearer {bearer_token}")
+            req.add_header("Content-Type", "application/json")
+            req.add_header("X-MLflow-Workspace", namespace)
+            with urllib.request.urlopen(req, context=ctx) as resp:
+                return json.loads(resp.read().decode())
+
+        try:
+            exp_resp = mlflow_api("/api/2.0/mlflow/experiments/search", "POST", {"max_results": 100})
+            experiments = exp_resp.get("experiments", [])
+
+            lines = []
+            lines.append("### KFP Evaluations (MLflow)\n")
+            lines.append("| Experiment | Run | Metric | Value |")
+            lines.append("|------------|-----|--------|-------|")
+
+            found_runs = False
+            exp_links = []
+            for exp in experiments:
+                exp_id = exp["experiment_id"]
+                exp_name = exp.get("name", exp_id)
+                runs_resp = mlflow_api("/api/2.0/mlflow/runs/search", "POST", {
+                    "experiment_ids": [exp_id],
+                    "filter": f"params.git_hash = '{git_hash}'",
+                    "order_by": ["start_time DESC"],
+                    "max_results": 1,
+                })
+                runs = runs_resp.get("runs", [])
+                if not runs:
+                    continue
+                run = runs[0]
+                found_runs = True
+                mlflow_run_id = run["info"]["run_id"]
+                run_name = run.get("info", {}).get("run_name", mlflow_run_id[:8])
+                metrics = run.get("data", {}).get("metrics", [])
+                for m in sorted(metrics, key=lambda x: x["key"]):
+                    val = m["value"]
+                    val_str = f"{val:.4f}" if isinstance(val, float) else str(val)
+                    lines.append(f"| {exp_name} | {run_name} | {m['key']} | {val_str} |")
+                exp_links.append(f"- [{exp_name}](https://rh-ai.{{ .Values.CLUSTER_DOMAIN }}/develop-train/mlflow/experiments/{exp_id}/runs/{mlflow_run_id}?workspace={namespace})")
+
+            if not found_runs:
+                lines.append(f"| - | - | No runs found for git_hash={git_hash} | - |")
+
+            lines.append("")
+            lines.append("> Detailed results:")
+            for link in exp_links:
+                lines.append(f">   {link}")
+            lines.append("")
+
+            with open(summary_path, "w") as f:
+                f.write("\n".join(lines))
+            print(f"✅ KFP eval summary written to {summary_path}")
+
+        except Exception as e:
+            print(f"⚠️  Failed to query MLflow: {e}")
+            with open(summary_path, "w") as f:
+                f.write("### KFP Evaluations (MLflow)\n\n")
+                f.write(f"> Could not retrieve MLflow metrics: {e}\n")
+                f.write("> Check [OpenShift AI Experiments](https://rhods-dashboard-redhat-ods-applications.{{ .Values.CLUSTER_DOMAIN }}/experiments) for details.\n")
+            print(f"⚠️  Fallback summary written to {summary_path}")
+
         PYEOF
   workspaces:
     - description: Workspace for pipeline files
