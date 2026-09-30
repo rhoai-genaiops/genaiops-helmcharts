@@ -10,32 +10,164 @@ spec:
     - name: WORK_DIRECTORY
       description: Directory to start build in (handle multiple branches)
       type: string
+    - name: USERNAME
+      description: Name of the team that doing this exercise :)
+      type: string
+    - name: VECTOR_DB_ID
+      description: Vector DB ID to promote to prod. If empty, no PR is raised.
+      type: string
+    - name: GIT_SHORT_REVISION
+      description: Short git hash used for linking to eval reports
+      type: string
+      default: "latest"
   steps:
     - name: patch-vector-db-id
+      workingDir: $(workspaces.output.path)/$(params.WORK_DIRECTORY)
+      image: quay.io/redhat-cop/tekton-task-helm:3.6.3
+      script: |
+        #!/bin/sh
+        vector_db_id="$(params.VECTOR_DB_ID)"
+
+        if [ -z "${vector_db_id}" ]; then
+          echo "⏭️  No VECTOR_DB_ID provided, nothing to promote to prod. Skipping."
+          exit 0
+        fi
+
+        yq eval -i .information-search.vector_db_id=\"${vector_db_id}\" config.yaml
+
+    - name: commit-and-push
       workingDir: $(workspaces.output.path)/$(params.WORK_DIRECTORY)
       image: quay.io/redhat-cop/ubi8-git:latest
       script: |
         #!/bin/sh
+        vector_db_id="$(params.VECTOR_DB_ID)"
+
+        if [ -z "${vector_db_id}" ]; then
+          echo "⏭️  No VECTOR_DB_ID provided, nothing to promote to prod. Skipping."
+          exit 0
+        fi
+
         git pull
         git config --global user.email "tekton@mlops.bot.com"
         git config --global user.name "🐈 Tekton 🐈"
         git config --global push.default simple
         git config --global --add safe.directory '*'
-        branch_name=genaiops_$(date +%Y_%m_%d_%H_%M)
-        git checkout -b $branch_name
-        cp values-test.yaml values-prod.yaml
-        git add values-prod.yaml
-        git commit -m "🚀 AUTOMATED COMMIT - Production prompt is updated" || rc=$?
-        git remote set-url origin $(cat $HOME/.git-credentials)/{{ .Values.USER_NAME }}/backend.git
-        git push origin $branch_name
-        curl --location 'https://gitea-gitea.{{ .Values.CLUSTER_DOMAIN }}/api/v1/repos/{{ .Values.USER_NAME }}/backend/pulls' --user 'opentlc-mgr:myPassw0rd' --header 'accept: application/json' --header 'Content-Type: application/json' \
-          --data '{
-              "assignee": "{{ .Values.USER_NAME }}",
-              "base": "main",
-              "body": "Evaluation results can be found in [Prompt Tracker](https://prompt-tracker-ai501.{{ .Values.CLUSTER_DOMAIN }}/{{ .Values.USER_NAME }}/{{ .Values.CLUSTER_DOMAIN }}).",
-              "head": "'${branch_name}'",
-              "title": "🚀 AUTOMATED PR - Production prompts updates 🚀"
-          }'
+        branch_name=promote-${vector_db_id}
+        git checkout -b ${branch_name}
+        git add config.yaml
+        git commit -m "🚀 AUTOMATED COMMIT - promote vector_db_id=${vector_db_id} to prod 🚀" || rc=$?
+        git remote set-url origin $(cat $HOME/.git-credentials)/$(params.USERNAME)/genaiops-gitops.git
+        git push origin ${branch_name}
 
-          echo "☘️ A pull request is raised for prod: https://gitea-gitea.{{ .Values.CLUSTER_DOMAIN }}/{{ .Values.USER_NAME }}/backend/pulls/"
-  
+        echo "${branch_name}" > /tmp/branch_name.txt
+        echo "✅ Branch ${branch_name} pushed successfully"
+
+    - name: create-pr-with-results
+      workingDir: $(workspaces.output.path)
+      image: registry.redhat.io/ubi9/python-311:latest
+      script: |
+        #!/bin/sh
+        set -e
+
+        vector_db_id="$(params.VECTOR_DB_ID)"
+
+        if [ -z "${vector_db_id}" ]; then
+          echo "⏭️  No VECTOR_DB_ID provided, nothing to promote to prod. Skipping."
+          exit 0
+        fi
+
+        python3 << 'PYEOF'
+        import json
+        import os
+        import urllib.request
+        import urllib.error
+        import base64
+        import ssl
+
+        vector_db_id = "$(params.VECTOR_DB_ID)"
+        username = "$(params.USERNAME)"
+        git_hash = "$(params.GIT_SHORT_REVISION)"
+        branch_name = f"promote-{vector_db_id}"
+        cluster_domain = "{{ .Values.CLUSTER_DOMAIN }}"
+        workspace_path = "$(workspaces.output.path)"
+
+        # Read KFP eval summary
+        kfp_summary = ""
+        kfp_path = os.path.join(workspace_path, "kfp_eval_summary.md")
+        if os.path.exists(kfp_path):
+            with open(kfp_path) as f:
+                kfp_summary = f.read().strip()
+            print(f"✅ Loaded KFP eval summary ({len(kfp_summary)} chars)")
+        else:
+            kfp_summary = "### KFP Evaluations (MLflow)\n\n> ⚠️ KFP evaluation summary not available for this run."
+            print("⚠️  No kfp_eval_summary.md found, using fallback")
+
+        # Read GuideLLM eval summary
+        guidellm_summary = ""
+        guidellm_path = os.path.join(workspace_path, "guidellm_eval_summary.md")
+        if os.path.exists(guidellm_path):
+            with open(guidellm_path) as f:
+                guidellm_summary = f.read().strip()
+            print(f"✅ Loaded GuideLLM eval summary ({len(guidellm_summary)} chars)")
+        else:
+            guidellm_summary = "### GuideLLM Benchmarks\n\n> ⚠️ GuideLLM benchmark summary not available for this run."
+            print("⚠️  No guidellm_eval_summary.md found, using fallback")
+
+        # Compose the full PR body
+        body_parts = [
+            f"## Promote `vector_db_id: {vector_db_id}` to Production",
+            "",
+            "This PR was automatically created by the evals pipeline after all evaluations passed.",
+            "",
+            "---",
+            "",
+            "## Evaluation Results",
+            "",
+            kfp_summary,
+            "",
+            guidellm_summary,
+        ]
+        body = "\n".join(body_parts)
+
+        # Create PR via Gitea API
+        gitea_url = f"https://gitea-gitea.{cluster_domain}/api/v1/repos/{username}/genaiops-gitops/pulls"
+
+        pr_data = {
+            "assignee": username,
+            "base": "main",
+            "body": body,
+            "head": branch_name,
+            "title": f"🚀 AUTOMATED PR - Promote vector_db_id {vector_db_id} to prod 🚀"
+        }
+
+        payload = json.dumps(pr_data).encode("utf-8")
+        credentials = base64.b64encode(b"opentlc-mgr:myPassw0rd").decode("ascii")
+
+        ctx = ssl.create_default_context()
+        ctx.check_hostname = False
+        ctx.verify_mode = ssl.CERT_NONE
+
+        req = urllib.request.Request(
+            gitea_url,
+            data=payload,
+            headers={
+                "Content-Type": "application/json",
+                "Accept": "application/json",
+                "Authorization": f"Basic {credentials}",
+            },
+            method="POST",
+        )
+
+        try:
+            with urllib.request.urlopen(req, context=ctx) as resp:
+                result = json.loads(resp.read().decode())
+                pr_number = result.get("number", "?")
+                print(f"☘️ Pull request #{pr_number} created successfully!")
+                print(f"   URL: https://gitea-gitea.{cluster_domain}/{username}/genaiops-gitops/pulls/{pr_number}")
+        except urllib.error.HTTPError as e:
+            error_body = e.read().decode() if e.fp else "no body"
+            print(f"❌ Failed to create PR: HTTP {e.code}")
+            print(f"   Response: {error_body}")
+            raise
+
+        PYEOF

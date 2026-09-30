@@ -489,3 +489,69 @@ spec:
         
         print("S3 upload completed successfully!")
         EOF
+    - name: generate-eval-summary
+      image: "registry.access.redhat.com/ubi9/python-311"
+      workingDir: "$(workspaces.shared-workspace.path)"
+      script: |
+        #!/bin/bash
+        set -e
+
+        pip install -q pyyaml
+
+        echo "📊 Generating markdown eval summary from benchmark YAML files..."
+
+        python3 << 'PYEOF'
+        import yaml
+        import glob
+        import os
+
+        workspace_path = "$(workspaces.shared-workspace.path)"
+        summary_path = os.path.join(workspace_path, "guidellm_eval_summary.md")
+
+        yaml_files = sorted(glob.glob("guidellm_*_results.yaml"))
+
+        lines = []
+        lines.append("### GuideLLM Benchmarks\n")
+        lines.append("| Endpoint | Req/s | Output Tok/s | TTFT (ms) | Latency (s) | Status |")
+        lines.append("|----------|-------|-------------|-----------|-------------|--------|")
+
+        if not yaml_files:
+            lines.append("| - | - | - | - | - | No results |")
+        else:
+            for yaml_file in yaml_files:
+                endpoint_name = yaml_file.replace("guidellm_", "").replace("_results.yaml", "").replace("_", "/")
+                try:
+                    with open(yaml_file) as f:
+                        data = yaml.safe_load(f)
+
+                    b = data["benchmarks"][0]
+                    m = b["metrics"]
+                    totals = b["request_totals"]
+
+                    req_per_sec = m["requests_per_second"]["successful"]["mean"]
+                    out_tok_sec = m["output_tokens_per_second"]["successful"]["mean"]
+                    ttft = m["time_to_first_token_ms"]["successful"]["mean"]
+                    latency = m["request_latency"]["successful"]["mean"]
+
+                    success_pct = totals["successful"] / totals["total"] * 100 if totals["total"] else 0
+                    status = "PASS" if success_pct >= 80 else "FAIL"
+
+                    lines.append(
+                        f"| /{endpoint_name} | {req_per_sec:.3f} | {out_tok_sec:.1f} "
+                        f"| {ttft:.0f} | {latency:.2f} | {status} |"
+                    )
+                except Exception as e:
+                    lines.append(f"| /{endpoint_name} | - | - | - | - | ERROR: {e} |")
+
+        lines.append("")
+        git_hash = "$(params.GIT_SHORT_REVISION)"
+        lines.append(f"> Detailed reports: [MinIO Test Results](https://minio-ui-{{ .Values.USER_NAME }}-toolings.{{ .Values.CLUSTER_DOMAIN }}/browser/test-results) (folder: `{git_hash}`)")
+        lines.append("")
+
+        with open(summary_path, "w") as f:
+            f.write("\n".join(lines))
+
+        print(f"✅ GuideLLM eval summary written to {summary_path}")
+        print("Content:")
+        print("\n".join(lines))
+        PYEOF
