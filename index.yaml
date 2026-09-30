@@ -1960,6 +1960,18 @@ entries:
     version: 0.0.1
   token-visualizer:
   - apiVersion: v2
+    created: "2026-09-30T05:26:05.26142141Z"
+    description: "A Helm chart for token visualizer for AI501 GenAIOps Enablement\U0001F4C8"
+    digest: 9b60f399ef49ca6481212cd813a52e44a68481b2aa75f09dfd7916d04810f371
+    home: https://rhoai-genaiops.github.io/genaiops/
+    icon: https://cdn-icons-png.flaticon.com/512/2165/2165640.png
+    maintainers:
+    - name: claudecode
+    name: token-visualizer
+    urls:
+    - https://github.com/rhoai-genaiops/genaiops-helmcharts/releases/download/token-visualizer-1.0.3/token-visualizer-1.0.3.tgz
+    version: 1.0.3
+  - apiVersion: v2
     created: "2026-02-18T16:54:03.630317043Z"
     description: "A Helm chart for token visualizer for AI501 GenAIOps Enablement\U0001F4C8"
     digest: 883bcad6de3f3d7bc3c8c3673432eaa84f94381e931e19f23e863af2f794bca2
@@ -1983,4 +1995,4 @@ entries:
     urls:
     - https://github.com/rhoai-genaiops/genaiops-helmcharts/releases/download/token-visualizer-1.0.1/token-visualizer-1.0.1.tgz
     version: 1.0.1
-generated: "2026-05-29T16:15:08.283857744Z"
+generated: "2026-09-30T05:26:05.261546627Z"
