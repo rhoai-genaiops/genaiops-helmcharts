@@ -1853,6 +1853,20 @@ entries:
     version: 1.0.0
   minio:
   - apiVersion: v2
+    created: "2026-09-30T05:30:01.827821184Z"
+    description: "A Helm chart for minio \U0001F408"
+    digest: d29176d09d69cd7f0a10b5712f273584a5b16425200586aa9f1170cbe94e80e6
+    home: https://rhoai-genaiops.github.io/genaiops/
+    icon: https://cdn-icons-png.flaticon.com/512/2676/2676169.png
+    maintainers:
+    - name: RHRolun
+    - name: rcarrata
+    - name: ckavili
+    name: minio
+    urls:
+    - https://github.com/rhoai-genaiops/genaiops-helmcharts/releases/download/minio-1.0.8/minio-1.0.8.tgz
+    version: 1.0.8
+  - apiVersion: v2
     created: "2026-03-09T16:43:52.113280754Z"
     description: "A Helm chart for minio \U0001F408"
     digest: c406325b5d759414f224d4739b7f89455b7be93f855f96b64b722810d0a6f2d1
@@ -1995,4 +2009,4 @@ entries:
     urls:
     - https://github.com/rhoai-genaiops/genaiops-helmcharts/releases/download/token-visualizer-1.0.1/token-visualizer-1.0.1.tgz
     version: 1.0.1
-generated: "2026-09-30T05:26:05.261546627Z"
+generated: "2026-09-30T05:30:01.828074519Z"
