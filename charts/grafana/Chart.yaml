@@ -2,7 +2,7 @@
 apiVersion: v2
 description: A Helm chart for enable and deploy Canopy Grafana Dashboard 📊
 name: canopy-grafana
-version: 0.0.10
+version: 0.0.11
 home: https://rhoai-genaiops.github.io/genaiops/
 maintainers:
   - name: RHRolun

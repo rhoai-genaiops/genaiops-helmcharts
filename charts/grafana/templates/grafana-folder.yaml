@@ -8,5 +8,5 @@ spec:
   instanceSelector:
     matchLabels:
       dashboards: "grafana"
-  resyncPeriod: 5m
+  resyncPeriod: 1m
   title: {{ .Release.Namespace | title }} Canopy Dashboards

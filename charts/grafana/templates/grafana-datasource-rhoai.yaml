@@ -4,10 +4,11 @@ kind: GrafanaDatasource
 metadata:
   name: rhoai-prometheus-grafanadatasource
 spec:
+  resyncPeriod: 1m
   datasource:
       access: proxy
       editable: true
-      isDefault: true
+      isDefault: false
       jsonData:
         timeInterval: 5s
         tlsSkipVerify: true
