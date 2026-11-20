@@ -9,6 +9,7 @@ spec:
   instanceSelector:
     matchLabels:
       dashboards: grafana
+  resyncPeriod: 1m
   json: |
     {
       "title": "Canopy Backend Metrics Dashboard",
@@ -26,8 +27,8 @@ spec:
           {
             "current": {
               "selected": true,
-              "text": "UMW Prometheus",
-              "value": "UMW Prometheus"
+              "text": "UWM Prometheus",
+              "value": "UWM Prometheus"
             },
             "hide": 0,
             "includeAll": false,

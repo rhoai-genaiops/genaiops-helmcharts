@@ -1,504 +1,506 @@
----
-apiVersion: grafana.integreatly.org/v1beta1
-kind: GrafanaDashboard
-metadata:
-  name: {{ .Release.Name }}-llamastack-dashboard
-  namespace: {{ .Release.Namespace }}
-spec:
-  folder: {{ .Release.Namespace | replace "-toolings" "" | title }}-Toolings Canopy Dashboards
-  instanceSelector:
-    matchLabels:
-      dashboards: grafana
-  json: |
-    {
-      "title": "LlamaStack Metrics Dashboard",
-      "uid": "llamastack-metrics-{{ .Release.Namespace }}",
-      "tags": ["llamastack", "llm", "tokens", "inference"],
-      "timezone": "browser",
-      "schemaVersion": 39,
-      "time": {
-        "from": "now-6h",
-        "to": "now"
-      },
-      "refresh": "30s",
-      "templating": {
-        "list": [
-          {
-            "current": {
-              "selected": true,
-              "text": "RHOAI Prometheus",
-              "value": "RHOAI Prometheus"
-            },
-            "hide": 0,
-            "includeAll": false,
-            "label": "datasource",
-            "multi": false,
-            "name": "DS_PROMETHEUS",
-            "options": [],
-            "query": "prometheus",
-            "refresh": 1,
-            "type": "datasource"
-          },
-          {
-            "current": {
-              "selected": true,
-              "text": "llamastack-{{ .Release.Namespace | replace "-toolings" "" }}.*",
-              "value": "llamastack-{{ .Release.Namespace | replace "-toolings" "" }}.*"
-            },
-            "hide": 2,
-            "label": "Service Pattern",
-            "multi": false,
-            "name": "service_pattern",
-            "query": "llamastack-{{ .Release.Namespace | replace "-toolings" "" }}.*",
-            "type": "constant"
-          },
-          {
-            "current": {
-              "selected": false,
-              "text": "All",
-              "value": "$__all"
-            },
-            "hide": 0,
-            "includeAll": true,
-            "label": "Model",
-            "multi": true,
-            "name": "model_id",
-            "options": [],
-            "query": {
-              "query": "label_values(prompt_tokens_total{service_name=~\"$service_pattern\"}, model_id)",
-              "refId": "PrometheusVariableQueryEditor-VariableQuery"
-            },
-            "refresh": 1,
-            "type": "query",
-            "datasource": {
-              "type": "prometheus",
-              "uid": "${DS_PROMETHEUS}"
-            }
-          }
-        ]
-      },
-      "panels": [
-        {
-          "id": 1,
-          "type": "stat",
-          "title": "Total Tokens Processed (Last Hour)",
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
-          },
-          "gridPos": {
-            "h": 4,
-            "w": 6,
-            "x": 0,
-            "y": 0
-          },
-          "targets": [
-            {
-              "refId": "A",
-              "expr": "sum(increase(tokens_total{service_name=~\"$service_pattern\", model_id=~\"$model_id\"}[1h]))",
-              "legendFormat": "Total Tokens",
-              "instant": true
-            }
-          ],
-          "options": {
-            "graphMode": "area",
-            "colorMode": "value"
-          },
-          "fieldConfig": {
-            "defaults": {
-              "unit": "short",
-              "color": {
-                "mode": "thresholds"
-              },
-              "thresholds": {
-                "mode": "absolute",
-                "steps": [
-                  {"color": "green", "value": null},
-                  {"color": "yellow", "value": 1000},
-                  {"color": "orange", "value": 10000},
-                  {"color": "red", "value": 50000}
-                ]
-              }
-            }
-          }
-        },
-        {
-          "id": 2,
-          "type": "stat",
-          "title": "Prompt Tokens (Last Hour)",
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
-          },
-          "gridPos": {
-            "h": 4,
-            "w": 6,
-            "x": 6,
-            "y": 0
-          },
-          "targets": [
-            {
-              "refId": "A",
-              "expr": "sum(increase(prompt_tokens_total{service_name=~\"$service_pattern\", model_id=~\"$model_id\"}[1h]))",
-              "legendFormat": "Prompt Tokens",
-              "instant": true
-            }
-          ],
-          "options": {
-            "graphMode": "area",
-            "colorMode": "value"
-          },
-          "fieldConfig": {
-            "defaults": {
-              "unit": "short",
-              "color": {
-                "mode": "thresholds"
-              },
-              "thresholds": {
-                "mode": "absolute",
-                "steps": [
-                  {"color": "blue", "value": null}
-                ]
-              }
-            }
-          }
-        },
-        {
-          "id": 3,
-          "type": "stat",
-          "title": "Completion Tokens (Last Hour)",
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
-          },
-          "gridPos": {
-            "h": 4,
-            "w": 6,
-            "x": 12,
-            "y": 0
-          },
-          "targets": [
-            {
-              "refId": "A",
-              "expr": "sum(increase(completion_tokens_total{service_name=~\"$service_pattern\", model_id=~\"$model_id\"}[1h]))",
-              "legendFormat": "Completion Tokens",
-              "instant": true
-            }
-          ],
-          "options": {
-            "graphMode": "area",
-            "colorMode": "value"
-          },
-          "fieldConfig": {
-            "defaults": {
-              "unit": "short",
-              "color": {
-                "mode": "thresholds"
-              },
-              "thresholds": {
-                "mode": "absolute",
-                "steps": [
-                  {"color": "purple", "value": null}
-                ]
-              }
-            }
-          }
-        },
-        {
-          "id": 4,
-          "type": "stat",
-          "title": "Token Rate (tokens/sec)",
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
-          },
-          "gridPos": {
-            "h": 4,
-            "w": 6,
-            "x": 18,
-            "y": 0
-          },
-          "targets": [
-            {
-              "refId": "A",
-              "expr": "sum(rate(tokens_total{service_name=~\"$service_pattern\", model_id=~\"$model_id\"}[5m]))",
-              "legendFormat": "Tokens/sec",
-              "instant": true
-            }
-          ],
-          "options": {
-            "graphMode": "area",
-            "colorMode": "value"
-          },
-          "fieldConfig": {
-            "defaults": {
-              "unit": "short",
-              "decimals": 2,
-              "color": {
-                "mode": "thresholds"
-              },
-              "thresholds": {
-                "mode": "absolute",
-                "steps": [
-                  {"color": "green", "value": null},
-                  {"color": "yellow", "value": 10},
-                  {"color": "red", "value": 50}
-                ]
-              }
-            }
-          }
-        },
-        {
-          "id": 5,
-          "type": "timeseries",
-          "title": "Token Processing Rate Over Time",
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
-          },
-          "gridPos": {
-            "h": 8,
-            "w": 12,
-            "x": 0,
-            "y": 4
-          },
-          "targets": [
-            {
-              "refId": "A",
-              "expr": "sum(rate(prompt_tokens_total{service_name=~\"$service_pattern\", model_id=~\"$model_id\"}[1m]))",
-              "legendFormat": "Prompt Tokens/sec"
-            },
-            {
-              "refId": "B",
-              "expr": "sum(rate(completion_tokens_total{service_name=~\"$service_pattern\", model_id=~\"$model_id\"}[1m]))",
-              "legendFormat": "Completion Tokens/sec"
-            },
-            {
-              "refId": "C",
-              "expr": "sum(rate(tokens_total{service_name=~\"$service_pattern\", model_id=~\"$model_id\"}[1m]))",
-              "legendFormat": "Total Tokens/sec"
-            }
-          ],
-          "fieldConfig": {
-            "defaults": {
-              "unit": "short",
-              "custom": {
-                "drawStyle": "line",
-                "lineInterpolation": "smooth",
-                "fillOpacity": 20,
-                "stacking": {
-                  "mode": "none"
-                }
-              }
-            }
-          },
-          "options": {
-            "legend": {
-              "displayMode": "list",
-              "placement": "bottom",
-              "showLegend": true,
-              "calcs": ["last", "mean", "max"]
-            }
-          }
-        },
-        {
-          "id": 6,
-          "type": "timeseries",
-          "title": "Cumulative Token Usage",
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
-          },
-          "gridPos": {
-            "h": 8,
-            "w": 12,
-            "x": 12,
-            "y": 4
-          },
-          "targets": [
-            {
-              "refId": "A",
-              "expr": "sum(prompt_tokens_total{service_name=~\"$service_pattern\", model_id=~\"$model_id\"})",
-              "legendFormat": "Prompt Tokens"
-            },
-            {
-              "refId": "B",
-              "expr": "sum(completion_tokens_total{service_name=~\"$service_pattern\", model_id=~\"$model_id\"})",
-              "legendFormat": "Completion Tokens"
-            }
-          ],
-          "fieldConfig": {
-            "defaults": {
-              "unit": "short",
-              "custom": {
-                "drawStyle": "line",
-                "lineInterpolation": "smooth",
-                "fillOpacity": 30,
-                "stacking": {
-                  "mode": "normal"
-                }
-              }
-            }
-          },
-          "options": {
-            "legend": {
-              "displayMode": "table",
-              "placement": "bottom",
-              "showLegend": true,
-              "calcs": ["last", "mean"]
-            }
-          }
-        },
-        {
-          "id": 7,
-          "type": "table",
-          "title": "Token Usage by Model Summary",
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
-          },
-          "gridPos": {
-            "h": 8,
-            "w": 24,
-            "x": 0,
-            "y": 12
-          },
-          "targets": [
-            {
-              "refId": "A",
-              "expr": "sum(rate(tokens_total{service_name=~\"$service_pattern\"}[5m])) by (model_id, provider_id)",
-              "legendFormat": "{{ "{{" }}model_id{{ "}}" }}",
-              "format": "table",
-              "instant": true
-            },
-            {
-              "refId": "B",
-              "expr": "sum(prompt_tokens_total{service_name=~\"$service_pattern\"}) by (model_id, provider_id)",
-              "legendFormat": "{{ "{{" }}model_id{{ "}}" }}",
-              "format": "table",
-              "instant": true
-            },
-            {
-              "refId": "C",
-              "expr": "sum(completion_tokens_total{service_name=~\"$service_pattern\"}) by (model_id, provider_id)",
-              "legendFormat": "{{ "{{" }}model_id{{ "}}" }}",
-              "format": "table",
-              "instant": true
-            },
-            {
-              "refId": "D",
-              "expr": "sum(tokens_total{service_name=~\"$service_pattern\"}) by (model_id, provider_id)",
-              "legendFormat": "{{ "{{" }}model_id{{ "}}" }}",
-              "format": "table",
-              "instant": true
-            }
-          ],
-          "transformations": [
-            {
-              "id": "merge",
-              "options": {}
-            },
-            {
-              "id": "organize",
-              "options": {
-                "excludeByName": {
-                  "Time": true
-                },
-                "renameByName": {
-                  "model_id": "Model",
-                  "provider_id": "Provider",
-                  "Value #A": "Tokens/sec",
-                  "Value #B": "Total Prompt Tokens",
-                  "Value #C": "Total Completion Tokens",
-                  "Value #D": "Total Tokens"
-                }
-              }
-            }
-          ],
-          "fieldConfig": {
-            "defaults": {
-              "custom": {
-                "align": "left",
-                "filterable": true
-              }
-            },
-            "overrides": [
-              {
-                "matcher": {
-                  "id": "byName",
-                  "options": "Tokens/sec"
-                },
-                "properties": [
-                  {
-                    "id": "unit",
-                    "value": "short"
-                  },
-                  {
-                    "id": "decimals",
-                    "value": 2
-                  }
-                ]
-              },
-              {
-                "matcher": {
-                  "id": "byName",
-                  "options": "Total Prompt Tokens"
-                },
-                "properties": [
-                  {
-                    "id": "unit",
-                    "value": "short"
-                  },
-                  {
-                    "id": "custom.cellOptions",
-                    "value": {
-                      "type": "color-background"
-                    }
-                  },
-                  {
-                    "id": "thresholds",
-                    "value": {
-                      "mode": "absolute",
-                      "steps": [
-                        {"color": "blue", "value": null},
-                        {"color": "green", "value": 100},
-                        {"color": "yellow", "value": 1000}
-                      ]
-                    }
-                  }
-                ]
-              },
-              {
-                "matcher": {
-                  "id": "byName",
-                  "options": "Total Completion Tokens"
-                },
-                "properties": [
-                  {
-                    "id": "unit",
-                    "value": "short"
-                  },
-                  {
-                    "id": "custom.cellOptions",
-                    "value": {
-                      "type": "color-background"
-                    }
-                  },
-                  {
-                    "id": "thresholds",
-                    "value": {
-                      "mode": "absolute",
-                      "steps": [
-                        {"color": "purple", "value": null},
-                        {"color": "green", "value": 100},
-                        {"color": "yellow", "value": 1000}
-                      ]
-                    }
-                  }
-                ]
-              }
-            ]
-          }
-        }
-      ]
-    }
+# ---
+# apiVersion: grafana.integreatly.org/v1beta1
+# kind: GrafanaDashboard
+# metadata:
+#   name: {{ .Release.Name }}-llamastack-dashboard
+#   namespace: {{ .Release.Namespace }}
+# spec:
+#   folder: {{ .Release.Namespace | replace "-toolings" "" | title }}-Toolings Canopy Dashboards
+#   instanceSelector:
+#     matchLabels:
+#       dashboards: grafana
+#   resyncPeriod: 1m
+#   json: |
+#     {
+#       "title": "LlamaStack Metrics Dashboard",
+#       "uid": "llamastack-metrics-{{ .Release.Namespace }}",
+#       "tags": ["llamastack", "llm", "tokens", "inference"],
+#       "timezone": "browser",
+#       "schemaVersion": 39,
+#       "time": {
+#         "from": "now-6h",
+#         "to": "now"
+#       },
+#       "refresh": "30s",
+#       "templating": {
+#         "list": [
+#           {
+#             "current": {
+#               "selected": true,
+#               "text": "RHOAI Prometheus",
+#               "value": "RHOAI Prometheus"
+#             },
+#             "hide": 0,
+#             "includeAll": false,
+#             "label": "datasource",
+#             "multi": false,
+#             "name": "DS_PROMETHEUS",
+#             "options": [],
+#             "query": "prometheus",
+#             "refresh": 1,
+#             "type": "datasource"
+#           },
+#           {
+#             "current": {
+#               "selected": true,
+#               "text": "llamastack-{{ .Release.Namespace | replace "-toolings" "" }}.*",
+#               "value": "llamastack-{{ .Release.Namespace | replace "-toolings" "" }}.*"
+#             },
+#             "hide": 2,
+#             "label": "Service Pattern",
+#             "multi": false,
+#             "name": "service_pattern",
+#             "query": "llamastack-{{ .Release.Namespace | replace "-toolings" "" }}.*",
+#             "type": "constant"
+#           },
+#           {
+#             "current": {
+#               "selected": false,
+#               "text": "All",
+#               "value": "$__all"
+#             },
+#             "hide": 0,
+#             "includeAll": true,
+#             "label": "Model",
+#             "multi": true,
+#             "name": "model_id",
+#             "options": [],
+#             "query": {
+#               "query": "label_values(prompt_tokens_total{service_name=~\"$service_pattern\"}, model_id)",
+#               "refId": "PrometheusVariableQueryEditor-VariableQuery"
+#             },
+#             "refresh": 1,
+#             "type": "query",
+#             "datasource": {
+#               "type": "prometheus",
+#               "uid": "${DS_PROMETHEUS}"
+#             }
+#           }
+#         ]
+#       },
+#       "panels": [
+#         {
+#           "id": 1,
+#           "type": "stat",
+#           "title": "Total Tokens Processed (Last Hour)",
+#           "datasource": {
+#             "type": "prometheus",
+#             "uid": "${DS_PROMETHEUS}"
+#           },
+#           "gridPos": {
+#             "h": 4,
+#             "w": 6,
+#             "x": 0,
+#             "y": 0
+#           },
+#           "targets": [
+#             {
+#               "refId": "A",
+#               "expr": "sum(increase(tokens_total{service_name=~\"$service_pattern\", model_id=~\"$model_id\"}[1h]))",
+#               "legendFormat": "Total Tokens",
+#               "instant": true
+#             }
+#           ],
+#           "options": {
+#             "graphMode": "area",
+#             "colorMode": "value"
+#           },
+#           "fieldConfig": {
+#             "defaults": {
+#               "unit": "short",
+#               "color": {
+#                 "mode": "thresholds"
+#               },
+#               "thresholds": {
+#                 "mode": "absolute",
+#                 "steps": [
+#                   {"color": "green", "value": null},
+#                   {"color": "yellow", "value": 1000},
+#                   {"color": "orange", "value": 10000},
+#                   {"color": "red", "value": 50000}
+#                 ]
+#               }
+#             }
+#           }
+#         },
+#         {
+#           "id": 2,
+#           "type": "stat",
+#           "title": "Prompt Tokens (Last Hour)",
+#           "datasource": {
+#             "type": "prometheus",
+#             "uid": "${DS_PROMETHEUS}"
+#           },
+#           "gridPos": {
+#             "h": 4,
+#             "w": 6,
+#             "x": 6,
+#             "y": 0
+#           },
+#           "targets": [
+#             {
+#               "refId": "A",
+#               "expr": "sum(increase(prompt_tokens_total{service_name=~\"$service_pattern\", model_id=~\"$model_id\"}[1h]))",
+#               "legendFormat": "Prompt Tokens",
+#               "instant": true
+#             }
+#           ],
+#           "options": {
+#             "graphMode": "area",
+#             "colorMode": "value"
+#           },
+#           "fieldConfig": {
+#             "defaults": {
+#               "unit": "short",
+#               "color": {
+#                 "mode": "thresholds"
+#               },
+#               "thresholds": {
+#                 "mode": "absolute",
+#                 "steps": [
+#                   {"color": "blue", "value": null}
+#                 ]
+#               }
+#             }
+#           }
+#         },
+#         {
+#           "id": 3,
+#           "type": "stat",
+#           "title": "Completion Tokens (Last Hour)",
+#           "datasource": {
+#             "type": "prometheus",
+#             "uid": "${DS_PROMETHEUS}"
+#           },
+#           "gridPos": {
+#             "h": 4,
+#             "w": 6,
+#             "x": 12,
+#             "y": 0
+#           },
+#           "targets": [
+#             {
+#               "refId": "A",
+#               "expr": "sum(increase(completion_tokens_total{service_name=~\"$service_pattern\", model_id=~\"$model_id\"}[1h]))",
+#               "legendFormat": "Completion Tokens",
+#               "instant": true
+#             }
+#           ],
+#           "options": {
+#             "graphMode": "area",
+#             "colorMode": "value"
+#           },
+#           "fieldConfig": {
+#             "defaults": {
+#               "unit": "short",
+#               "color": {
+#                 "mode": "thresholds"
+#               },
+#               "thresholds": {
+#                 "mode": "absolute",
+#                 "steps": [
+#                   {"color": "purple", "value": null}
+#                 ]
+#               }
+#             }
+#           }
+#         },
+#         {
+#           "id": 4,
+#           "type": "stat",
+#           "title": "Token Rate (tokens/sec)",
+#           "datasource": {
+#             "type": "prometheus",
+#             "uid": "${DS_PROMETHEUS}"
+#           },
+#           "gridPos": {
+#             "h": 4,
+#             "w": 6,
+#             "x": 18,
+#             "y": 0
+#           },
+#           "targets": [
+#             {
+#               "refId": "A",
+#               "expr": "sum(rate(tokens_total{service_name=~\"$service_pattern\", model_id=~\"$model_id\"}[5m]))",
+#               "legendFormat": "Tokens/sec",
+#               "instant": true
+#             }
+#           ],
+#           "options": {
+#             "graphMode": "area",
+#             "colorMode": "value"
+#           },
+#           "fieldConfig": {
+#             "defaults": {
+#               "unit": "short",
+#               "decimals": 2,
+#               "color": {
+#                 "mode": "thresholds"
+#               },
+#               "thresholds": {
+#                 "mode": "absolute",
+#                 "steps": [
+#                   {"color": "green", "value": null},
+#                   {"color": "yellow", "value": 10},
+#                   {"color": "red", "value": 50}
+#                 ]
+#               }
+#             }
+#           }
+#         },
+#         {
+#           "id": 5,
+#           "type": "timeseries",
+#           "title": "Token Processing Rate Over Time",
+#           "datasource": {
+#             "type": "prometheus",
+#             "uid": "${DS_PROMETHEUS}"
+#           },
+#           "gridPos": {
+#             "h": 8,
+#             "w": 12,
+#             "x": 0,
+#             "y": 4
+#           },
+#           "targets": [
+#             {
+#               "refId": "A",
+#               "expr": "sum(rate(prompt_tokens_total{service_name=~\"$service_pattern\", model_id=~\"$model_id\"}[1m]))",
+#               "legendFormat": "Prompt Tokens/sec"
+#             },
+#             {
+#               "refId": "B",
+#               "expr": "sum(rate(completion_tokens_total{service_name=~\"$service_pattern\", model_id=~\"$model_id\"}[1m]))",
+#               "legendFormat": "Completion Tokens/sec"
+#             },
+#             {
+#               "refId": "C",
+#               "expr": "sum(rate(tokens_total{service_name=~\"$service_pattern\", model_id=~\"$model_id\"}[1m]))",
+#               "legendFormat": "Total Tokens/sec"
+#             }
+#           ],
+#           "fieldConfig": {
+#             "defaults": {
+#               "unit": "short",
+#               "custom": {
+#                 "drawStyle": "line",
+#                 "lineInterpolation": "smooth",
+#                 "fillOpacity": 20,
+#                 "stacking": {
+#                   "mode": "none"
+#                 }
+#               }
+#             }
+#           },
+#           "options": {
+#             "legend": {
+#               "displayMode": "list",
+#               "placement": "bottom",
+#               "showLegend": true,
+#               "calcs": ["last", "mean", "max"]
+#             }
+#           }
+#         },
+#         {
+#           "id": 6,
+#           "type": "timeseries",
+#           "title": "Cumulative Token Usage",
+#           "datasource": {
+#             "type": "prometheus",
+#             "uid": "${DS_PROMETHEUS}"
+#           },
+#           "gridPos": {
+#             "h": 8,
+#             "w": 12,
+#             "x": 12,
+#             "y": 4
+#           },
+#           "targets": [
+#             {
+#               "refId": "A",
+#               "expr": "sum(prompt_tokens_total{service_name=~\"$service_pattern\", model_id=~\"$model_id\"})",
+#               "legendFormat": "Prompt Tokens"
+#             },
+#             {
+#               "refId": "B",
+#               "expr": "sum(completion_tokens_total{service_name=~\"$service_pattern\", model_id=~\"$model_id\"})",
+#               "legendFormat": "Completion Tokens"
+#             }
+#           ],
+#           "fieldConfig": {
+#             "defaults": {
+#               "unit": "short",
+#               "custom": {
+#                 "drawStyle": "line",
+#                 "lineInterpolation": "smooth",
+#                 "fillOpacity": 30,
+#                 "stacking": {
+#                   "mode": "normal"
+#                 }
+#               }
+#             }
+#           },
+#           "options": {
+#             "legend": {
+#               "displayMode": "table",
+#               "placement": "bottom",
+#               "showLegend": true,
+#               "calcs": ["last", "mean"]
+#             }
+#           }
+#         },
+#         {
+#           "id": 7,
+#           "type": "table",
+#           "title": "Token Usage by Model Summary",
+#           "datasource": {
+#             "type": "prometheus",
+#             "uid": "${DS_PROMETHEUS}"
+#           },
+#           "gridPos": {
+#             "h": 8,
+#             "w": 24,
+#             "x": 0,
+#             "y": 12
+#           },
+#           "targets": [
+#             {
+#               "refId": "A",
+#               "expr": "sum(rate(tokens_total{service_name=~\"$service_pattern\"}[5m])) by (model_id, provider_id)",
+#               "legendFormat": "{{ "{{" }}model_id{{ "}}" }}",
+#               "format": "table",
+#               "instant": true
+#             },
+#             {
+#               "refId": "B",
+#               "expr": "sum(prompt_tokens_total{service_name=~\"$service_pattern\"}) by (model_id, provider_id)",
+#               "legendFormat": "{{ "{{" }}model_id{{ "}}" }}",
+#               "format": "table",
+#               "instant": true
+#             },
+#             {
+#               "refId": "C",
+#               "expr": "sum(completion_tokens_total{service_name=~\"$service_pattern\"}) by (model_id, provider_id)",
+#               "legendFormat": "{{ "{{" }}model_id{{ "}}" }}",
+#               "format": "table",
+#               "instant": true
+#             },
+#             {
+#               "refId": "D",
+#               "expr": "sum(tokens_total{service_name=~\"$service_pattern\"}) by (model_id, provider_id)",
+#               "legendFormat": "{{ "{{" }}model_id{{ "}}" }}",
+#               "format": "table",
+#               "instant": true
+#             }
+#           ],
+#           "transformations": [
+#             {
+#               "id": "merge",
+#               "options": {}
+#             },
+#             {
+#               "id": "organize",
+#               "options": {
+#                 "excludeByName": {
+#                   "Time": true
+#                 },
+#                 "renameByName": {
+#                   "model_id": "Model",
+#                   "provider_id": "Provider",
+#                   "Value #A": "Tokens/sec",
+#                   "Value #B": "Total Prompt Tokens",
+#                   "Value #C": "Total Completion Tokens",
+#                   "Value #D": "Total Tokens"
+#                 }
+#               }
+#             }
+#           ],
+#           "fieldConfig": {
+#             "defaults": {
+#               "custom": {
+#                 "align": "left",
+#                 "filterable": true
+#               }
+#             },
+#             "overrides": [
+#               {
+#                 "matcher": {
+#                   "id": "byName",
+#                   "options": "Tokens/sec"
+#                 },
+#                 "properties": [
+#                   {
+#                     "id": "unit",
+#                     "value": "short"
+#                   },
+#                   {
+#                     "id": "decimals",
+#                     "value": 2
+#                   }
+#                 ]
+#               },
+#               {
+#                 "matcher": {
+#                   "id": "byName",
+#                   "options": "Total Prompt Tokens"
+#                 },
+#                 "properties": [
+#                   {
+#                     "id": "unit",
+#                     "value": "short"
+#                   },
+#                   {
+#                     "id": "custom.cellOptions",
+#                     "value": {
+#                       "type": "color-background"
+#                     }
+#                   },
+#                   {
+#                     "id": "thresholds",
+#                     "value": {
+#                       "mode": "absolute",
+#                       "steps": [
+#                         {"color": "blue", "value": null},
+#                         {"color": "green", "value": 100},
+#                         {"color": "yellow", "value": 1000}
+#                       ]
+#                     }
+#                   }
+#                 ]
+#               },
+#               {
+#                 "matcher": {
+#                   "id": "byName",
+#                   "options": "Total Completion Tokens"
+#                 },
+#                 "properties": [
+#                   {
+#                     "id": "unit",
+#                     "value": "short"
+#                   },
+#                   {
+#                     "id": "custom.cellOptions",
+#                     "value": {
+#                       "type": "color-background"
+#                     }
+#                   },
+#                   {
+#                     "id": "thresholds",
+#                     "value": {
+#                       "mode": "absolute",
+#                       "steps": [
+#                         {"color": "purple", "value": null},
+#                         {"color": "green", "value": 100},
+#                         {"color": "yellow", "value": 1000}
+#                       ]
+#                     }
+#                   }
+#                 ]
+#               }
+#             ]
+#           }
+#         }
+#       ]
+#     }
+#

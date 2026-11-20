@@ -12,6 +12,7 @@ spec:
   instanceSelector:
     matchLabels:
       dashboards: grafana
+  resyncPeriod: 1m
   json: |-
     {
       "annotations": {

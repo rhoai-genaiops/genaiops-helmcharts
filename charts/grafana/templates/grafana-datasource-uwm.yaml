@@ -6,6 +6,7 @@ metadata:
   annotations:
     argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
 spec:
+  resyncPeriod: 1m
   valuesFrom:
     - targetPath: "secureJsonData.httpHeaderValue1"
       valueFrom:
@@ -15,7 +16,7 @@ spec:
   datasource:
       access: proxy
       editable: true
-      isDefault: false
+      isDefault: true
       jsonData:
         httpHeaderName1: 'Authorization'
         timeInterval: 5s
