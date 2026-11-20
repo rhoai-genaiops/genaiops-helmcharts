@@ -333,6 +333,19 @@ entries:
     version: 0.0.1
   canopy-grafana:
   - apiVersion: v2
+    created: "2026-11-20T12:04:48.905893374Z"
+    description: "A Helm chart for enable and deploy Canopy Grafana Dashboard \U0001F4CA"
+    digest: eb374fc398cbd40263f11be67209505591ce3e6827b9adcab46a6fe5dafcee67
+    home: https://rhoai-genaiops.github.io/genaiops/
+    maintainers:
+    - name: RHRolun
+    - name: rcarrata
+    - name: ckavili
+    name: canopy-grafana
+    urls:
+    - https://github.com/rhoai-genaiops/genaiops-helmcharts/releases/download/canopy-grafana-0.0.11/canopy-grafana-0.0.11.tgz
+    version: 0.0.11
+  - apiVersion: v2
     created: "2026-05-28T15:33:17.261477144Z"
     description: "A Helm chart for enable and deploy Canopy Grafana Dashboard \U0001F4CA"
     digest: 9e4727f95af25cf86710703df1653fb062910930506f1c39906bfb4859856cea
@@ -2009,4 +2022,4 @@ entries:
     urls:
     - https://github.com/rhoai-genaiops/genaiops-helmcharts/releases/download/token-visualizer-1.0.1/token-visualizer-1.0.1.tgz
     version: 1.0.1
-generated: "2026-09-30T05:30:01.828074519Z"
+generated: "2026-11-20T12:04:48.906066087Z"
