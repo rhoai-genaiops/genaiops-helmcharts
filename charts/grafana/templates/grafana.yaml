@@ -36,6 +36,7 @@ metadata:
   labels:
     dashboards: "grafana"
 spec:
+  version: "13.2.4"
   serviceAccount:
     metadata:
       annotations:
