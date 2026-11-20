@@ -40,6 +40,6 @@ spec:
         git config --global push.default simple
         git config --global --add safe.directory '*'
         git add config.yaml
-        git commit -m "🚀 AUTOMATED COMMIT - Vector DB ID has updated 🚀" || rc=$?
+        git commit -m "🚀 AUTOMATED COMMIT - vector_db_id=$(params.VECTOR_DB_ID) 🚀" || rc=$?
         git remote set-url origin $(cat $HOME/.git-credentials)/$(params.USERNAME)/genaiops-gitops.git
         git push origin HEAD:main

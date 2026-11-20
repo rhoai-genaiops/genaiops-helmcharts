@@ -23,6 +23,10 @@ spec:
       type: string
       default: "latest"
       description: Short Git commit hash
+    - name: VECTOR_DB_ID
+      type: string
+      default: ""
+      description: Vector DB ID extracted from the triggering commit, promoted to prod once evals pass
     - name: BACKEND_URL
       type: string
       default: {{ .Values.kfp.backendUrl | quote }}
@@ -190,19 +194,52 @@ spec:
           workspace: shared-workspace
 {{- end }}
 
-    # # Update model version in Git
-    # - name: raise-pr-to-prod
-    #   taskRef:
-    #     name: raise-pr
-    #     kind: Task
-    #   runAfter:
-    #     - fetch-backend-repository
-# {{- if .Values.testing.enableUnitTests }}
-#         - tool-unit-tests
-# {{- end }}
-#       workspaces:
-#         - name: output
-#           workspace: shared-workspace
-#       params:
-#         - name: WORK_DIRECTORY
-#           value: "backend/main/chart"
+    # Clone the gitops repo so we can raise a PR against the prod config
+    - name: clone-gitops-repo
+      taskRef:
+        resolver: cluster
+        params:
+          - name: kind
+            value: task
+          - name: name
+            value: git-clone
+          - name: namespace
+            value: openshift-pipelines
+      runAfter:
+        - git-clone
+      workspaces:
+        - name: output
+          workspace: shared-workspace
+      params:
+        - name: URL
+          value: "https://gitea-gitea.{{ .Values.CLUSTER_DOMAIN }}/{{ .Values.USER_NAME }}/genaiops-gitops.git"
+        - name: REVISION
+          value: "main"
+        - name: SUBDIRECTORY
+          value: "genaiops-gitops"
+        - name: DELETE_EXISTING
+          value: "true"
+        - name: SSL_VERIFY
+          value: "false"
+
+    # Update model version in Git
+    - name: raise-pr-to-prod
+      taskRef:
+        name: raise-pr
+        kind: Task
+      runAfter:
+        - kfp-evaluation-task
+        - guidellm-task
+        - clone-gitops-repo
+      workspaces:
+        - name: output
+          workspace: shared-workspace
+      params:
+        - name: WORK_DIRECTORY
+          value: "genaiops-gitops/canopy/prod/backend"
+        - name: USERNAME
+          value: "{{ .Values.USER_NAME }}"
+        - name: VECTOR_DB_ID
+          value: "$(params.VECTOR_DB_ID)"
+        - name: GIT_SHORT_REVISION
+          value: "$(params.GIT_SHORT_REVISION)"
