@@ -10,32 +10,57 @@ spec:
     - name: WORK_DIRECTORY
       description: Directory to start build in (handle multiple branches)
       type: string
+    - name: USERNAME
+      description: Name of the team that doing this exercise :)
+      type: string
+    - name: VECTOR_DB_ID
+      description: Vector DB ID to promote to prod. If empty, no PR is raised.
+      type: string
   steps:
     - name: patch-vector-db-id
+      workingDir: $(workspaces.output.path)/$(params.WORK_DIRECTORY)
+      image: quay.io/redhat-cop/tekton-task-helm:3.6.3
+      script: |
+        #!/bin/sh
+        vector_db_id="$(params.VECTOR_DB_ID)"
+
+        if [ -z "${vector_db_id}" ]; then
+          echo "⏭️  No VECTOR_DB_ID provided, nothing to promote to prod. Skipping."
+          exit 0
+        fi
+
+        yq eval -i .information-search.vector_db_id=\"${vector_db_id}\" config.yaml
+
+    - name: commit-and-raise-pr
       workingDir: $(workspaces.output.path)/$(params.WORK_DIRECTORY)
       image: quay.io/redhat-cop/ubi8-git:latest
       script: |
         #!/bin/sh
+        vector_db_id="$(params.VECTOR_DB_ID)"
+
+        if [ -z "${vector_db_id}" ]; then
+          echo "⏭️  No VECTOR_DB_ID provided, nothing to promote to prod. Skipping."
+          exit 0
+        fi
+
         git pull
         git config --global user.email "tekton@mlops.bot.com"
         git config --global user.name "🐈 Tekton 🐈"
         git config --global push.default simple
         git config --global --add safe.directory '*'
-        branch_name=genaiops_$(date +%Y_%m_%d_%H_%M)
-        git checkout -b $branch_name
-        cp values-test.yaml values-prod.yaml
-        git add values-prod.yaml
-        git commit -m "🚀 AUTOMATED COMMIT - Production prompt is updated" || rc=$?
-        git remote set-url origin $(cat $HOME/.git-credentials)/{{ .Values.USER_NAME }}/backend.git
-        git push origin $branch_name
-        curl --location 'https://gitea-gitea.{{ .Values.CLUSTER_DOMAIN }}/api/v1/repos/{{ .Values.USER_NAME }}/backend/pulls' --user 'opentlc-mgr:myPassw0rd' --header 'accept: application/json' --header 'Content-Type: application/json' \
+        branch_name=promote-${vector_db_id}
+        git checkout -b ${branch_name}
+        git add config.yaml
+        git commit -m "🚀 AUTOMATED COMMIT - promote vector_db_id=${vector_db_id} to prod 🚀" || rc=$?
+        git remote set-url origin $(cat $HOME/.git-credentials)/$(params.USERNAME)/genaiops-gitops.git
+        git push origin ${branch_name}
+        curl --location "https://gitea-gitea.{{ .Values.CLUSTER_DOMAIN }}/api/v1/repos/$(params.USERNAME)/genaiops-gitops/pulls" --user 'opentlc-mgr:myPassw0rd' --header 'accept: application/json' --header 'Content-Type: application/json' \
           --data '{
-              "assignee": "{{ .Values.USER_NAME }}",
+              "assignee": "$(params.USERNAME)",
               "base": "main",
-              "body": "Evaluation results can be found in [Prompt Tracker](https://prompt-tracker-ai501.{{ .Values.CLUSTER_DOMAIN }}/{{ .Values.USER_NAME }}/{{ .Values.CLUSTER_DOMAIN }}).",
+              "body": "This PR promotes `vector_db_id: '"${vector_db_id}"'` to prod after it passed the evals pipeline.\n\nEvaluation results will be added to this PR in a follow-up. In the meantime, check [Prompt Tracker](https://prompt-tracker-ai501.{{ .Values.CLUSTER_DOMAIN }}/$(params.USERNAME)/{{ .Values.CLUSTER_DOMAIN }}) for details.",
               "head": "'${branch_name}'",
-              "title": "🚀 AUTOMATED PR - Production prompts updates 🚀"
+              "title": "🚀 AUTOMATED PR - Promote vector_db_id '"${vector_db_id}"' to prod 🚀"
           }'
 
-          echo "☘️ A pull request is raised for prod: https://gitea-gitea.{{ .Values.CLUSTER_DOMAIN }}/{{ .Values.USER_NAME }}/backend/pulls/"
-  
+        echo "☘️ A pull request is raised for prod: https://gitea-gitea.{{ .Values.CLUSTER_DOMAIN }}/$(params.USERNAME)/genaiops-gitops/pulls/"
